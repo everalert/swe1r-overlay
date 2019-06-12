@@ -1,0 +1,22 @@
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SWE1R Overlay.exe.config
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SWE1R Overlay.exe
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SWE1R Overlay.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R Overlay.csprojAssemblyReference.cache
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R_Overlay.Properties.Resources.resources
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R Overlay.csproj.GenerateResource.cache
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R Overlay.csproj.CoreCompileInputs.cache
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R Overlay.exe
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R Overlay.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R_Overlay.FormMain.resources
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R_Overlay.FormOverlay.resources
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SlimDX.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Debug\SWE1R Overlay.csproj.CopyComplete
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\NBidi.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SpriteTextRenderer.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SpriteTextRenderer.SlimDX.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SlimDX.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SlimDX.xml
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SpriteTextRenderer.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SpriteTextRenderer.xml
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SpriteTextRenderer.SlimDX.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Debug\SpriteTextRenderer.SlimDX.xml
