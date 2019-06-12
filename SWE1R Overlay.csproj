@@ -137,9 +137,15 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="img\race_cooling.png" />
-    <Content Include="img\race_deaths.png" />
-    <Content Include="img\race_heating.png" />
+    <Content Include="img\race_cooling.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\race_deaths.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="img\race_heating.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\NBidi.dll" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SlimDX.dll" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SlimDX.pdb" />

@@ -1,0 +1,25 @@
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SWE1R Overlay.exe.config
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SWE1R Overlay.exe
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SWE1R Overlay.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\NBidi.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SlimDX.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.SlimDX.dll
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SlimDX.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SlimDX.xml
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.xml
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.SlimDX.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.SlimDX.xml
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csprojAssemblyReference.cache
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R_Overlay.FormMain.resources
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R_Overlay.FormOverlay.resources
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R_Overlay.Properties.Resources.resources
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csproj.GenerateResource.cache
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csproj.CoreCompileInputs.cache
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csproj.CopyComplete
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.exe
+K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.pdb
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\img\race_cooling.png
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\img\race_deaths.png
+K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\img\race_heating.png

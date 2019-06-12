@@ -139,103 +139,105 @@ namespace SWE1R_Overlay
             stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            // main loop
-            MessagePump.Run(overlay, () =>
-            {
-                stopwatch.Stop();
-                var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
-                stopwatch = Stopwatch.StartNew();
+                // main loop
+                MessagePump.Run(overlay, () =>
+                {
+                    stopwatch.Stop();
+                    var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
+                    stopwatch = Stopwatch.StartNew();
 
                 // logic
 
                 UpdateXInput();
-                if (CheckXInputButtonDown(0x0001)) //DUp
+                    if (CheckXInputButtonDown(0x0001)) //DUp
                     racer.WritePodDataALL(savestate_pod);
-                if (CheckXInputButtonDown(0x0002)) //DDown
+                    if (CheckXInputButtonDown(0x0002)) //DDown
                     savestate_pod = racer.GetPodDataALL();
 
-                racer_state = GetGameState();
+                    racer_state = GetGameState();
 
                 /* implement generalised new/old state sytem before adding more UI elements? */
-                if (racer_state == "in_race")
-                {
-                    race_pod_flags1 = racer.GetPodDataFlags1();
-                    race_pod_flags2 = racer.GetPodDataFlags2();
-                    race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
-                    race_pod_is_finished = ((race_pod_flags2 & (1 << 25)) != 0);
-                    race_dead_old = race_dead_new;
-                    race_dead_new = ((race_pod_flags1 & (1 << 14)) != 0);
-                    if (race_dead_new && !race_dead_old)
-                        race_deaths++;
+                    if (racer_state == "in_race")
+                    {
+                        race_pod_flags1 = racer.GetPodDataFlags1();
+                        race_pod_flags2 = racer.GetPodDataFlags2();
+                        race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
+                        race_pod_is_finished = ((race_pod_flags2 & (1 << 25)) != 0);
+                        race_dead_old = race_dead_new;
+                        race_dead_new = ((race_pod_flags1 & (1 << 14)) != 0);
+                        if (race_dead_new && !race_dead_old)
+                            race_deaths++;
 
-                    race_pod_heat = racer.GetPodDataHeat();
-                    race_pod_heatrate = racer.GetPodDataHeatRate();
-                    race_pod_coolrate = racer.GetPodDataCoolRate();
-                    race_pod_heat_txt = race_pod_heat.ToString("0.0");
-                    race_pod_overheat_txt = (race_pod_heat / race_pod_heatrate).ToString("0.0s");
-                    race_pod_underheat_txt = ((100 - race_pod_heat) / race_pod_coolrate).ToString("0.0s");
+                        race_pod_heat = racer.GetPodDataHeat();
+                        race_pod_heatrate = racer.GetPodDataHeatRate();
+                        race_pod_coolrate = racer.GetPodDataCoolRate();
+                        race_pod_heat_txt = race_pod_heat.ToString("0.0");
+                        race_pod_overheat_txt = (race_pod_heat / race_pod_heatrate).ToString("0.0s");
+                        race_pod_underheat_txt = ((100 - race_pod_heat) / race_pod_coolrate).ToString("0.0s");
 
-                    race_time_src = racer.GetPodTimeALL();
-                    race_time = Helper.FormatTimesArray(race_time_src.Where(item => item >= 0).ToArray(), time_format);
-                    race_time_label = race_time_label_src.ToList().GetRange(0, race_time.Length).ToArray();
-                    race_time_label[race_time_label.Length - 1] = race_time_label_src.Last();
-                }
-                else
-                    race_deaths = 0;
+                        race_time_src = racer.GetPodTimeALL();
+                        race_time = Helper.FormatTimesArray(race_time_src.Where(item => item >= 0).ToArray(), time_format);
+                        race_time_label = race_time_label_src.ToList().GetRange(0, race_time.Length).ToArray();
+                        race_time_label[race_time_label.Length - 1] = race_time_label_src.Last();
+                    }
+                    else
+                        race_deaths = 0;
 
-                if (racer_state == "pod_select")
-                {
-                    podsel_statistics = racer.GetStaticPodSelStats();
-                    podsel_shown_stats = new float[7];
-                    for (var i = 0; i < podsel_shown_map.Length; i++)
-                        podsel_shown_stats[i] = (float)podsel_statistics.GetValue(podsel_shown_map[i]);
-                    podsel_hidden_stats = new float[8];
-                    for (var i = 0; i < podsel_hidden_map.Length; i++)
-                        podsel_hidden_stats[i] = (float)podsel_statistics.GetValue(podsel_hidden_map[i]);
+                    if (racer_state == "pod_select")
+                    {
+                        podsel_statistics = racer.GetStaticPodSelStats();
+                        podsel_shown_stats = new float[7];
+                        for (var i = 0; i < podsel_shown_map.Length; i++)
+                            podsel_shown_stats[i] = (float)podsel_statistics.GetValue(podsel_shown_map[i]);
+                        podsel_hidden_stats = new float[8];
+                        for (var i = 0; i < podsel_hidden_map.Length; i++)
+                            podsel_hidden_stats[i] = (float)podsel_statistics.GetValue(podsel_hidden_map[i]);
 
-                }
+                    }
 
                 // rendering
 
                 Interop.GetWindowRect(WINDOW_HANDLE, out rect);
-                WINDOW_SIZE = new Size(rect.right - rect.left - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.bottom - rect.top - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
-                if (WINDOW_SIZE != overlay.Size) {
-                    overlay.Size = WINDOW_SIZE.ToSize();
-                    WINDOW_SCALE.Width = WINDOW_SIZE.Width / WINDOW_SIZE_DFLT.Width;
-                    WINDOW_SCALE.Height = WINDOW_SIZE.Height / WINDOW_SIZE_DFLT.Height;
+                    WINDOW_SIZE = new Size(rect.right - rect.left - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.bottom - rect.top - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
+                    if (WINDOW_SIZE != overlay.Size)
+                    {
+                        overlay.Size = WINDOW_SIZE.ToSize();
+                        WINDOW_SCALE.Width = WINDOW_SIZE.Width / WINDOW_SIZE_DFLT.Width;
+                        WINDOW_SCALE.Height = WINDOW_SIZE.Height / WINDOW_SIZE_DFLT.Height;
                     /* i.e. all scaling is relative to base 1280x720 design */
-                }
-                overlay.Left = rect.left + WINDOW_BORDER[0];
-                overlay.Top = rect.top + WINDOW_BORDER[1];
+                    }
+                    overlay.Left = rect.left + WINDOW_BORDER[0];
+                    overlay.Top = rect.top + WINDOW_BORDER[1];
 
-                context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
-                ol_font["default"].DrawString(txt_debug, ol_coords["txt_debug"], TextAlignment.Left|TextAlignment.Top, ol_font["default"].FontSize*WINDOW_SCALE.Height, ol_color["txt_debug"], CoordinateType.Absolute);
+                    context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
+                    if (opt_enableDebugMenu.Checked)
+                        ol_font["default"].DrawString(txt_debug, ol_coords["txt_debug"], TextAlignment.Left | TextAlignment.Top, ol_font["default"].FontSize * WINDOW_SCALE.Height, ol_color["txt_debug"], CoordinateType.Absolute);
 
-                if (racer_state == "in_race")
-                {
+                    if (racer_state == "in_race")
+                    {
                     // race times
                     DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
 
                     // not displayed on race end screen
                     if (!race_pod_is_finished)
-                    {
+                        {
                         //heating
                         /*  todo - different ms size, colouring */
-                        if (race_pod_is_boosting)
-                            DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
-                                ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_on"], ol_color["txt_race_pod_underheat_off"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
-                        else
-                            DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
-                                ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_off"], ol_color["txt_race_pod_underheat_on"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
+                            if (race_pod_is_boosting)
+                                DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
+                                    ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_on"], ol_color["txt_race_pod_underheat_off"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
+                            else
+                                DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
+                                    ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_off"], ol_color["txt_race_pod_underheat_on"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
 
                         //cooling
                         DrawIconWithText(ol_coords["txt_race_pod_cooling"], ol_img["cooling"], race_pod_heat_txt,
-                            ol_font["race_botbar"], ol_color["txt_race_pod_cooling"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
+                                ol_font["race_botbar"], ol_color["txt_race_pod_cooling"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
 
                         //deaths
                         DrawIconWithText(ol_coords["txt_race_deaths"], ol_img["deaths"], race_deaths.ToString(),
-                            ol_font["race_botbar"], ol_color["txt_race_deaths"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
-                        
+                                ol_font["race_botbar"], ol_color["txt_race_deaths"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
+
                         /*
                             engine notes @ 1280x720
                             51 x (42*3=126)
@@ -243,19 +245,19 @@ namespace SWE1R_Overlay
                             col2 x233 y531
                             whole item incl cooling outline - w177 h139 x120 y525 - gap to bottom of screen 56px
                         */
+                        }
                     }
-                }
-                if (racer_state == "pod_select")
-                {
+                    if (racer_state == "pod_select")
+                    {
                     //hidden stats
                     DrawTextList(ol_coords["podsel_hidden"], podsel_hidden_stats_names, podsel_hidden_stats, ol_font["podsel_hidden"], ol_color["txt_podsel_stats_hidden"], TextAlignment.Left | TextAlignment.Bottom, "   ");
 
                     //shown stats
                     DrawTextList(ol_coords["podsel_shown"], Helper.ArrayToStrList(podsel_shown_stats), ol_font["podsel_shown"], ol_color["txt_podsel_stats_shown"], TextAlignment.Left | TextAlignment.VerticalCenter);
-                }
-                sprite.Flush();
-                swapChain.Present(0, PresentFlags.None);
-            });
+                    }
+                    sprite.Flush();
+                    swapChain.Present(0, PresentFlags.None);
+                });
 
             // clean up
             DisposeAll();
@@ -528,7 +530,7 @@ namespace SWE1R_Overlay
 
         private void opt_showOverlay_CheckedChanged(object sender, EventArgs e)
         {
-            if (opt_showOverlay.Checked==true)
+            if (opt_showOverlay.Checked)
                 overlay.Show();
             else
                 overlay.Hide();
