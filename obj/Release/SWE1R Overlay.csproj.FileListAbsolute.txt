@@ -13,7 +13,6 @@ K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.SlimDX.pd
 K:\Projects\swe1r\overlay\SWE1R Overlay\bin\Release\SpriteTextRenderer.SlimDX.xml
 K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csprojAssemblyReference.cache
 K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R_Overlay.FormMain.resources
-K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R_Overlay.FormOverlay.resources
 K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R_Overlay.Properties.Resources.resources
 K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csproj.GenerateResource.cache
 K:\Projects\swe1r\overlay\SWE1R Overlay\obj\Release\SWE1R Overlay.csproj.CoreCompileInputs.cache

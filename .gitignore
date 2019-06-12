@@ -1,14 +1,2 @@
-/bin/Debug/img/race_cooling.png
-/bin/Debug/img/race_deaths.png
-/bin/Debug/img/race_heating.png
-/bin/Debug/SWE1R Overlay.exe
-/bin/Debug/SWE1R Overlay.pdb
-/obj/Debug/SWE1R Overlay.csproj.FileListAbsolute.txt
-/obj/Debug/SWE1R Overlay.csprojAssemblyReference.cache
-/obj/Debug/SWE1R Overlay.exe
-/obj/Debug/SWE1R Overlay.pdb
-/bin/Debug/SWE1R Overlay.exe
-/bin/Debug/SWE1R Overlay.pdb
-/obj/Debug/SWE1R Overlay.csproj.FileListAbsolute.txt
-/obj/Debug/SWE1R Overlay.csprojAssemblyReference.cache
-/obj/Debug/SWE1R Overlay.exe
+/bin/Debug/*
+/obj/Debug/*
