@@ -1,6 +1,6 @@
 ﻿namespace SWE1R_Overlay
 {
-    partial class FormMain
+    partial class ControlPanel
     {
         /// <summary>
         /// Required designer variable.
@@ -130,7 +130,7 @@
             this.txt_stateLoadNote.TabIndex = 8;
             this.txt_stateLoadNote.Text = "X360 DPad Up";
             // 
-            // FormMain
+            // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -146,9 +146,8 @@
             this.Controls.Add(this.opt_showOverlay);
             this.MaximumSize = new System.Drawing.Size(240, 320);
             this.MinimumSize = new System.Drawing.Size(240, 320);
-            this.Name = "FormMain";
-            this.Text = "SWE1R Overlay";
-            this.Load += new System.EventHandler(this.FormMain_Load);
+            this.Name = "ControlPanel";
+            this.Text = "SWE1R Controls";
             this.ResumeLayout(false);
             this.PerformLayout();
 
