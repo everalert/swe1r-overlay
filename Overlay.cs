@@ -31,10 +31,10 @@ namespace SWE1R_Overlay
         // setup
         Interop.RECT rect;
         public const string WINDOW_NAME = "Episode I Racer";
-        IntPtr WINDOW_HANDLE = Interop.FindWindow(null, WINDOW_NAME);
+        readonly private IntPtr WINDOW_HANDLE = Interop.FindWindow(null, WINDOW_NAME);
         readonly int[] WINDOW_BORDER = { 10, 32, 10, 10 };
         SizeF WINDOW_SIZE = new SizeF(1280, 720);
-        SizeF WINDOW_SIZE_DFLT = new SizeF(1280, 720);
+        readonly SizeF WINDOW_SIZE_DFLT = new SizeF(1280, 720);
         SizeF WINDOW_SCALE = new SizeF(1, 1);
         readonly string time_format = "m\\:ss\\.fff";
         private Controller xinput;
@@ -44,7 +44,7 @@ namespace SWE1R_Overlay
         private bool opt_debug = false;
 
         // racer
-        RacerData racer = new RacerData();
+        readonly RacerData racer = new RacerData();
         private string racer_state;
 
         // in race
@@ -61,7 +61,7 @@ namespace SWE1R_Overlay
         private string[] race_time;
         private float[] race_time_src;
         private string[] race_time_label;
-        private string[] race_time_label_src = { "1", "2", "3", "4", "5", "T" };
+        readonly private string[] race_time_label_src = { "1", "2", "3", "4", "5", "T" };
         private bool race_dead_old = false;
         private bool race_dead_new = false;
         private uint race_deaths = 0;
@@ -70,9 +70,9 @@ namespace SWE1R_Overlay
         private float[] podsel_statistics;
         private float[] podsel_shown_stats;
         private float[] podsel_hidden_stats;
-        int[] podsel_shown_map = { 0, 1, 3, 4, 5, 9, 11 };
-        int[] podsel_hidden_map = { 2, 6, 7, 8, 10, 12, 13, 14 };
-        private string[] podsel_hidden_stats_names =
+        readonly int[] podsel_shown_map = { 0, 1, 3, 4, 5, 9, 11 };
+        readonly int[] podsel_hidden_map = { 2, 6, 7, 8, 10, 12, 13, 14 };
+        readonly private string[] podsel_hidden_stats_names =
         {
             "MAX TURN RATE",
             "DECELERATION",
@@ -84,7 +84,7 @@ namespace SWE1R_Overlay
             "ISECT RADIUS"
         };
 
-        RenderForm overlay = new RenderForm("SWE1R Practice Overlay");
+        // dx11/rendering
         Device device;
         SwapChain swapChain;
         Viewport viewport;
@@ -92,9 +92,9 @@ namespace SWE1R_Overlay
         Texture2D backBuffer;
         private dynamic context;
         SpriteRenderer sprite;
-        private Dictionary<string, TextBlockRenderer> ol_font = new Dictionary<string, TextBlockRenderer>();
-        private Dictionary<string, ShaderResourceView> ol_img = new Dictionary<string, ShaderResourceView>();
-        private Dictionary<string, Color> ol_color = new Dictionary<string, Color>()
+        readonly private Dictionary<string, TextBlockRenderer> ol_font = new Dictionary<string, TextBlockRenderer>();
+        readonly private Dictionary<string, ShaderResourceView> ol_img = new Dictionary<string, ShaderResourceView>();
+        readonly private Dictionary<string, Color> ol_color = new Dictionary<string, Color>()
         {
             { "clear", Color.FromArgb(0,0,0,0) },
             { "txt_debug", Color.FromArgb(0xFF,0xFF,0xFF,0xFF) },
@@ -108,7 +108,7 @@ namespace SWE1R_Overlay
             { "txt_podsel_stats_shown", Color.FromArgb(0xFF,0xFF,0xFF,0x00) },
             { "txt_podsel_stats_hidden", Color.FromArgb(0xFF,0x33,0xFF,0xFF) }
         };
-        private Dictionary<string, RectangleF> ol_coords = new Dictionary<string, RectangleF>()
+        readonly private Dictionary<string, RectangleF> ol_coords = new Dictionary<string, RectangleF>()
         {
             { "txt_debug", new RectangleF(4, 4, 1272, 32) },
             { "txt_race_pod_heating", new RectangleF(1032, 448, 32, 32) },
@@ -290,15 +290,14 @@ namespace SWE1R_Overlay
             var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
             var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height);
             sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
-            List<RectangleF> regions = new List<RectangleF>();
-            regions.Add(new RectangleF(
-                PointF.Add(new PointF(loc.X, loc.Y), new SizeF(size.X + offset.X * WINDOW_SCALE.Width,
-                    size.Y / 2 + offset.Y * WINDOW_SCALE.Height - ((float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.Y) * text.Count() + (sep * (text.Count() - 1)) * WINDOW_SCALE.Width) / 2)),
-                new SizeF(
-                    (float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.X),
-                    (float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.Y)
+            List<RectangleF> regions = new List<RectangleF>() {
+                new RectangleF(
+                    PointF.Add(
+                        new PointF(loc.X, loc.Y), new SizeF(size.X + offset.X * WINDOW_SCALE.Width, size.Y / 2 + offset.Y * WINDOW_SCALE.Height - ((float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.Y) * text.Count() + (sep * (text.Count() - 1)) * WINDOW_SCALE.Width) / 2)),
+                        new SizeF((float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.X),(float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.Y)
+                    )
                 )
-            ));
+            };
             for (var i = 1; i < text.Count(); i++)
                 regions.Add(new RectangleF(PointF.Add(regions[0].Location, new SizeF(0, (regions[0].Height + sep) * i)), regions[0].Size));
             for (var i = 0; i < text.Count(); i++)
@@ -380,8 +379,7 @@ namespace SWE1R_Overlay
 
         private void InitFont()
         {
-            sprite = new SpriteRenderer(device);
-            sprite.HandleBlendState = true;
+            sprite = new SpriteRenderer(device) { HandleBlendState = true };
             ol_font.Add("default",
                 new TextBlockRenderer(sprite, "Consolas",
                 SlimDX.DirectWrite.FontWeight.DemiBold,

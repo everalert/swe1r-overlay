@@ -8,10 +8,12 @@
     <OutputType>WinExe</OutputType>
     <RootNamespace>SWE1R_Overlay</RootNamespace>
     <AssemblyName>SWE1R Overlay</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -22,14 +24,14 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>0.1.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationVersion>0.1.1.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
+    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -46,6 +48,27 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>SWE1R_Overlay.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>566E52E5C5816EB3B76277AB4DEDC5A987CBBAD7</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>SWE1R Overlay_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NBidi, Version=1.2.1.1, Culture=neutral, processorArchitecture=MSIL">
@@ -103,8 +126,10 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <None Include="packages.config" />
+    <None Include="Properties\app.manifest" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -114,6 +139,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="SWE1R Overlay_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -140,13 +166,13 @@
     <Content Include="img\race_heating.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Utilities\SpriteTextRenderer.SlimDX\NBidi.dll" />
-    <Content Include="Utilities\SpriteTextRenderer.SlimDX\SlimDX.dll" />
+    <None Include="Utilities\SpriteTextRenderer.SlimDX\NBidi.dll" />
+    <None Include="Utilities\SpriteTextRenderer.SlimDX\SlimDX.dll" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SlimDX.pdb" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SlimDX.xml" />
-    <Content Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.dll" />
+    <None Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.dll" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.pdb" />
-    <Content Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.SlimDX.dll" />
+    <None Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.SlimDX.dll" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.SlimDX.pdb" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.SlimDX.XML" />
     <Content Include="Utilities\SpriteTextRenderer.SlimDX\SpriteTextRenderer.xml" />
