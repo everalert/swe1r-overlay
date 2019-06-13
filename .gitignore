@@ -1,4 +1,3 @@
-/bin/Debug/*
+/bin/*
 /obj/*
-/bin/Release/*
 /publish/*
