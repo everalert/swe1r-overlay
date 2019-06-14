@@ -8,6 +8,11 @@ namespace SWE1R_Overlay.Utilities
 {
     class RacerAddresses
     {
+        /*
+            future
+            - addresses for CD (original) version?
+        */
+
         static public uint pPod = 0xD78A4;
         static public uint podLen = 0x88;
         static public Dictionary<string, uint> oPod = new Dictionary<string, uint> {

@@ -21,17 +21,19 @@ using SpriteTextRenderer.SlimDX;
 using SpriteRenderer = SpriteTextRenderer.SlimDX.SpriteRenderer;
 using TextBlockRenderer = SpriteTextRenderer.SlimDX.TextBlockRenderer;
 using System.Collections;
+using System.Threading;
 
 namespace SWE1R_Overlay
 {
     public partial class Overlay : RenderForm
     {
-        public ControlPanel controlpanel;
+        readonly ControlPanel controlpanel;
+        private Process target;
+        private RacerData racer;
+
 
         // setup
         Interop.RECT rect;
-        public const string WINDOW_NAME = "Episode I Racer";
-        readonly private IntPtr WINDOW_HANDLE = Interop.FindWindow(null, WINDOW_NAME);
         readonly int[] WINDOW_BORDER = { 10, 32, 10, 10 };
         SizeF WINDOW_SIZE = new SizeF(1280, 720);
         readonly SizeF WINDOW_SIZE_DFLT = new SizeF(1280, 720);
@@ -44,7 +46,6 @@ namespace SWE1R_Overlay
         private bool opt_debug = false;
 
         // racer
-        readonly RacerData racer = new RacerData();
         private string racer_state;
 
         // in race
@@ -122,8 +123,11 @@ namespace SWE1R_Overlay
 
         // OVERLAY LOGIC FLOW & MAIN LOOP
 
-        public Overlay()
+        public Overlay(ControlPanel ctrl, Process tgt, RacerData rcr)
         {
+            controlpanel = ctrl;
+            UpdateOverlay(tgt, rcr);
+
             // initial setup
             InitDX11();
             InitResources();
@@ -151,6 +155,15 @@ namespace SWE1R_Overlay
             stopwatch.Stop();
             var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
             stopwatch = Stopwatch.StartNew();
+
+            // exit if data not reachable or overlay hidden
+            if (controlpanel == null || target == null || racer == null || !this.Visible)
+                return;
+
+            // future: clear screen here then somehow not continue if game is not in focus/taking input, i.e. don't render unless game is actually being played
+            //context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
+            //if (target.MainWindowHandle != Interop.GetForegroundWindow())
+            //    return;
 
             // logic
 
@@ -204,7 +217,7 @@ namespace SWE1R_Overlay
 
             // rendering
 
-            Interop.GetWindowRect(WINDOW_HANDLE, out rect);
+            Interop.GetWindowRect(target.MainWindowHandle, out rect);
             WINDOW_SIZE = new Size(rect.right - rect.left - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.bottom - rect.top - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
             if (WINDOW_SIZE != this.Size)
             {
@@ -505,12 +518,28 @@ namespace SWE1R_Overlay
         }
         private void InitOverlay()
         {
+            //WINDOW_HANDLE = Interop.FindWindow(null, WINDOW_NAME);
             int initialStyle = Interop.GetWindowLong(this.Handle, -20);
             Interop.SetWindowLong(this.Handle, -20, initialStyle | 0x80000 | 0x20);
             this.Resize += OverlayResize;
+            this.Text = "SWE1R Overlay";
+            //this.ShowInTaskbar = false;   /* doesn't seem to behave as expected - but, would be nice to not clutter the taskbar/tab window since it's controlled by this form */
             this.TransparencyKey = ol_color["clear"];
             this.FormBorderStyle = FormBorderStyle.None;
             this.TopMost = true;
+        }
+        public void UpdateOverlay(Process tgt, RacerData rcr)
+        {
+            target = tgt;
+            racer = rcr;
+        }
+        public void UpdateOverlay(Process tgt)
+        {
+            target = tgt;
+        }
+        public void UpdateOverlay(RacerData rcr)
+        {
+            racer = rcr;
         }
         private void DisposeAll()
         {

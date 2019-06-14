@@ -1,33 +1,35 @@
 ﻿using SWE1R_Overlay.Utilities;
 using System;
+using System.Diagnostics;
+using System.Collections;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace SWE1R_Overlay
 {
     public partial class ControlPanel : Form
     {
-        // setup
-        RacerData racer = new RacerData();
+        // SETUP
+
+        const string TARGET_PROCESS_TITLE = "Episode I Racer";
+        private Process target;
+        private RacerData racer;
+        private Overlay overlay;
         private byte[] savestate_pod;
-
-        Overlay overlay = new Overlay();
-
 
         // INIT
 
         public ControlPanel()
         {
             InitializeComponent();
-            overlay.Text = "SWE1R Overlay";
-            //overlay.ShowInTaskbar = false;   /* doesn't seem to behave as expected - but, would be nice to not clutter the taskbar/tab window since it's controlled by this form */
-            overlay.controlpanel = this;
-            overlay.Show();
-            opt_showOverlay.Checked = true;
+            cbx_processList.DisplayMember = "MainWindowTitle";
+            cbx_processList.ValueMember = "Id";
+            FindGameProcess();
         }
 
         // CONTROLS
 
-        private void opt_showOverlay_CheckedChanged(object sender, EventArgs e)
+        private void Opt_showOverlay_CheckedChanged(object sender, EventArgs e)
         {
             if (opt_showOverlay.Checked)
                 overlay.Show();
@@ -69,8 +71,6 @@ namespace SWE1R_Overlay
             else
                 racer.DisableDebugTerrainLabels();
         }
-
-
         public void SaveRaceState()
         {
             savestate_pod = racer.GetPodDataALL();
@@ -78,6 +78,58 @@ namespace SWE1R_Overlay
         public void LoadRaceState()
         {
             racer.WritePodDataALL(savestate_pod);
+        }
+
+        // GAME DETECTION/ASSIGNMENT
+
+        private void Cbx_processList_DropDown(object sender, EventArgs e)
+        {
+            cbx_processList.DataSource = GetProcessList();
+        }
+        private void Cbx_processList_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            target = (Process)cbx_processList.SelectedItem;
+            SetRacer(target);
+            SetOverlay(target, racer);
+        }
+        private void SetRacer(Process tgt)
+        {
+            if (racer == null)
+                racer = new RacerData(tgt);
+            else
+                racer.SetGameTarget(tgt);
+        }
+        private void SetOverlay(Process tgt, RacerData rcr)
+        {
+            if (overlay == null)
+            {
+                overlay = new Overlay(this, tgt, rcr);
+                overlay.Show();
+                opt_showOverlay.Checked = true;
+                txt_selectGame.Hide();
+                opt_showOverlay.Show();
+            }
+            else
+                overlay.UpdateOverlay(tgt);
+        }
+        private void FindGameProcess()
+        {
+            cbx_processList.DataSource = GetProcessList();
+            if (cbx_processList.FindStringExact(TARGET_PROCESS_TITLE) > 0)
+            {
+                cbx_processList.SelectedIndex = cbx_processList.FindStringExact(TARGET_PROCESS_TITLE);
+                target = (Process)cbx_processList.SelectedItem;
+                SetRacer(target);
+                SetOverlay(target, racer);
+            }
+        }
+        private List<Process> GetProcessList()
+        {
+            List<Process> output = new List<Process>();
+            foreach (Process process in Process.GetProcesses())
+                if (process.MainWindowTitle.Length > 0)
+                    output.Add(process);
+            return output;
         }
     }
 }

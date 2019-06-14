@@ -8,22 +8,28 @@ using System.Threading.Tasks;
 
 namespace SWE1R_Overlay.Utilities
 {
-    class RacerData
+    public class RacerData
     {
         static int bytesOut;
         static int bytesIn;
-        static string PROCESS_NAME = "SWEP1RCR";
-        ProcessMemoryReader mem = new ProcessMemoryReader();
+        const string PROCESS_NAME = "SWEP1RCR";
+        readonly ProcessMemoryReader mem = new ProcessMemoryReader();
         Process game;
 
-        public RacerData()
+        public RacerData(Process target = null)
         {
-
+            if (target != null)
+                game = target;
         }
 
 
         // WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
         // need more thought into structure
+        // - fewer, more generalised functions
+        // - possibly implement dictionary inputs for mass data reading from a pointer
+        // also need to error handle memory reading exceptions
+        // - not really a problem unless user selects wrong process tho lol
+        // - also, does steam hack detection block this? autosplitter can read steam version so probably no, or livesplit uses a workaround
 
         public float GetPodTimeLap1()
         {
@@ -330,8 +336,9 @@ namespace SWE1R_Overlay.Utilities
         private IntPtr GetMemoryAddr(Process game, uint[] pointerPath)
         {
             InitProcess();
-            uint addr = (uint)game.Modules[0].BaseAddress;
-            uint next = 0x0;
+            uint addr;
+            uint next;
+            addr = (uint)game.Modules[0].BaseAddress;
             for (int i=0; i<pointerPath.Length; i++)
             {
                 if (i == pointerPath.Length - 1)
@@ -346,21 +353,23 @@ namespace SWE1R_Overlay.Utilities
             return (IntPtr)(addr);
         }
 
-        private void InitProcess()
+        private bool InitProcess()
         {
             if (game == null)
-            {
-                game = Process.GetProcessesByName(PROCESS_NAME).ToList().FirstOrDefault();
-                mem.ReadProcess = game;
-                mem.OpenProcess();
-                return;
-            }
+                return false;
             if (mem.ReadProcess == null)
             {
                 mem.ReadProcess = game;
                 mem.OpenProcess();
-                return;
             }
+            return true;
+        }
+        public void SetGameTarget(Process tgt)
+        {
+            game = tgt;
+            if (mem.ReadProcess != null)
+                mem.CloseHandle();
+            InitProcess();
         }
     }
 }

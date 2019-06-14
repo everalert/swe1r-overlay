@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWE1R Overlay", "SWE1R Overlay.csproj", "{BBC1693F-1CED-4420-A5D0-85CE86C0C636}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SWE1R Overlay Installer", "..\SWE1R Overlay Installer\SWE1R Overlay Installer.vdproj", "{4722BCC3-C1DD-4C70-9EAE-0902FE06478E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,11 +17,18 @@ Global
 		{BBC1693F-1CED-4420-A5D0-85CE86C0C636}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBC1693F-1CED-4420-A5D0-85CE86C0C636}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBC1693F-1CED-4420-A5D0-85CE86C0C636}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4722BCC3-C1DD-4C70-9EAE-0902FE06478E}.Debug|Any CPU.ActiveCfg = Debug
+		{4722BCC3-C1DD-4C70-9EAE-0902FE06478E}.Release|Any CPU.ActiveCfg = Release
+		{4722BCC3-C1DD-4C70-9EAE-0902FE06478E}.Release|Any CPU.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D73BD314-0868-4457-B1A8-61B5DF0EB1AE}
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 EndGlobal

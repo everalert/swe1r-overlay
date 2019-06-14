@@ -37,22 +37,25 @@
             this.opt_showTerrainFlags = new System.Windows.Forms.CheckBox();
             this.txt_stateSaveNote = new System.Windows.Forms.Label();
             this.txt_stateLoadNote = new System.Windows.Forms.Label();
+            this.cbx_processList = new System.Windows.Forms.ComboBox();
+            this.txt_selectGame = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // opt_showOverlay
             // 
             this.opt_showOverlay.AutoSize = true;
-            this.opt_showOverlay.Location = new System.Drawing.Point(12, 12);
+            this.opt_showOverlay.Location = new System.Drawing.Point(11, 228);
             this.opt_showOverlay.Name = "opt_showOverlay";
             this.opt_showOverlay.Size = new System.Drawing.Size(92, 17);
             this.opt_showOverlay.TabIndex = 0;
             this.opt_showOverlay.Text = "Show Overlay";
             this.opt_showOverlay.UseVisualStyleBackColor = true;
-            this.opt_showOverlay.CheckedChanged += new System.EventHandler(this.opt_showOverlay_CheckedChanged);
+            this.opt_showOverlay.Visible = false;
+            this.opt_showOverlay.CheckedChanged += new System.EventHandler(this.Opt_showOverlay_CheckedChanged);
             // 
             // btn_stateS
             // 
-            this.btn_stateS.Location = new System.Drawing.Point(11, 67);
+            this.btn_stateS.Location = new System.Drawing.Point(11, 32);
             this.btn_stateS.Name = "btn_stateS";
             this.btn_stateS.Size = new System.Drawing.Size(48, 23);
             this.btn_stateS.TabIndex = 1;
@@ -62,7 +65,7 @@
             // 
             // btn_stateL
             // 
-            this.btn_stateL.Location = new System.Drawing.Point(11, 96);
+            this.btn_stateL.Location = new System.Drawing.Point(11, 61);
             this.btn_stateL.Name = "btn_stateL";
             this.btn_stateL.Size = new System.Drawing.Size(48, 23);
             this.btn_stateL.TabIndex = 2;
@@ -73,7 +76,7 @@
             // txt_stateTitle
             // 
             this.txt_stateTitle.AutoSize = true;
-            this.txt_stateTitle.Location = new System.Drawing.Point(12, 48);
+            this.txt_stateTitle.Location = new System.Drawing.Point(12, 13);
             this.txt_stateTitle.Name = "txt_stateTitle";
             this.txt_stateTitle.Size = new System.Drawing.Size(101, 13);
             this.txt_stateTitle.TabIndex = 3;
@@ -82,7 +85,7 @@
             // opt_enableDebugMenu
             // 
             this.opt_enableDebugMenu.AutoSize = true;
-            this.opt_enableDebugMenu.Location = new System.Drawing.Point(11, 142);
+            this.opt_enableDebugMenu.Location = new System.Drawing.Point(11, 107);
             this.opt_enableDebugMenu.Name = "opt_enableDebugMenu";
             this.opt_enableDebugMenu.Size = new System.Drawing.Size(88, 17);
             this.opt_enableDebugMenu.TabIndex = 4;
@@ -93,7 +96,7 @@
             // opt_enableInvincibility
             // 
             this.opt_enableInvincibility.AutoSize = true;
-            this.opt_enableInvincibility.Location = new System.Drawing.Point(11, 166);
+            this.opt_enableInvincibility.Location = new System.Drawing.Point(11, 131);
             this.opt_enableInvincibility.Name = "opt_enableInvincibility";
             this.opt_enableInvincibility.Size = new System.Drawing.Size(77, 17);
             this.opt_enableInvincibility.TabIndex = 5;
@@ -104,7 +107,7 @@
             // opt_showTerrainFlags
             // 
             this.opt_showTerrainFlags.AutoSize = true;
-            this.opt_showTerrainFlags.Location = new System.Drawing.Point(11, 190);
+            this.opt_showTerrainFlags.Location = new System.Drawing.Point(11, 155);
             this.opt_showTerrainFlags.Name = "opt_showTerrainFlags";
             this.opt_showTerrainFlags.Size = new System.Drawing.Size(93, 17);
             this.opt_showTerrainFlags.TabIndex = 6;
@@ -115,7 +118,7 @@
             // txt_stateSaveNote
             // 
             this.txt_stateSaveNote.AutoSize = true;
-            this.txt_stateSaveNote.Location = new System.Drawing.Point(66, 72);
+            this.txt_stateSaveNote.Location = new System.Drawing.Point(66, 37);
             this.txt_stateSaveNote.Name = "txt_stateSaveNote";
             this.txt_stateSaveNote.Size = new System.Drawing.Size(79, 13);
             this.txt_stateSaveNote.TabIndex = 7;
@@ -124,17 +127,39 @@
             // txt_stateLoadNote
             // 
             this.txt_stateLoadNote.AutoSize = true;
-            this.txt_stateLoadNote.Location = new System.Drawing.Point(66, 101);
+            this.txt_stateLoadNote.Location = new System.Drawing.Point(66, 66);
             this.txt_stateLoadNote.Name = "txt_stateLoadNote";
             this.txt_stateLoadNote.Size = new System.Drawing.Size(79, 13);
             this.txt_stateLoadNote.TabIndex = 8;
             this.txt_stateLoadNote.Text = "X360 DPad Up";
+            // 
+            // cbx_processList
+            // 
+            this.cbx_processList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbx_processList.FormattingEnabled = true;
+            this.cbx_processList.Location = new System.Drawing.Point(11, 251);
+            this.cbx_processList.Name = "cbx_processList";
+            this.cbx_processList.Size = new System.Drawing.Size(201, 21);
+            this.cbx_processList.TabIndex = 9;
+            this.cbx_processList.DropDown += new System.EventHandler(this.Cbx_processList_DropDown);
+            this.cbx_processList.SelectionChangeCommitted += new System.EventHandler(this.Cbx_processList_SelectionChangeCommitted);
+            // 
+            // txt_selectGame
+            // 
+            this.txt_selectGame.AutoSize = true;
+            this.txt_selectGame.Location = new System.Drawing.Point(11, 229);
+            this.txt_selectGame.Name = "txt_selectGame";
+            this.txt_selectGame.Size = new System.Drawing.Size(110, 13);
+            this.txt_selectGame.TabIndex = 10;
+            this.txt_selectGame.Text = "Select Game Window";
             // 
             // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(224, 282);
+            this.Controls.Add(this.txt_selectGame);
+            this.Controls.Add(this.cbx_processList);
             this.Controls.Add(this.txt_stateLoadNote);
             this.Controls.Add(this.txt_stateSaveNote);
             this.Controls.Add(this.opt_showTerrainFlags);
@@ -164,6 +189,8 @@
         private System.Windows.Forms.CheckBox opt_showTerrainFlags;
         private System.Windows.Forms.Label txt_stateSaveNote;
         private System.Windows.Forms.Label txt_stateLoadNote;
+        private System.Windows.Forms.ComboBox cbx_processList;
+        private System.Windows.Forms.Label txt_selectGame;
     }
 }
 
