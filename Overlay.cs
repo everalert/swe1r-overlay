@@ -51,7 +51,8 @@ namespace SWE1R_Overlay
         private bool opt_debug = false;
 
         // racer
-        private string racer_state;
+        private string racer_state_old;
+        private string racer_state_new;
 
         // in race
         private uint race_pod_flags1;
@@ -180,10 +181,14 @@ namespace SWE1R_Overlay
                 controlpanel.SaveRaceState();
             /* this should probably be done in the control panel directly? */
 
-            racer_state = GetGameState();
+            racer_state_old = racer_state_new;
+            racer_state_new = GetGameState();
 
-            /* implement generalised new/old state sytem before adding more UI elements? */
-            if (racer_state == "in_race")
+            if (racer_state_new == "in_race" ^ racer_state_old != "in_race")
+                controlpanel.CheckRaceState();
+
+            /* implement generalised new/old state system before adding more UI elements? */
+            if (racer_state_new == "in_race")
             {
                 race_pod_flags1 = racer.GetPodData("flags1", "uint");
                 race_pod_flags2 = racer.GetPodData("flags2", "uint");
@@ -209,9 +214,9 @@ namespace SWE1R_Overlay
             else
                 race_deaths = 0;
 
-            if (racer_state == "pod_select")
+            if (racer_state_new == "pod_select")
             {
-                podsel_statistics = racer.GetStaticPodSelStats();
+                podsel_statistics = racer.GetStatsALL();
                 podsel_shown_stats = new float[7];
                 for (var i = 0; i < podsel_shown_map.Length; i++)
                     podsel_shown_stats[i] = (float)podsel_statistics.GetValue(podsel_shown_map[i]);
@@ -239,7 +244,7 @@ namespace SWE1R_Overlay
             if (opt_debug)
                 ol_font["default"].DrawString(txt_debug, ol_coords["txt_debug"], TextAlignment.Left | TextAlignment.Top, ol_font["default"].FontSize * WINDOW_SCALE.Height, ol_color["txt_debug"], CoordinateType.Absolute);
 
-            if (racer_state == "in_race")
+            if (racer_state_new == "in_race")
             {
                 // race times
                 DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
@@ -273,7 +278,7 @@ namespace SWE1R_Overlay
                     */
                 }
             }
-            if (racer_state == "pod_select")
+            if (racer_state_new == "pod_select")
             {
                 //hidden stats
                 DrawTextList(ol_coords["podsel_hidden"], podsel_hidden_stats_names, podsel_hidden_stats, ol_font["podsel_hidden"], ol_color["txt_podsel_stats_hidden"], TextAlignment.Left | TextAlignment.Bottom, "   ");
@@ -292,7 +297,7 @@ namespace SWE1R_Overlay
         {
             var fntSz = font.FontSize * WINDOW_SCALE.Height;
             var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height);
+            var size = new Vector2(coords.Width * WINDOW_SCALE.Height, coords.Height * WINDOW_SCALE.Height); // to avoid img distortion
             sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
             var region = new RectangleF(
                 PointF.Add(new PointF(loc.X, loc.Y), new SizeF(size.X + offset.X * WINDOW_SCALE.Width, size.Y / 2 + offset.Y * WINDOW_SCALE.Height - (float)Math.Ceiling(font.MeasureString(text, fntSz, CoordinateType.Absolute).Size.Y) / 2)),
@@ -307,7 +312,7 @@ namespace SWE1R_Overlay
         {
             var fntSz = font.FontSize * WINDOW_SCALE.Height;
             var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height);
+            var size = new Vector2(coords.Width * WINDOW_SCALE.Height, coords.Height * WINDOW_SCALE.Height); // to avoid img distortion
             sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
             List<RectangleF> regions = new List<RectangleF>() {
                 new RectangleF(
@@ -398,6 +403,7 @@ namespace SWE1R_Overlay
 
         private void InitFont()
         {
+            // eventually style everything properly, setup for now
             sprite = new SpriteRenderer(device) { HandleBlendState = true };
             ol_font.Add("default",
                 new TextBlockRenderer(sprite, "Consolas",
@@ -476,13 +482,27 @@ namespace SWE1R_Overlay
         private void InitXInput()
         {
             // https://csharp.hotexamples.com/examples/SlimDX.XInput/Controller/-/php-controller-class-examples.html
-            xinput = new Controller(new UserIndex());
+            // lmao fix dis
+            try
+            {
+                xinput = new Controller(new UserIndex());
+            } catch
+            {
+
+            }
         }
         private void UpdateXInput()
         {
-            if (xinput_state_new != null)
-                xinput_state_old = xinput_state_new;
-            xinput_state_new = xinput.GetState();
+            // lmao fix dis
+            try
+            {
+                if (xinput_state_new != null)
+                    xinput_state_old = xinput_state_new;
+                xinput_state_new = xinput.GetState();
+            } catch
+            {
+
+            }
         }
         private bool CheckXInputButtonDown(uint button)
         {

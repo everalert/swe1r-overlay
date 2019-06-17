@@ -47,6 +47,8 @@
             this.opt_showTerrainFlags = new System.Windows.Forms.CheckBox();
             this.opt_enableInvincibility = new System.Windows.Forms.CheckBox();
             this.opt_enableDebugMenu = new System.Windows.Forms.CheckBox();
+            this.txt_stateTrack = new System.Windows.Forms.Label();
+            this.txt_statePod = new System.Windows.Forms.Label();
             this.gb_stateInRace.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.no_stateSel)).BeginInit();
             this.gb_debug.SuspendLayout();
@@ -56,7 +58,7 @@
             // 
             this.opt_showOverlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.opt_showOverlay.AutoSize = true;
-            this.opt_showOverlay.Location = new System.Drawing.Point(11, 278);
+            this.opt_showOverlay.Location = new System.Drawing.Point(11, 310);
             this.opt_showOverlay.Name = "opt_showOverlay";
             this.opt_showOverlay.Size = new System.Drawing.Size(92, 17);
             this.opt_showOverlay.TabIndex = 0;
@@ -70,7 +72,7 @@
             this.cbx_processList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbx_processList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbx_processList.FormattingEnabled = true;
-            this.cbx_processList.Location = new System.Drawing.Point(11, 297);
+            this.cbx_processList.Location = new System.Drawing.Point(11, 329);
             this.cbx_processList.Name = "cbx_processList";
             this.cbx_processList.Size = new System.Drawing.Size(115, 21);
             this.cbx_processList.TabIndex = 9;
@@ -82,7 +84,7 @@
             this.txt_selectGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txt_selectGame.AutoSize = true;
             this.txt_selectGame.ForeColor = System.Drawing.Color.Red;
-            this.txt_selectGame.Location = new System.Drawing.Point(11, 279);
+            this.txt_selectGame.Location = new System.Drawing.Point(11, 311);
             this.txt_selectGame.Name = "txt_selectGame";
             this.txt_selectGame.Size = new System.Drawing.Size(110, 13);
             this.txt_selectGame.TabIndex = 10;
@@ -91,7 +93,7 @@
             // btn_processFind
             // 
             this.btn_processFind.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btn_processFind.Location = new System.Drawing.Point(132, 296);
+            this.btn_processFind.Location = new System.Drawing.Point(132, 328);
             this.btn_processFind.Name = "btn_processFind";
             this.btn_processFind.Size = new System.Drawing.Size(48, 23);
             this.btn_processFind.TabIndex = 11;
@@ -101,6 +103,8 @@
             // 
             // gb_stateInRace
             // 
+            this.gb_stateInRace.Controls.Add(this.txt_statePod);
+            this.gb_stateInRace.Controls.Add(this.txt_stateTrack);
             this.gb_stateInRace.Controls.Add(this.txt_stateSpdVal);
             this.gb_stateInRace.Controls.Add(this.txt_stateLapLocVal);
             this.gb_stateInRace.Controls.Add(this.txt_stateSpdLabel);
@@ -116,7 +120,7 @@
             this.gb_stateInRace.Margin = new System.Windows.Forms.Padding(8);
             this.gb_stateInRace.Name = "gb_stateInRace";
             this.gb_stateInRace.Padding = new System.Windows.Forms.Padding(8);
-            this.gb_stateInRace.Size = new System.Drawing.Size(169, 145);
+            this.gb_stateInRace.Size = new System.Drawing.Size(169, 175);
             this.gb_stateInRace.TabIndex = 13;
             this.gb_stateInRace.TabStop = false;
             this.gb_stateInRace.Text = "In-Race Savestate";
@@ -124,7 +128,7 @@
             // txt_stateSpdVal
             // 
             this.txt_stateSpdVal.AutoSize = true;
-            this.txt_stateSpdVal.Location = new System.Drawing.Point(88, 67);
+            this.txt_stateSpdVal.Location = new System.Drawing.Point(87, 99);
             this.txt_stateSpdVal.Name = "txt_stateSpdVal";
             this.txt_stateSpdVal.Size = new System.Drawing.Size(10, 13);
             this.txt_stateSpdVal.TabIndex = 23;
@@ -133,7 +137,7 @@
             // txt_stateLapLocVal
             // 
             this.txt_stateLapLocVal.AutoSize = true;
-            this.txt_stateLapLocVal.Location = new System.Drawing.Point(88, 51);
+            this.txt_stateLapLocVal.Location = new System.Drawing.Point(87, 83);
             this.txt_stateLapLocVal.Name = "txt_stateLapLocVal";
             this.txt_stateLapLocVal.Size = new System.Drawing.Size(10, 13);
             this.txt_stateLapLocVal.TabIndex = 22;
@@ -142,7 +146,7 @@
             // txt_stateSpdLabel
             // 
             this.txt_stateSpdLabel.AutoSize = true;
-            this.txt_stateSpdLabel.Location = new System.Drawing.Point(12, 67);
+            this.txt_stateSpdLabel.Location = new System.Drawing.Point(11, 99);
             this.txt_stateSpdLabel.Margin = new System.Windows.Forms.Padding(3);
             this.txt_stateSpdLabel.Name = "txt_stateSpdLabel";
             this.txt_stateSpdLabel.Size = new System.Drawing.Size(38, 13);
@@ -152,7 +156,7 @@
             // txt_stateLapLocLabel
             // 
             this.txt_stateLapLocLabel.AutoSize = true;
-            this.txt_stateLapLocLabel.Location = new System.Drawing.Point(12, 51);
+            this.txt_stateLapLocLabel.Location = new System.Drawing.Point(11, 83);
             this.txt_stateLapLocLabel.Name = "txt_stateLapLocLabel";
             this.txt_stateLapLocLabel.Size = new System.Drawing.Size(69, 13);
             this.txt_stateLapLocLabel.TabIndex = 20;
@@ -195,7 +199,7 @@
             // 
             this.txt_stateLoadNote.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txt_stateLoadNote.AutoSize = true;
-            this.txt_stateLoadNote.Location = new System.Drawing.Point(65, 116);
+            this.txt_stateLoadNote.Location = new System.Drawing.Point(65, 146);
             this.txt_stateLoadNote.Name = "txt_stateLoadNote";
             this.txt_stateLoadNote.Size = new System.Drawing.Size(79, 13);
             this.txt_stateLoadNote.TabIndex = 17;
@@ -205,7 +209,7 @@
             // 
             this.txt_stateSaveNote.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txt_stateSaveNote.AutoSize = true;
-            this.txt_stateSaveNote.Location = new System.Drawing.Point(65, 93);
+            this.txt_stateSaveNote.Location = new System.Drawing.Point(65, 123);
             this.txt_stateSaveNote.Name = "txt_stateSaveNote";
             this.txt_stateSaveNote.Size = new System.Drawing.Size(79, 13);
             this.txt_stateSaveNote.TabIndex = 16;
@@ -215,7 +219,7 @@
             // 
             this.btn_stateL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btn_stateL.Enabled = false;
-            this.btn_stateL.Location = new System.Drawing.Point(11, 111);
+            this.btn_stateL.Location = new System.Drawing.Point(11, 141);
             this.btn_stateL.Margin = new System.Windows.Forms.Padding(0);
             this.btn_stateL.Name = "btn_stateL";
             this.btn_stateL.Size = new System.Drawing.Size(48, 23);
@@ -227,7 +231,7 @@
             // btn_stateS
             // 
             this.btn_stateS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btn_stateS.Location = new System.Drawing.Point(11, 88);
+            this.btn_stateS.Location = new System.Drawing.Point(11, 118);
             this.btn_stateS.Margin = new System.Windows.Forms.Padding(0);
             this.btn_stateS.Name = "btn_stateS";
             this.btn_stateS.Size = new System.Drawing.Size(48, 23);
@@ -242,7 +246,7 @@
             this.gb_debug.Controls.Add(this.opt_enableInvincibility);
             this.gb_debug.Controls.Add(this.opt_enableDebugMenu);
             this.gb_debug.Enabled = false;
-            this.gb_debug.Location = new System.Drawing.Point(11, 166);
+            this.gb_debug.Location = new System.Drawing.Point(11, 199);
             this.gb_debug.Margin = new System.Windows.Forms.Padding(8);
             this.gb_debug.Name = "gb_debug";
             this.gb_debug.Padding = new System.Windows.Forms.Padding(8);
@@ -284,11 +288,29 @@
             this.opt_enableDebugMenu.UseVisualStyleBackColor = true;
             this.opt_enableDebugMenu.CheckedChanged += new System.EventHandler(this.Opt_enableDebugMenu_CheckedChanged);
             // 
+            // txt_stateTrack
+            // 
+            this.txt_stateTrack.AutoSize = true;
+            this.txt_stateTrack.Location = new System.Drawing.Point(11, 67);
+            this.txt_stateTrack.Name = "txt_stateTrack";
+            this.txt_stateTrack.Size = new System.Drawing.Size(10, 13);
+            this.txt_stateTrack.TabIndex = 24;
+            this.txt_stateTrack.Text = "-";
+            // 
+            // txt_statePod
+            // 
+            this.txt_statePod.AutoSize = true;
+            this.txt_statePod.Location = new System.Drawing.Point(11, 51);
+            this.txt_statePod.Name = "txt_statePod";
+            this.txt_statePod.Size = new System.Drawing.Size(10, 13);
+            this.txt_statePod.TabIndex = 25;
+            this.txt_statePod.Text = "-";
+            // 
             // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(192, 330);
+            this.ClientSize = new System.Drawing.Size(192, 362);
             this.Controls.Add(this.gb_debug);
             this.Controls.Add(this.gb_stateInRace);
             this.Controls.Add(this.btn_processFind);
@@ -296,8 +318,8 @@
             this.Controls.Add(this.cbx_processList);
             this.Controls.Add(this.opt_showOverlay);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(288, 512);
-            this.MinimumSize = new System.Drawing.Size(128, 192);
+            this.MaximumSize = new System.Drawing.Size(208, 400);
+            this.MinimumSize = new System.Drawing.Size(208, 400);
             this.Name = "ControlPanel";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "SWE1R Controls";
@@ -332,6 +354,8 @@
         private System.Windows.Forms.CheckBox opt_showTerrainFlags;
         private System.Windows.Forms.CheckBox opt_enableInvincibility;
         private System.Windows.Forms.CheckBox opt_enableDebugMenu;
+        private System.Windows.Forms.Label txt_statePod;
+        private System.Windows.Forms.Label txt_stateTrack;
     }
 }
 

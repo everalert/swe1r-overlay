@@ -9,7 +9,34 @@ namespace SWE1R_Overlay.Utilities
     {
         public struct Val
         {
-            static Dictionary<byte, string> tracks = new Dictionary<byte, string>()
+            readonly public static Dictionary<byte, string> pods = new Dictionary<byte, string>()
+            {
+                { 0,  "Anakin Skywalker" },
+                { 1,  "Teemto Pagalies" },
+                { 2,  "Sebulba" },
+                { 3,  "Ratts Tyerell" },
+                { 4,  "Aldar Beedo" },
+                { 5,  "Mawhonic" },
+                { 6,  "Ark 'Bumpy' Roose" },
+                { 7,  "Wan Sandage" },
+                { 8,  "Mars Guo" },
+                { 9,  "Ebe Endocott" },
+                { 10, "Dud Bolt" },
+                { 11, "Gasgano" },
+                { 12, "Clegg Holdfast" },
+                { 13, "Elan Mak" },
+                { 14, "Neva Kee" },
+                { 15, "Bozzie Baranta" },
+                { 16, "Boles Roor" },
+                { 17, "Ody Mandrell" },
+                { 18, "Fud Sang" },
+                { 19, "Ben Quadinaros" },
+                { 20, "Slide Paramita" },
+                { 21, "Toy Dampner" },
+                { 22, "'Bullseye' Navior" }
+            };
+
+            readonly public static Dictionary<byte, string> tracks = new Dictionary<byte, string>()
             {
                 { 0,  "The Boonta Training Course" }, // Amateur
                 { 16, "Mon Gazza Speedway" },
@@ -38,7 +65,7 @@ namespace SWE1R_Overlay.Utilities
                 { 15, "Inferno" }
             };
 
-            static Dictionary<byte, string> worlds = new Dictionary<byte, string>()
+            readonly public static Dictionary<byte, string> worlds = new Dictionary<byte, string>()
             {
                 // based on track order, need to verify (don't have world addr yet)
                 { 0,  "Tatooine" },

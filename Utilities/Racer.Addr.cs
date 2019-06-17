@@ -15,37 +15,40 @@ namespace SWE1R_Overlay.Utilities
                 - addresses for CD (original) version?
             */
 
+            /*
+                pX = pointer
+                oX = offset
+                lX = length in bytes
+             */
+
             static public uint pPod = 0xD78A4;
-            static public uint podLen = 0x88;
+            static public uint lPod = 0x88; // length in bytes
             static public Dictionary<string, uint> oPod = new Dictionary<string, uint>
             {
-                {"position",  0x5C},
-                {"time_lap1",  0x60},
-                {"time_lap2",  0x64},
-                {"time_lap3",  0x68},
-                {"time_lap4",  0x6C},
-                {"time_lap5",  0x70},
+                {"position",   0x5C},
+                {"time_lap_1", 0x60},
+                {"time_lap_2", 0x64},
+                {"time_lap_3", 0x68},
+                {"time_lap_4", 0x6C},
+                {"time_lap_5", 0x70},
                 {"time_total", 0x74},
-                {"pPodData",  0x84}
+                {"lap",        0x78},
+                {"pPodData",   0x84}
             };
-            static public uint podDataLen = 0x1F28;
+            static public uint lPodData = 0x1F28;
             static public Dictionary<string, uint> oPodData = new Dictionary<string, uint>
             {
-                {"3d_vector_1a", 0x20},
-                {"3d_vector_1b", 0x24},
-                {"3d_vector_1c", 0x28},
-                {"3d_vector_2a", 0x30},
-                {"3d_vector_2b", 0x34},
-                {"3d_vector_2c", 0x38},
-                {"xpos",         0x50},
-                {"ypos",         0x54},
-                {"zpos",         0x58},
-                {"flags",   0x60}, //uint64
-                {"flags1",  0x60}, //uint32
-                {"flags1b", 0x61}, //byte
-                {"flags1c", 0x62},
-                {"flags2",  0x64}, //uint32
-                {"flags2d", 0x67},
+                {"3d_vector_1a",  0x20},
+                {"3d_vector_1b",  0x24},
+                {"3d_vector_1c",  0x28},
+                {"3d_vector_2a",  0x30},
+                {"3d_vector_2b",  0x34},
+                {"3d_vector_2c",  0x38},
+                {"xpos",          0x50},
+                {"ypos",          0x54},
+                {"zpos",          0x58},
+                {"flags1",        0x60},
+                {"flags2",        0x64},
                 {"anti_skid",     0x6C},
                 {"turn_response", 0x70},
                 {"max_turn_rate", 0x74},
@@ -72,22 +75,7 @@ namespace SWE1R_Overlay.Utilities
                 {"slide",             0x24C}
             };
 
-            static public uint pCam1 = 0xA9ADAC;
-            static public Dictionary<string, uint> oCam1 = new Dictionary<string, uint>
-            {
-                {"x", 0x30},
-                {"y", 0x34},
-                {"z", 0x38}
-            };
-            static public uint pCam2 = 0xA9ADB4;
-            static public Dictionary<string, uint> oCam2 = new Dictionary<string, uint>
-            {
-                {"foc_x", 0x30},
-                {"foc_y", 0x34},
-                {"foc_z", 0x38}
-            };
-
-            static public Dictionary<string, uint> oPlayerStats = new Dictionary<string, uint>
+            static public Dictionary<string, uint> oStats = new Dictionary<string, uint>
             {
                 {"anti_skid",     0xA29BDC},
                 {"turn_response", 0xA29BE0},
@@ -106,8 +94,9 @@ namespace SWE1R_Overlay.Utilities
                 {"isect_radius",  0xA29C14}
             };
 
-            static public Dictionary<string, uint> oStaticAddresses = new Dictionary<string, uint>
+            static public Dictionary<string, uint> oStatic = new Dictionary<string, uint>
             {
+                {"selected_pod_stats", 0xA29BDC }, //len=0x78
                 {"frame_count",        0xA22A30 }, //uint
                 {"frame_length",       0xA22A40 }, //double
                 {"scene",              0xA9BA62 }, //ushort

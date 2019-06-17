@@ -33,6 +33,23 @@ namespace SWE1R_Overlay.Utilities
 
 
 
+        // lmao
+        public dynamic GetCustom(uint[] pointerpath, string datatype)
+        {
+            return GetData(pointerpath, datatype);
+        }
+        public void WriteCustom(uint[] pointerpath, dynamic data)
+        {
+            WriteData(pointerpath, data);
+        }
+
+        public dynamic GetRaceSetting(string datapoint, string datatype)
+        {
+            uint[] path = { Addr.pRaceSetting, Addr.oRaceSetting[datapoint] };
+            return GetData(path, datatype);
+        }
+
+
         public dynamic GetPod(string datapoint, string datatype)
         {
             uint[] path = { Addr.pPod, Addr.oPod[datapoint] };
@@ -40,15 +57,11 @@ namespace SWE1R_Overlay.Utilities
         }
         public float[] GetPodTimeALL()
         {
-            float[] times = {
-                GetPod("time_lap1","float"),
-                GetPod("time_lap2","float"),
-                GetPod("time_lap3","float"),
-                GetPod("time_lap4","float"),
-                GetPod("time_lap5","float"),
-                GetPod("time_total","float")
-            };
-            return times;
+            byte[] data = GetData(new uint[]{ Addr.pPod, Addr.oPod["time_lap_1"] }, "", 0x18);
+            List<float> times = new List<float>();
+            for (var i = 0; i < data.Length; i += 4)
+                times.Add(BitConverter.ToSingle(data, i));
+            return times.ToArray();
         }
 
 
@@ -61,7 +74,7 @@ namespace SWE1R_Overlay.Utilities
         public byte[] GetPodDataALL()
         {
             uint[] path = { Addr.pPod, Addr.oPod["pPodData"], 0x0 };
-            return GetData(path, "", Addr.podDataLen);
+            return GetData(path, "", Addr.lPodData);
         }
         public void WritePodDataALL(dynamic data)
         {
@@ -71,26 +84,25 @@ namespace SWE1R_Overlay.Utilities
 
 
 
-
         public dynamic GetStatic(string datapoint, string datatype)
         {
-            uint[] path = { Addr.oStaticAddresses[datapoint] };
+            uint[] path = { Addr.oStatic[datapoint] };
             return GetData(path, datatype);
         }
-        public Single[] GetStaticPodSelStats()
+
+
+
+        public Single[] GetStatsALL()
         {
             List<Single> output = new List<Single>();
-            foreach(KeyValuePair<string,uint> entry in Addr.oPlayerStats)
+            foreach (KeyValuePair<string, uint> entry in Addr.oStats)
             {
-                output.Add(GetStaticPodSelFloat(entry.Key));
+                uint[] path = { Addr.oStats[entry.Key] };
+                output.Add(GetData(path, "float"));
             }
             return output.ToArray();
         }
-        private Single GetStaticPodSelFloat(string datapoint)
-        {
-            uint[] path = { Addr.oPlayerStats[datapoint] };
-            return GetData(path, "float");
-        }
+
 
 
         public void SetDebugMenu(bool enable)

@@ -1,6 +1,7 @@
 ﻿using SWE1R_Overlay.Utilities;
 using System;
 using System.Drawing;
+using System.Linq;
 using System.Diagnostics;
 using System.Collections;
 using System.Windows.Forms;
@@ -20,23 +21,23 @@ namespace SWE1R_Overlay
         private List<SavestateInRace> savestate_in_race;
         private class SavestateInRace
         {
+            public SavestateInRace(byte[] podData, byte racePod, byte raceTrack, float[] raceTimes, byte raceLap)
+            {
+                data = podData;
+                track = raceTrack;
+                time = raceTimes;
+                lap = raceLap;
+                pod = racePod;
+            }
             public byte[] data;
+            public byte lap;
+            public float[] time;
             public byte pod;
             public byte track;
-            public byte world;
+            //public byte world;
             //camera?
             //racetime?
         }
-        /*
-         * savestate
-         * - new data management model
-         *   - save track (disable state load on track mismatch)
-         *   - save time?
-         *   - save camera?
-         *   - save/load to file?
-         */
-
-        // INIT
 
         public ControlPanel()
         {
@@ -105,35 +106,82 @@ namespace SWE1R_Overlay
         // In-Race Savestate
         public void SaveRaceState()
         {
-            if (no_stateSel.Value > savestate_in_race.Count)
+            if (racer.GetStatic("in_race", "byte") > 0)
             {
-                savestate_in_race.Add(new SavestateInRace() { data = racer.GetPodDataALL() });
-                btn_stateL.Enabled = true;
-                no_stateSel.Enabled = true;
-                no_stateSel.Maximum += 1;
+                var track = racer.GetRaceSetting("selected_track", "byte");
+                var pod = racer.GetRaceSetting("selected_pod", "byte");
+                var time = racer.GetPodTimeALL();
+                var lap = racer.GetPod("lap", "byte");
+                var data = racer.GetPodDataALL();
+                if (no_stateSel.Value > savestate_in_race.Count)
+                {
+                    savestate_in_race.Add(new SavestateInRace(data, pod, track, time, lap));
+                    btn_stateL.Enabled = true;
+                    no_stateSel.Enabled = true;
+                    no_stateSel.Maximum += 1;
+                }
+                else
+                {
+                    var savestate = savestate_in_race[(int)no_stateSel.Value - 1];
+                    savestate.data = data;
+                    savestate.track = track;
+                    savestate.time = time;
+                    savestate.lap = lap;
+                    savestate.pod = pod;
+                }
             }
-            else
-            {
-                savestate_in_race[(int)no_stateSel.Value-1].data = racer.GetPodDataALL();
-            }
-            WriteStateInfo();
+            CheckRaceState();
         }
         public void LoadRaceState()
         {
-            if ((int)no_stateSel.Value-1 < savestate_in_race.Count)
-                racer.WritePodDataALL(savestate_in_race[(int)no_stateSel.Value-1].data);
+            if ((int)no_stateSel.Value - 1 < savestate_in_race.Count)
+            {
+                var savestate = savestate_in_race[(int)no_stateSel.Value - 1];
+                var thisTrack = racer.GetRaceSetting("selected_track", "byte");
+                var thisPod = racer.GetRaceSetting("selected_pod", "byte");
+                if (thisTrack == savestate.track && thisPod == savestate.pod)
+                {
+                    var path = new uint[] { Racer.Addr.pPod, Racer.Addr.oPod["time_lap_1"] };
+                    var data = new byte[4 * 6 + 1];
+                    data[4 * 6] = savestate.lap;
+                    Buffer.BlockCopy(savestate.time, 0, data, 0, data.Length - 1);
+                    racer.WriteCustom(path, data);
+                    racer.WritePodDataALL(savestate.data);
+                }
+            }
         }
         private void No_stateSel_ValueChanged(object sender, EventArgs e)
         {
-            btn_stateL.Enabled = ((int)no_stateSel.Value - 1 < savestate_in_race.Count)?true:false;
-            WriteStateInfo();
+            CheckRaceState();
         }
-        private void WriteStateInfo()
+        public void CheckRaceState()
         {
-            bool write = ((int)no_stateSel.Value - 1 < savestate_in_race.Count);
-            txt_stateLapLocVal.Text = write?BitConverter.ToSingle(savestate_in_race[(int)no_stateSel.Value - 1].data, (int)Racer.Addr.oPodData["lap_completion_1"]).ToString("0.0%"):"-";
-            txt_stateSpdVal.Text = write?BitConverter.ToSingle(savestate_in_race[(int)no_stateSel.Value - 1].data, (int)Racer.Addr.oPodData["speed"]).ToString("0.0"+
-                ((BitConverter.ToUInt32(savestate_in_race[(int)no_stateSel.Value - 1].data, (int)Racer.Addr.oPodData["flags1"]) & (1 << 23)) != 0?"*":"")) :"-";
+            bool inRace = (racer.GetStatic("in_race", "byte")>0);
+            btn_stateS.Enabled = inRace;
+            bool canWrite = ((int)no_stateSel.Value - 1 < savestate_in_race.Count);
+            string output;
+            if (canWrite)
+            {
+                var savestate = savestate_in_race[(int)no_stateSel.Value - 1];
+                Racer.Val.pods.TryGetValue(savestate.pod, out output);
+                txt_statePod.Text = output;
+                Racer.Val.tracks.TryGetValue(savestate.track, out output);
+                txt_stateTrack.Text = output;
+                txt_stateLapLocVal.Text = BitConverter.ToSingle(savestate.data, (int)Racer.Addr.oPodData["lap_completion_1"]).ToString("0.0%");
+                txt_stateSpdVal.Text = BitConverter.ToSingle(savestate.data, (int)Racer.Addr.oPodData["speed"]).ToString("0.0" +
+                    ((BitConverter.ToUInt32(savestate.data, (int)Racer.Addr.oPodData["flags1"]) & (1 << 23)) != 0 ? "*" : ""));
+                if (inRace)
+                    btn_stateL.Enabled = (racer.GetRaceSetting("selected_track", "byte") == savestate.track || racer.GetRaceSetting("selected_pod", "byte") == savestate.pod);
+                else
+                    btn_stateL.Enabled = false;
+            }
+            else
+            {
+                txt_statePod.Text = "-";
+                txt_stateTrack.Text = "-";
+                txt_stateLapLocVal.Text = "-";
+                txt_stateSpdVal.Text = "-";
+            }
         }
 
         // GAME DETECTION/ASSIGNMENT
@@ -159,7 +207,7 @@ namespace SWE1R_Overlay
             else
                 racer.SetGameTarget(tgt);
             gb_stateInRace.Enabled = true;
-            WriteStateInfo();
+            CheckRaceState();
             gb_debug.Enabled = true;
         }
         private void SetOverlay(Process tgt, Racer rcr)
