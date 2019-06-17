@@ -25,11 +25,16 @@ using System.Threading;
 
 namespace SWE1R_Overlay
 {
+    /*
+     * stuff to work on
+     * - doesnt reinitialize the window properly when control panel refocuses the game and sends it here
+     */
+
     public partial class Overlay : RenderForm
     {
         readonly ControlPanel controlpanel;
         private Process target;
-        private RacerData racer;
+        private Racer racer;
 
 
         // setup
@@ -123,9 +128,10 @@ namespace SWE1R_Overlay
 
         // OVERLAY LOGIC FLOW & MAIN LOOP
 
-        public Overlay(ControlPanel ctrl, Process tgt, RacerData rcr)
+        public Overlay(ControlPanel ctrl, Process tgt, Racer rcr)
         {
             controlpanel = ctrl;
+            this.Icon = controlpanel.Icon;
             UpdateOverlay(tgt, rcr);
 
             // initial setup
@@ -156,8 +162,8 @@ namespace SWE1R_Overlay
             var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
             stopwatch = Stopwatch.StartNew();
 
-            // exit if data not reachable or overlay hidden
-            if (controlpanel == null || target == null || racer == null || !this.Visible)
+            // discontinue if targets no longer valid
+            if (!CheckTargets())
                 return;
 
             // future: clear screen here then somehow not continue if game is not in focus/taking input, i.e. don't render unless game is actually being played
@@ -179,8 +185,8 @@ namespace SWE1R_Overlay
             /* implement generalised new/old state sytem before adding more UI elements? */
             if (racer_state == "in_race")
             {
-                race_pod_flags1 = racer.GetPodDataFlags1();
-                race_pod_flags2 = racer.GetPodDataFlags2();
+                race_pod_flags1 = racer.GetPodData("flags1", "uint");
+                race_pod_flags2 = racer.GetPodData("flags2", "uint");
                 race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
                 race_pod_is_finished = ((race_pod_flags2 & (1 << 25)) != 0);
                 race_dead_old = race_dead_new;
@@ -188,9 +194,9 @@ namespace SWE1R_Overlay
                 if (race_dead_new && !race_dead_old)
                     race_deaths++;
 
-                race_pod_heat = racer.GetPodDataHeat();
-                race_pod_heatrate = racer.GetPodDataHeatRate();
-                race_pod_coolrate = racer.GetPodDataCoolRate();
+                race_pod_heat = racer.GetPodData("heat","float");
+                race_pod_heatrate = racer.GetPodData("heat_rate", "float");
+                race_pod_coolrate = racer.GetPodData("cool_rate", "float");
                 race_pod_heat_txt = race_pod_heat.ToString("0.0");
                 race_pod_overheat_txt = (race_pod_heat / race_pod_heatrate).ToString("0.0s");
                 race_pod_underheat_txt = ((100 - race_pod_heat) / race_pod_coolrate).ToString("0.0s");
@@ -488,8 +494,8 @@ namespace SWE1R_Overlay
 
         private string GetGameState()
         {
-            var gameInRace = racer.GetStaticInRace();
-            var gameScene = racer.GetStaticScene();
+            var gameInRace = racer.GetStatic("in_race","byte");
+            var gameScene = racer.GetStatic("scene","ushort");
             if (gameInRace == 1)
                 return "in_race";
             if (gameScene == 60)
@@ -528,7 +534,7 @@ namespace SWE1R_Overlay
             this.FormBorderStyle = FormBorderStyle.None;
             this.TopMost = true;
         }
-        public void UpdateOverlay(Process tgt, RacerData rcr)
+        public void UpdateOverlay(Process tgt, Racer rcr)
         {
             target = tgt;
             racer = rcr;
@@ -537,7 +543,7 @@ namespace SWE1R_Overlay
         {
             target = tgt;
         }
-        public void UpdateOverlay(RacerData rcr)
+        public void UpdateOverlay(Racer rcr)
         {
             racer = rcr;
         }
@@ -552,13 +558,28 @@ namespace SWE1R_Overlay
             DisposeImg();
             this.Dispose();
         }
-        public void DebugOn()
+        public void SetDebug(bool enable)
         {
-            opt_debug = true;
+            opt_debug = enable;
         }
-        public void DebugOff()
+        private bool CheckTargets()
         {
-            opt_debug = false;
+            // abort and auto hide if target has closed
+            if (target != null && target.HasExited)
+            {
+                target.Dispose();
+                target = null;
+                this.Hide();
+                return false;
+            }
+            // re-enable hidden window if auto hide no longer valid
+            if (target != null && controlpanel.overlay_show && !this.Visible)
+                this.Show();
+            // confirm everything is setup
+                if (controlpanel == null || target == null || racer == null || !this.Visible)
+                return false;
+
+            return true;
         }
     }
 }

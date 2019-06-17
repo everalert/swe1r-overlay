@@ -115,8 +115,9 @@
     <Compile Include="Utilities\Helper.cs" />
     <Compile Include="Utilities\Interop.cs" />
     <Compile Include="Utilities\ProcessMemoryReader.cs" />
-    <Compile Include="Utilities\RacerAddresses.cs" />
-    <Compile Include="Utilities\RacerData.cs" />
+    <Compile Include="Utilities\Racer.Val.cs" />
+    <Compile Include="Utilities\Racer.Addr.cs" />
+    <Compile Include="Utilities\Racer.cs" />
     <EmbeddedResource Include="ControlPanel.resx">
       <DependentUpon>ControlPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -159,6 +160,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="img\icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="img\race_cooling.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

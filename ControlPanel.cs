@@ -1,5 +1,6 @@
 ﻿using SWE1R_Overlay.Utilities;
 using System;
+using System.Drawing;
 using System.Diagnostics;
 using System.Collections;
 using System.Windows.Forms;
@@ -13,15 +14,35 @@ namespace SWE1R_Overlay
 
         const string TARGET_PROCESS_TITLE = "Episode I Racer";
         private Process target;
-        private RacerData racer;
+        private Racer racer;
         private Overlay overlay;
-        private byte[] savestate_pod;
+        public bool overlay_show;
+        private List<SavestateInRace> savestate_in_race;
+        private class SavestateInRace
+        {
+            public byte[] data;
+            public byte pod;
+            public byte track;
+            public byte world;
+            //camera?
+            //racetime?
+        }
+        /*
+         * savestate
+         * - new data management model
+         *   - save track (disable state load on track mismatch)
+         *   - save time?
+         *   - save camera?
+         *   - save/load to file?
+         */
 
         // INIT
 
         public ControlPanel()
         {
             InitializeComponent();
+            savestate_in_race = new List<SavestateInRace>();
+            this.Icon = new Icon("img\\icon.ico");
             cbx_processList.DisplayMember = "MainWindowTitle";
             cbx_processList.ValueMember = "Id";
             FindGameProcess();
@@ -32,9 +53,19 @@ namespace SWE1R_Overlay
         private void Opt_showOverlay_CheckedChanged(object sender, EventArgs e)
         {
             if (opt_showOverlay.Checked)
-                overlay.Show();
+                ShowOverlay();
             else
-                overlay.Hide();
+                HideOverlay();
+        }
+        private void ShowOverlay()
+        {
+            overlay_show = true;
+            overlay.Show();
+        }
+        private void HideOverlay()
+        {
+            overlay_show = false;
+            overlay.Hide();
         }
         private void Btn_stateS_Click(object sender, EventArgs e)
         {
@@ -48,36 +79,61 @@ namespace SWE1R_Overlay
         {
             if (opt_enableDebugMenu.Checked)
             {
-                racer.EnableDebugMenu();
-                overlay.DebugOn();
+                racer.SetDebugMenu(true);
+                overlay.SetDebug(true);
             }
             else
             {
-                racer.DisableDebugMenu();
-                overlay.DebugOff();
+                racer.SetDebugMenu(false);
+                overlay.SetDebug(false);
             }
         }
         private void Opt_enableInvincibility_CheckedChanged(object sender, EventArgs e)
         {
             if (opt_enableInvincibility.Checked)
-                racer.EnableDebugInvincibility();
+                racer.SetDebugInvincibility(true);
             else
-                racer.DisableDebugInvincibility();
+                racer.SetDebugInvincibility(false);
         }
         private void Opt_showTerrainFlags_CheckedChanged(object sender, EventArgs e)
         {
             if (opt_showTerrainFlags.Checked)
-                racer.EnableDebugTerrainLabels();
+                racer.SetDebugTerrainLabels(true);
             else
-                racer.DisableDebugTerrainLabels();
+                racer.SetDebugTerrainLabels(false);
         }
+        // In-Race Savestate
         public void SaveRaceState()
         {
-            savestate_pod = racer.GetPodDataALL();
+            if (no_stateSel.Value > savestate_in_race.Count)
+            {
+                savestate_in_race.Add(new SavestateInRace() { data = racer.GetPodDataALL() });
+                btn_stateL.Enabled = true;
+                no_stateSel.Enabled = true;
+                no_stateSel.Maximum += 1;
+            }
+            else
+            {
+                savestate_in_race[(int)no_stateSel.Value-1].data = racer.GetPodDataALL();
+            }
+            WriteStateInfo();
         }
         public void LoadRaceState()
         {
-            racer.WritePodDataALL(savestate_pod);
+            if ((int)no_stateSel.Value-1 < savestate_in_race.Count)
+                racer.WritePodDataALL(savestate_in_race[(int)no_stateSel.Value-1].data);
+        }
+        private void No_stateSel_ValueChanged(object sender, EventArgs e)
+        {
+            btn_stateL.Enabled = ((int)no_stateSel.Value - 1 < savestate_in_race.Count)?true:false;
+            WriteStateInfo();
+        }
+        private void WriteStateInfo()
+        {
+            bool write = ((int)no_stateSel.Value - 1 < savestate_in_race.Count);
+            txt_stateLapLocVal.Text = write?BitConverter.ToSingle(savestate_in_race[(int)no_stateSel.Value - 1].data, (int)Racer.Addr.oPodData["lap_completion_1"]).ToString("0.0%"):"-";
+            txt_stateSpdVal.Text = write?BitConverter.ToSingle(savestate_in_race[(int)no_stateSel.Value - 1].data, (int)Racer.Addr.oPodData["speed"]).ToString("0.0"+
+                ((BitConverter.ToUInt32(savestate_in_race[(int)no_stateSel.Value - 1].data, (int)Racer.Addr.oPodData["flags1"]) & (1 << 23)) != 0?"*":"")) :"-";
         }
 
         // GAME DETECTION/ASSIGNMENT
@@ -92,14 +148,21 @@ namespace SWE1R_Overlay
             SetRacer(target);
             SetOverlay(target, racer);
         }
+        private void Btn_processFind_Click(object sender, EventArgs e)
+        {
+            FindGameProcess();
+        }
         private void SetRacer(Process tgt)
         {
             if (racer == null)
-                racer = new RacerData(tgt);
+                racer = new Racer(tgt);
             else
                 racer.SetGameTarget(tgt);
+            gb_stateInRace.Enabled = true;
+            WriteStateInfo();
+            gb_debug.Enabled = true;
         }
-        private void SetOverlay(Process tgt, RacerData rcr)
+        private void SetOverlay(Process tgt, Racer rcr)
         {
             if (overlay == null)
             {
@@ -110,7 +173,7 @@ namespace SWE1R_Overlay
                 opt_showOverlay.Show();
             }
             else
-                overlay.UpdateOverlay(tgt);
+                overlay.UpdateOverlay(tgt, rcr);
         }
         private void FindGameProcess()
         {
