@@ -47,6 +47,7 @@ namespace SWE1R_Overlay
         private Controller xinput;
         private State xinput_state_new;
         private State xinput_state_old;
+        public Input input;
         Stopwatch stopwatch;
         private bool opt_debug = false;
 
@@ -134,6 +135,7 @@ namespace SWE1R_Overlay
             controlpanel = ctrl;
             this.Icon = controlpanel.Icon;
             UpdateOverlay(tgt, rcr);
+            input = new Input(this);
 
             // initial setup
             InitDX11();
@@ -174,10 +176,10 @@ namespace SWE1R_Overlay
 
             // logic
 
-            UpdateXInput();
-            if (CheckXInputButtonDown(0x0001)) //DUp
+            input.Update();
+            if (input.CheckHotkey("state_inrace_load"))
                 controlpanel.LoadRaceState();
-            if (CheckXInputButtonDown(0x0002)) //DDown
+            if (input.CheckHotkey("state_inrace_save"))
                 controlpanel.SaveRaceState();
             /* this should probably be done in the control panel directly? */
 
@@ -479,36 +481,6 @@ namespace SWE1R_Overlay
             }
         }
 
-        private void InitXInput()
-        {
-            // https://csharp.hotexamples.com/examples/SlimDX.XInput/Controller/-/php-controller-class-examples.html
-            // lmao fix dis
-            try
-            {
-                xinput = new Controller(new UserIndex());
-            } catch
-            {
-
-            }
-        }
-        private void UpdateXInput()
-        {
-            // lmao fix dis
-            try
-            {
-                if (xinput_state_new != null)
-                    xinput_state_old = xinput_state_new;
-                xinput_state_new = xinput.GetState();
-            } catch
-            {
-
-            }
-        }
-        private bool CheckXInputButtonDown(uint button)
-        {
-            return ((xinput_state_old.Gamepad.Buttons.GetHashCode() & button) == 0 && (xinput_state_new.Gamepad.Buttons.GetHashCode() & button) != 0);
-        }
-
 
         // LOGIC FUNCTIONS
 
@@ -539,8 +511,6 @@ namespace SWE1R_Overlay
         {
             InitFont();
             InitImg();
-            InitXInput();
-            UpdateXInput();
         }
         private void InitOverlay()
         {
