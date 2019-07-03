@@ -1,4 +1,4 @@
-﻿using SWE1R_Overlay.Utilities;
+﻿using SWE1R.Util;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +23,7 @@ using TextBlockRenderer = SpriteTextRenderer.SlimDX.TextBlockRenderer;
 using System.Collections;
 using System.Threading;
 
-namespace SWE1R_Overlay
+namespace SWE1R
 {
     /*
      * stuff to work on
@@ -38,16 +38,12 @@ namespace SWE1R_Overlay
 
 
         // setup
-        Interop.RECT rect;
+        Win32.RECT rect;
         readonly int[] WINDOW_BORDER = { 10, 32, 10, 10 };
         SizeF WINDOW_SIZE = new SizeF(1280, 720);
         readonly SizeF WINDOW_SIZE_DFLT = new SizeF(1280, 720);
         SizeF WINDOW_SCALE = new SizeF(1, 1);
         readonly string time_format = "m\\:ss\\.fff";
-        private Controller xinput;
-        private State xinput_state_new;
-        private State xinput_state_old;
-        public Input input;
         Stopwatch stopwatch;
         private bool opt_debug = false;
 
@@ -56,16 +52,13 @@ namespace SWE1R_Overlay
         private string racer_state_new;
 
         // in race
-        private uint race_pod_flags1;
-        private uint race_pod_flags2;
-        private bool race_pod_is_boosting;
-        private bool race_pod_is_finished;
-        private float race_pod_heat;
-        private float race_pod_heatrate;
-        private float race_pod_coolrate;
-        private string race_pod_heat_txt;
-        private string race_pod_overheat_txt;
-        private string race_pod_underheat_txt;
+        private uint race_pod_flags1, race_pod_flags2;
+        private bool race_pod_is_boosting, race_pod_is_finished;
+        private Vector3 race_pod_loc_new, race_pod_loc_old;
+        private double race_pod_dist_frame, race_pod_dist_total;
+        private string race_pod_loc_txt;
+        private float race_pod_heat, race_pod_heatrate, race_pod_coolrate;
+        private string race_pod_heat_txt, race_pod_overheat_txt, race_pod_underheat_txt;
         private string[] race_time;
         private float[] race_time_src;
         private string[] race_time_label;
@@ -119,6 +112,7 @@ namespace SWE1R_Overlay
         readonly private Dictionary<string, RectangleF> ol_coords = new Dictionary<string, RectangleF>()
         {
             { "txt_debug", new RectangleF(4, 4, 1272, 32) },
+            { "txt_debug2", new RectangleF(640, 684, 636, 32) },
             { "txt_race_pod_heating", new RectangleF(1032, 448, 32, 32) },
             { "txt_race_pod_cooling", new RectangleF(120, 680, 24, 24) },
             { "txt_race_deaths", new RectangleF(240, 680, 24, 24) },
@@ -135,7 +129,7 @@ namespace SWE1R_Overlay
             controlpanel = ctrl;
             this.Icon = controlpanel.Icon;
             UpdateOverlay(tgt, rcr);
-            input = new Input(this);
+            //input = new Input(this);
 
             // initial setup
             InitDX11();
@@ -153,7 +147,7 @@ namespace SWE1R_Overlay
 
         private void OnAppIdle(object o, EventArgs e)
         {
-            while (Interop.IsApplicationIdle())
+            while (Win32.IsApplicationIdle())
             {
                 MainLoop();
             }
@@ -164,6 +158,10 @@ namespace SWE1R_Overlay
             stopwatch.Stop();
             var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
             stopwatch = Stopwatch.StartNew();
+
+            /* this should probably be done in the control panel directly? */
+            if (controlpanel.input != null)
+                controlpanel.input.Update();
 
             // discontinue if targets no longer valid
             if (!CheckTargets())
@@ -176,22 +174,20 @@ namespace SWE1R_Overlay
 
             // logic
 
-            input.Update();
-            if (input.CheckHotkey("state_inrace_load"))
-                controlpanel.LoadRaceState();
-            if (input.CheckHotkey("state_inrace_save"))
-                controlpanel.SaveRaceState();
-            /* this should probably be done in the control panel directly? */
-
             racer_state_old = racer_state_new;
             racer_state_new = GetGameState();
 
             if (racer_state_new == "in_race" ^ racer_state_old != "in_race")
                 controlpanel.CheckRaceState();
 
+            if (!this.Visible)
+                return;
+
             /* implement generalised new/old state system before adding more UI elements? */
             if (racer_state_new == "in_race")
             {
+                var frame_time = racer.GetStatic("frame_time","double");
+
                 race_pod_flags1 = racer.GetPodData("flags1", "uint");
                 race_pod_flags2 = racer.GetPodData("flags2", "uint");
                 race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
@@ -212,9 +208,23 @@ namespace SWE1R_Overlay
                 race_time = Helper.FormatTimesArray(race_time_src.Where(item => item >= 0).ToArray(), time_format);
                 race_time_label = race_time_label_src.ToList().GetRange(0, race_time.Length).ToArray();
                 race_time_label[race_time_label.Length - 1] = race_time_label_src.Last();
+
+                if (race_pod_loc_new != null)
+                    race_pod_loc_old = race_pod_loc_new;
+                race_pod_loc_new = new Vector3(racer.GetPodData("xpos", "float"), racer.GetPodData("ypos", "float"), racer.GetPodData("zpos", "float"));
+                race_pod_dist_frame = race_pod_loc_old != null ? Math.Sqrt(Math.Pow(race_pod_loc_new.X - race_pod_loc_old.X, 2) + Math.Pow(race_pod_loc_new.Y - race_pod_loc_old.Y, 2) + Math.Pow(race_pod_loc_new.Z - race_pod_loc_old.Z, 2)) : 0;
+                if (!race_pod_is_finished && race_time_src[race_time_src.Length-1]>0)
+                    race_pod_dist_total += race_pod_dist_frame;
+                race_pod_loc_txt = race_pod_dist_frame.ToString("00.000") + " ADU/f  " +
+                    (race_pod_dist_frame / frame_time).ToString("000.0") + " ADU/s  " +
+                    race_pod_dist_total.ToString("0.0") + " ADU/race   "+
+                    (race_pod_dist_total / race_time_src[race_time_src.Length-1]).ToString("000.0") + " avg ADU/s  ";
             }
             else
+            {
                 race_deaths = 0;
+                race_pod_dist_total = 0;
+            }
 
             if (racer_state_new == "pod_select")
             {
@@ -230,7 +240,7 @@ namespace SWE1R_Overlay
 
             // rendering
 
-            Interop.GetWindowRect(target.MainWindowHandle, out rect);
+            Win32.GetWindowRect(target.MainWindowHandle, out rect);
             WINDOW_SIZE = new Size(rect.right - rect.left - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.bottom - rect.top - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
             if (WINDOW_SIZE != this.Size)
             {
@@ -248,6 +258,8 @@ namespace SWE1R_Overlay
 
             if (racer_state_new == "in_race")
             {
+                ol_font["default"].DrawString(race_pod_loc_txt, ol_coords["txt_debug2"], TextAlignment.Right | TextAlignment.Bottom, ol_font["default"].FontSize * WINDOW_SCALE.Height, ol_color["txt_debug"], CoordinateType.Absolute);
+
                 // race times
                 DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
 
@@ -515,11 +527,11 @@ namespace SWE1R_Overlay
         private void InitOverlay()
         {
             //WINDOW_HANDLE = Interop.FindWindow(null, WINDOW_NAME);
-            int initialStyle = Interop.GetWindowLong(this.Handle, -20);
-            Interop.SetWindowLong(this.Handle, -20, initialStyle | 0x80000 | 0x20);
+            int initialStyle = Win32.GetWindowLong(this.Handle, -20);
+            Win32.SetWindowLong(this.Handle, -20, initialStyle | 0x80000 | 0x20);
             this.Resize += OverlayResize;
             this.Text = "SWE1R Overlay";
-            //this.ShowInTaskbar = false;   /* doesn't seem to behave as expected - but, would be nice to not clutter the taskbar/tab window since it's controlled by this form */
+            //this.ShowInTaskbar = false;   /* doesn't seem to behave as expected; seems to prevent window from redrawing/running main loop? - but, would be nice to not clutter the taskbar/tab window since it's controlled by this form */
             this.TransparencyKey = ol_color["clear"];
             this.FormBorderStyle = FormBorderStyle.None;
             this.TopMost = true;
@@ -566,7 +578,7 @@ namespace SWE1R_Overlay
             if (target != null && controlpanel.overlay_show && !this.Visible)
                 this.Show();
             // confirm everything is setup
-                if (controlpanel == null || target == null || racer == null || !this.Visible)
+                if (controlpanel == null || target == null || racer == null)
                 return false;
 
             return true;

@@ -52,7 +52,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>SWE1R_Overlay.Program</StartupObject>
+    <StartupObject>SWE1R.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>566E52E5C5816EB3B76277AB4DEDC5A987CBBAD7</ManifestCertificateThumbprint>
@@ -73,10 +73,14 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Crc32.NET, Version=1.0.0.0, Culture=neutral, PublicKeyToken=dc0b95cf99bf4e99, processorArchitecture=MSIL">
+      <HintPath>packages\Crc32.NET.1.2.0\lib\net20\Crc32.NET.dll</HintPath>
+    </Reference>
     <Reference Include="NBidi, Version=1.2.1.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Utilities\SpriteTextRenderer.SlimDX\NBidi.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="SlimDX, Version=4.0.13.43, Culture=neutral, PublicKeyToken=b1b0c32fd1ffe4f9, processorArchitecture=x86">
       <HintPath>packages\SlimDX.4.0.13.44\lib\NET40\SlimDX.dll</HintPath>
     </Reference>
@@ -112,10 +116,11 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utilities\Helper.cs" />
-    <Compile Include="Utilities\Input.cs" />
-    <Compile Include="Utilities\Interop.cs" />
-    <Compile Include="Utilities\ProcessMemoryReader.cs" />
+    <Compile Include="Utilities\Racer.State.cs" />
+    <Compile Include="Utilities\Util.Helper.cs" />
+    <Compile Include="Utilities\Util.Input.cs" />
+    <Compile Include="Utilities\Util.Win32.cs" />
+    <Compile Include="Utilities\Util.PrcMemRdr.cs" />
     <Compile Include="Utilities\Racer.Val.cs" />
     <Compile Include="Utilities\Racer.Addr.cs" />
     <Compile Include="Utilities\Racer.cs" />
@@ -161,6 +166,8 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Format\Racer.Rec.txt" />
+    <Content Include="Format\Racer.State.txt" />
     <Content Include="img\icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SWE1R_Overlay.Utilities
+namespace SWE1R
 {
     public partial class Racer
     {
@@ -94,11 +94,31 @@ namespace SWE1R_Overlay.Utilities
                 {"isect_radius",  0xA29C14}
             };
 
+            static public Dictionary<string, uint> oInput = new Dictionary<string, uint>()
+            {
+                { "steering",     0xD5E38 },
+                { "nose",         0xD5E3C },
+                { "menu_leftright",     0xD5E58 },
+                { "cycle_camera", 0xD5E80 },
+                { "look_back",    0xD5E84 },
+                { "brake",        0xD5E88 },
+                { "throttle",     0xD5E8C },
+                { "boost",        0xD5E90 },
+                { "slide",        0xD5E94 },
+                { "roll_left",    0xD5E98 },
+                { "roll_right",   0xD5E9C },
+                { "taunt",        0xD5EA0 },
+                { "repair",       0xD5EA4 },
+                { "menu_down",        0xD5F00 },
+                { "menu_up",        0xD5F04 },
+                { "pause",        0xD5F20 },
+            };
+
             static public Dictionary<string, uint> oStatic = new Dictionary<string, uint>
             {
                 {"selected_pod_stats", 0xA29BDC }, //len=0x78
                 {"frame_count",        0xA22A30 }, //uint
-                {"frame_length",       0xA22A40 }, //double
+                {"frame_time",       0xA22A40 }, //double
                 {"scene",              0xA9BA62 }, //ushort
                 {"in_race",            0xA9BB81 }, //byte
                 {"in_tournament_mode", 0x10C450 }  //byte

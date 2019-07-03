@@ -1,4 +1,4 @@
-﻿using SWE1R_Overlay.Utilities;
+﻿using SWE1R.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SWE1R_Overlay.Utilities
+namespace SWE1R
 {
     public partial class Racer
     {
@@ -62,6 +62,16 @@ namespace SWE1R_Overlay.Utilities
             for (var i = 0; i < data.Length; i += 4)
                 times.Add(BitConverter.ToSingle(data, i));
             return times.ToArray();
+        }
+        public byte[] GetPodALL()
+        {
+            uint[] path = { Addr.pPod, 0x0 };
+            return GetData(path, "", Addr.lPod);
+        }
+        public void WritePodALL(dynamic data)
+        {
+            uint[] path = { Addr.pPod, 0x0 };
+            WriteData(path, data);
         }
 
 
@@ -129,7 +139,7 @@ namespace SWE1R_Overlay.Utilities
 
         private dynamic GetData(uint[] path, string type = "", uint len = 4)
         {
-            IntPtr addr = (IntPtr)0;
+            IntPtr addr;
             if (game != null)
             {
                 try

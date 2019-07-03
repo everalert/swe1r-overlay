@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SWE1R_Overlay.Utilities
+namespace SWE1R.Util
 {
     class Helper
     {

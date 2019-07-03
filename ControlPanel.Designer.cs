@@ -1,4 +1,4 @@
-﻿namespace SWE1R_Overlay
+﻿namespace SWE1R
 {
     partial class ControlPanel
     {
@@ -28,11 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.opt_showOverlay = new System.Windows.Forms.CheckBox();
             this.cbx_processList = new System.Windows.Forms.ComboBox();
             this.txt_selectGame = new System.Windows.Forms.Label();
             this.btn_processFind = new System.Windows.Forms.Button();
             this.gb_stateInRace = new System.Windows.Forms.GroupBox();
+            this.btn_stateLFile = new System.Windows.Forms.Button();
+            this.btn_stateSFile = new System.Windows.Forms.Button();
             this.txt_statePod = new System.Windows.Forms.Label();
             this.txt_stateTrack = new System.Windows.Forms.Label();
             this.txt_stateSpdVal = new System.Windows.Forms.Label();
@@ -41,8 +44,6 @@
             this.txt_stateLapLocLabel = new System.Windows.Forms.Label();
             this.txt_stateNoLabel = new System.Windows.Forms.Label();
             this.no_stateSel = new System.Windows.Forms.NumericUpDown();
-            this.txt_stateLoadNote = new System.Windows.Forms.Label();
-            this.txt_stateSaveNote = new System.Windows.Forms.Label();
             this.btn_stateL = new System.Windows.Forms.Button();
             this.btn_stateS = new System.Windows.Forms.Button();
             this.gb_debug = new System.Windows.Forms.GroupBox();
@@ -50,8 +51,12 @@
             this.opt_enableInvincibility = new System.Windows.Forms.CheckBox();
             this.opt_enableDebugMenu = new System.Windows.Forms.CheckBox();
             this.gb_hotkeys = new System.Windows.Forms.GroupBox();
-            this.opt_hotkeyEnable = new System.Windows.Forms.CheckBox();
             this.opt_hotkeyAltLayout = new System.Windows.Forms.CheckBox();
+            this.opt_hotkeyEnable = new System.Windows.Forms.CheckBox();
+            this.tt_stateS = new System.Windows.Forms.ToolTip(this.components);
+            this.tt_stateL = new System.Windows.Forms.ToolTip(this.components);
+            this.dlg_stateSFile = new System.Windows.Forms.SaveFileDialog();
+            this.dlg_stateLFile = new System.Windows.Forms.OpenFileDialog();
             this.gb_stateInRace.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.no_stateSel)).BeginInit();
             this.gb_debug.SuspendLayout();
@@ -107,6 +112,8 @@
             // 
             // gb_stateInRace
             // 
+            this.gb_stateInRace.Controls.Add(this.btn_stateLFile);
+            this.gb_stateInRace.Controls.Add(this.btn_stateSFile);
             this.gb_stateInRace.Controls.Add(this.txt_statePod);
             this.gb_stateInRace.Controls.Add(this.txt_stateTrack);
             this.gb_stateInRace.Controls.Add(this.txt_stateSpdVal);
@@ -115,8 +122,6 @@
             this.gb_stateInRace.Controls.Add(this.txt_stateLapLocLabel);
             this.gb_stateInRace.Controls.Add(this.txt_stateNoLabel);
             this.gb_stateInRace.Controls.Add(this.no_stateSel);
-            this.gb_stateInRace.Controls.Add(this.txt_stateLoadNote);
-            this.gb_stateInRace.Controls.Add(this.txt_stateSaveNote);
             this.gb_stateInRace.Controls.Add(this.btn_stateL);
             this.gb_stateInRace.Controls.Add(this.btn_stateS);
             this.gb_stateInRace.Enabled = false;
@@ -128,6 +133,29 @@
             this.gb_stateInRace.TabIndex = 13;
             this.gb_stateInRace.TabStop = false;
             this.gb_stateInRace.Text = "In-Race Savestate";
+            // 
+            // btn_stateLFile
+            // 
+            this.btn_stateLFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn_stateLFile.Location = new System.Drawing.Point(62, 141);
+            this.btn_stateLFile.Name = "btn_stateLFile";
+            this.btn_stateLFile.Size = new System.Drawing.Size(48, 23);
+            this.btn_stateLFile.TabIndex = 27;
+            this.btn_stateLFile.Text = "Import";
+            this.btn_stateLFile.UseVisualStyleBackColor = true;
+            this.btn_stateLFile.Click += new System.EventHandler(this.Btn_stateLFile_Click);
+            // 
+            // btn_stateSFile
+            // 
+            this.btn_stateSFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn_stateSFile.Enabled = false;
+            this.btn_stateSFile.Location = new System.Drawing.Point(62, 118);
+            this.btn_stateSFile.Name = "btn_stateSFile";
+            this.btn_stateSFile.Size = new System.Drawing.Size(48, 23);
+            this.btn_stateSFile.TabIndex = 26;
+            this.btn_stateSFile.Text = "Export";
+            this.btn_stateSFile.UseVisualStyleBackColor = true;
+            this.btn_stateSFile.Click += new System.EventHandler(this.Btn_stateSFile_Click);
             // 
             // txt_statePod
             // 
@@ -217,26 +245,6 @@
             0});
             this.no_stateSel.ValueChanged += new System.EventHandler(this.No_stateSel_ValueChanged);
             // 
-            // txt_stateLoadNote
-            // 
-            this.txt_stateLoadNote.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txt_stateLoadNote.AutoSize = true;
-            this.txt_stateLoadNote.Location = new System.Drawing.Point(65, 146);
-            this.txt_stateLoadNote.Name = "txt_stateLoadNote";
-            this.txt_stateLoadNote.Size = new System.Drawing.Size(10, 13);
-            this.txt_stateLoadNote.TabIndex = 17;
-            this.txt_stateLoadNote.Text = "-";
-            // 
-            // txt_stateSaveNote
-            // 
-            this.txt_stateSaveNote.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txt_stateSaveNote.AutoSize = true;
-            this.txt_stateSaveNote.Location = new System.Drawing.Point(65, 123);
-            this.txt_stateSaveNote.Name = "txt_stateSaveNote";
-            this.txt_stateSaveNote.Size = new System.Drawing.Size(10, 13);
-            this.txt_stateSaveNote.TabIndex = 16;
-            this.txt_stateSaveNote.Text = "-";
-            // 
             // btn_stateL
             // 
             this.btn_stateL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -247,18 +255,21 @@
             this.btn_stateL.Size = new System.Drawing.Size(48, 23);
             this.btn_stateL.TabIndex = 14;
             this.btn_stateL.Text = "Load";
+            this.tt_stateL.SetToolTip(this.btn_stateL, "AAAAAAAAAAAAA");
             this.btn_stateL.UseVisualStyleBackColor = true;
             this.btn_stateL.Click += new System.EventHandler(this.Btn_stateL_Click);
             // 
             // btn_stateS
             // 
             this.btn_stateS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btn_stateS.Enabled = false;
             this.btn_stateS.Location = new System.Drawing.Point(11, 118);
             this.btn_stateS.Margin = new System.Windows.Forms.Padding(0);
             this.btn_stateS.Name = "btn_stateS";
             this.btn_stateS.Size = new System.Drawing.Size(48, 23);
             this.btn_stateS.TabIndex = 13;
             this.btn_stateS.Text = "Save";
+            this.tt_stateS.SetToolTip(this.btn_stateS, "BBB");
             this.btn_stateS.UseVisualStyleBackColor = true;
             this.btn_stateS.Click += new System.EventHandler(this.Btn_stateS_Click);
             // 
@@ -321,6 +332,17 @@
             this.gb_hotkeys.TabStop = false;
             this.gb_hotkeys.Text = "Hotkeys";
             // 
+            // opt_hotkeyAltLayout
+            // 
+            this.opt_hotkeyAltLayout.AutoSize = true;
+            this.opt_hotkeyAltLayout.Location = new System.Drawing.Point(11, 39);
+            this.opt_hotkeyAltLayout.Name = "opt_hotkeyAltLayout";
+            this.opt_hotkeyAltLayout.Size = new System.Drawing.Size(125, 17);
+            this.opt_hotkeyAltLayout.TabIndex = 1;
+            this.opt_hotkeyAltLayout.Text = "Use Alternate Layout";
+            this.opt_hotkeyAltLayout.UseVisualStyleBackColor = true;
+            this.opt_hotkeyAltLayout.CheckedChanged += new System.EventHandler(this.Opt_hotkeyAltLayout_CheckedChanged);
+            // 
             // opt_hotkeyEnable
             // 
             this.opt_hotkeyEnable.AutoSize = true;
@@ -334,16 +356,17 @@
             this.opt_hotkeyEnable.UseVisualStyleBackColor = true;
             this.opt_hotkeyEnable.CheckedChanged += new System.EventHandler(this.Opt_hotkeyEnable_CheckedChanged);
             // 
-            // opt_hotkeyAltLayout
+            // dlg_stateSFile
             // 
-            this.opt_hotkeyAltLayout.AutoSize = true;
-            this.opt_hotkeyAltLayout.Location = new System.Drawing.Point(11, 39);
-            this.opt_hotkeyAltLayout.Name = "opt_hotkeyAltLayout";
-            this.opt_hotkeyAltLayout.Size = new System.Drawing.Size(125, 17);
-            this.opt_hotkeyAltLayout.TabIndex = 1;
-            this.opt_hotkeyAltLayout.Text = "Use Alternate Layout";
-            this.opt_hotkeyAltLayout.UseVisualStyleBackColor = true;
-            this.opt_hotkeyAltLayout.CheckedChanged += new System.EventHandler(this.Opt_hotkeyAltLayout_CheckedChanged);
+            this.dlg_stateSFile.DefaultExt = "e1rs";
+            this.dlg_stateSFile.Filter = "SWE1R Savestate (*.e1rs)|*.e1rs";
+            this.dlg_stateSFile.Title = "Export Savestate";
+            // 
+            // dlg_stateLFile
+            // 
+            this.dlg_stateLFile.DefaultExt = "e1rs";
+            this.dlg_stateLFile.Filter = "SWE1R Savestate (*.e1rs)|*.e1rs|All Files (*.*)|*.*";
+            this.dlg_stateLFile.Title = "Import Savestate";
             // 
             // ControlPanel
             // 
@@ -388,8 +411,6 @@
         private System.Windows.Forms.Label txt_stateLapLocLabel;
         private System.Windows.Forms.Label txt_stateNoLabel;
         private System.Windows.Forms.NumericUpDown no_stateSel;
-        private System.Windows.Forms.Label txt_stateLoadNote;
-        private System.Windows.Forms.Label txt_stateSaveNote;
         private System.Windows.Forms.Button btn_stateL;
         private System.Windows.Forms.Button btn_stateS;
         private System.Windows.Forms.GroupBox gb_debug;
@@ -401,6 +422,12 @@
         private System.Windows.Forms.GroupBox gb_hotkeys;
         private System.Windows.Forms.CheckBox opt_hotkeyAltLayout;
         private System.Windows.Forms.CheckBox opt_hotkeyEnable;
+        private System.Windows.Forms.ToolTip tt_stateS;
+        private System.Windows.Forms.ToolTip tt_stateL;
+        private System.Windows.Forms.Button btn_stateLFile;
+        private System.Windows.Forms.Button btn_stateSFile;
+        private System.Windows.Forms.SaveFileDialog dlg_stateSFile;
+        private System.Windows.Forms.OpenFileDialog dlg_stateLFile;
     }
 }
 

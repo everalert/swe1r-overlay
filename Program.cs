@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace SWE1R_Overlay
+namespace SWE1R
 {
     static class Program
     {

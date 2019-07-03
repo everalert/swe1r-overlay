@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SWE1R_Overlay.Utilities
+namespace SWE1R.Util
 {
     /// thanks to https://www.youtube.com/watch?v=WOKbYCBCSC0
 

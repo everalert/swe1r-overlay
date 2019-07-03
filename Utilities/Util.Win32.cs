@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Drawing;
 
-namespace SWE1R_Overlay.Utilities
+namespace SWE1R.Util
 {
     // thanks in part to https://www.youtube.com/watch?v=t1ErGj0YnaM
 
-    class Interop
+    class Win32
     {
         public struct RECT
         {
@@ -60,6 +60,17 @@ namespace SWE1R_Overlay.Utilities
         {
             NativeMessage result;
             return PeekMessage(out result, IntPtr.Zero, (uint)0, (uint)0, (uint)0) == 0;
+        }
+
+
+        [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int memcmp(byte[] b1, byte[] b2, long count);
+
+        public static bool ByteArrayCompare(byte[] b1, byte[] b2)
+        {
+            // Validate buffers are the same length.
+            // This also ensures that the count does not exceed the length of either buffer.  
+            return b1.Length == b2.Length && memcmp(b1, b2, b1.Length) == 0;
         }
     }
 }

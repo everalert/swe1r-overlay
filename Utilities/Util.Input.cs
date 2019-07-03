@@ -6,7 +6,7 @@ using System.Text;
 using SlimDX.XInput;
 using SlimDX.DirectInput;
 
-namespace SWE1R_Overlay.Utilities
+namespace SWE1R
 {
     public class Input
     {
@@ -15,9 +15,9 @@ namespace SWE1R_Overlay.Utilities
         private List<HotkeyMap> map_groups;
         private XInput control_xi;
         private Keyboard control_kb;
-        private System.Windows.Forms.Form parent;
+        private ControlPanel parent;
 
-        public Input (System.Windows.Forms.Form host)
+        public Input (ControlPanel host)
         {
             parent = host;
             control_xi = new XInput();
@@ -39,6 +39,12 @@ namespace SWE1R_Overlay.Utilities
         {
             control_xi.Update();
             control_kb.Update();
+            if (!hotkeys_on)
+                return;
+            if (CheckHotkey("state_inrace_load"))
+                parent.LoadRaceState();
+            if (CheckHotkey("state_inrace_save"))
+                parent.SaveRaceState();
         }
 
         public bool CheckHotkey(string hk)
@@ -200,6 +206,17 @@ namespace SWE1R_Overlay.Utilities
             public string[] GetLabels()
             {
                 return new string[2] { (xi!=0?XInput.BUTTON_LABELS[xi]:""), (kb!=Key.Unknown?kb.ToString():"") };
+            }
+
+            public string GetLabel(string title, string separator)
+            {
+                string[] labels = GetLabels();
+                string text = "NONE";
+                if ((labels[0].Length + labels[1].Length > 0))
+                    text = (labels[0].Length > 0 ? "[XInput] " + labels[0] : "") +
+                        ((labels[0].Length > 0 && labels[1].Length > 0) ? separator : "") +
+                        (labels[1].Length > 0 ? "[Keyboard] " + labels[1] : "");
+                return title + text;
             }
         }
     }
