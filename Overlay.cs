@@ -254,11 +254,11 @@ namespace SWE1R
 
             context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
             if (opt_debug)
-                ol_font["default"].DrawString(txt_debug, ol_coords["txt_debug"], TextAlignment.Left | TextAlignment.Top, ol_font["default"].FontSize * WINDOW_SCALE.Height, ol_color["txt_debug"], CoordinateType.Absolute);
+                DrawText(ol_coords["txt_debug"], txt_debug, ol_font["default"], ol_color["txt_debug"], TextAlignment.Left | TextAlignment.Top);
 
             if (racer_state_new == "in_race")
             {
-                ol_font["default"].DrawString(race_pod_loc_txt, ol_coords["txt_debug2"], TextAlignment.Right | TextAlignment.Bottom, ol_font["default"].FontSize * WINDOW_SCALE.Height, ol_color["txt_debug"], CoordinateType.Absolute);
+                DrawText(ol_coords["txt_debug2"], race_pod_loc_txt, ol_font["default"], ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
 
                 // race times
                 DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
@@ -309,9 +309,9 @@ namespace SWE1R
 
         private void DrawIconWithText(RectangleF coords, ShaderResourceView image, String text, TextBlockRenderer font, Color color, TextAlignment align, Point offset)
         {
-            var fntSz = font.FontSize * WINDOW_SCALE.Height;
+            var fntSz = font.FontSize * WINDOW_SCALE.Width;
             var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new Vector2(coords.Width * WINDOW_SCALE.Height, coords.Height * WINDOW_SCALE.Height); // to avoid img distortion
+            var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Width); // to avoid img distortion
             sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
             var region = new RectangleF(
                 PointF.Add(new PointF(loc.X, loc.Y), new SizeF(size.X + offset.X * WINDOW_SCALE.Width, size.Y / 2 + offset.Y * WINDOW_SCALE.Height - (float)Math.Ceiling(font.MeasureString(text, fntSz, CoordinateType.Absolute).Size.Y) / 2)),
@@ -324,9 +324,9 @@ namespace SWE1R
         }
         private void DrawIconWithText(RectangleF coords, ShaderResourceView image, List<String> text, TextBlockRenderer font, List<Color> color, TextAlignment align, Point offset, int sep = 0, String measure = "000")
         {
-            var fntSz = font.FontSize * WINDOW_SCALE.Height;
+            var fntSz = font.FontSize * WINDOW_SCALE.Width;
             var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new Vector2(coords.Width * WINDOW_SCALE.Height, coords.Height * WINDOW_SCALE.Height); // to avoid img distortion
+            var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Width); // to avoid img distortion
             sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
             List<RectangleF> regions = new List<RectangleF>() {
                 new RectangleF(
@@ -343,28 +343,37 @@ namespace SWE1R
         }
         private void DrawTextList(RectangleF coords, List<String> text, TextBlockRenderer font, Color color, TextAlignment align)
         {
+            var fntSz = font.FontSize * WINDOW_SCALE.Width;
             var pos = new PointF(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
             var size = new SizeF(coords.Width * WINDOW_SCALE.Width, coords.Height / text.Count() * WINDOW_SCALE.Height);
             for (var i = 0; i < text.Count(); i++)
             {
                 var region = new RectangleF(pos, size);
                 region.Offset(0, size.Height * i);
-                font.DrawString(text[i], region, align, font.FontSize * WINDOW_SCALE.Height, color, CoordinateType.Absolute);
+                font.DrawString(text[i], region, align, fntSz, color, CoordinateType.Absolute);
             }
         }
         private void DrawTextList(RectangleF coords, Array text1, Array text2, TextBlockRenderer font, Color color, TextAlignment align, String gap = "   ")
         {
+            var fntSz = font.FontSize * WINDOW_SCALE.Width;
             string[] str = new string[2];
             foreach (dynamic item in text1)
                 str[0] += "\n\r" + item.ToString();
             foreach (dynamic item in text2)
                 str[1] += "\n\r" + item.ToString();
             var region = new RectangleF(new PointF(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height), new SizeF(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height));
-            var col1_w = (float)Math.Ceiling(font.MeasureString(str[0], font.FontSize * WINDOW_SCALE.Height, CoordinateType.Absolute).Size.X);
-            var gap_w = (float)Math.Ceiling(font.MeasureString(gap, font.FontSize * WINDOW_SCALE.Height, CoordinateType.Absolute).Size.X);
-            font.DrawString(str[0], region, align, font.FontSize * WINDOW_SCALE.Height, color, CoordinateType.Absolute);
+            var col1_w = (float)Math.Ceiling(font.MeasureString(str[0], fntSz, CoordinateType.Absolute).Size.X);
+            var gap_w = (float)Math.Ceiling(font.MeasureString(gap, fntSz, CoordinateType.Absolute).Size.X);
+            font.DrawString(str[0], region, align, fntSz, color, CoordinateType.Absolute);
             region.Offset(col1_w + gap_w, 0);
-            font.DrawString(str[1], region, align, font.FontSize * WINDOW_SCALE.Height, color, CoordinateType.Absolute);
+            font.DrawString(str[1], region, align, fntSz, color, CoordinateType.Absolute);
+        }
+        private void DrawText(RectangleF coords, string text, TextBlockRenderer font, Color color, TextAlignment align)
+        {
+            var fntSz = font.FontSize * WINDOW_SCALE.Width;
+            var pos = new PointF(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
+            var size = new SizeF(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height);
+            font.DrawString(text, new RectangleF(pos, size), align, fntSz, color, CoordinateType.Absolute);
         }
 
 
