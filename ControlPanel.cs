@@ -21,23 +21,6 @@ namespace SWE1R
 
         public bool overlay_show;
         private List<Racer.State> savestate_in_race;
-        private class SavestateInRace
-        {
-            public SavestateInRace(byte[] infoPod, byte[] infoPodData, byte racePod, byte raceTrack)
-            {
-                dPod = infoPod;
-                dPodData = infoPodData;
-                track = raceTrack;
-                pod = racePod;
-            }
-            public byte[] dPodData;
-            public byte[] dPod;
-            public byte pod;
-            public byte track;
-            //public byte world;
-            //camera?
-            //racetime?
-        }
 
         public ControlPanel()
         {
@@ -117,9 +100,9 @@ namespace SWE1R
             {
                 Racer.State savestate = savestate_in_race[(int)no_stateSel.Value - 1];
                 byte[] podData = savestate.data[savestate.DataFirstIndexOfId(Racer.State.BlockType.PodData)].data;
-                Racer.Val.pods.TryGetValue(savestate.pod, out output);
+                Racer.Value.Vehicle.Name.TryGetValue(savestate.pod, out output);
                 txt_statePod.Text = output;
-                Racer.Val.tracks.TryGetValue(savestate.track, out output);
+                Racer.Value.Track.Name.TryGetValue(savestate.track, out output);
                 txt_stateTrack.Text = output;
                 txt_stateLapLocVal.Text = BitConverter.ToSingle(podData, (int)Racer.Addr.oPodData["lap_completion_1"]).ToString("0.0%");
                 txt_stateSpdVal.Text = BitConverter.ToSingle(podData, (int)Racer.Addr.oPodData["speed"]).ToString("0.0" +

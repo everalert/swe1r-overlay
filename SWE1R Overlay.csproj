@@ -116,6 +116,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\Racer.Save.cs" />
     <Compile Include="Utilities\Racer.State.cs" />
     <Compile Include="Utilities\Util.Helper.cs" />
     <Compile Include="Utilities\Util.Input.cs" />
