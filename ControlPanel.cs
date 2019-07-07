@@ -44,7 +44,8 @@ namespace SWE1R
                 var track = racer.GetRaceSetting("selected_track", "byte");
                 var pod = racer.GetRaceSetting("selected_pod", "byte");
                 List<Racer.State.StateBlock> data = new List<Racer.State.StateBlock>();
-                data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Pod, 0, racer.GetPodALL()));
+                //data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Pod, 0, racer.GetPodALL()));
+                data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Pod, 0x60, racer.GetPodCustom(0x60,0x19))); // times + lap byte
                 data.Add(new Racer.State.StateBlock(Racer.State.BlockType.PodData, 0, racer.GetPodDataALL()));
                 Racer.State state = new Racer.State(data.ToArray(), pod, track);
                 if (no_stateSel.Value > savestate_in_race.Count)
@@ -69,11 +70,12 @@ namespace SWE1R
                     {
                         switch (block.type)
                         {
-                            case 0:
-                                racer.WritePodALL(block.data);
+                            case Racer.State.BlockType.Pod:
+                                racer.WriteCustom(new uint[2] { Racer.Addr.pPod, BitConverter.ToUInt32(block.offset, 0) }, block.data);
                                 break;
-                            case 1:
-                                racer.WritePodDataALL(block.data);
+                            case Racer.State.BlockType.PodData:
+                                racer.WriteCustom(new uint[3] { Racer.Addr.pPod, Racer.Addr.oPod["pPodData"], BitConverter.ToUInt32(block.offset, 0) }, block.data);
+                                //breaks when loading state from old session, probably some pointers being written?
                                 break;
                             default:
                                 break;
@@ -81,6 +83,7 @@ namespace SWE1R
                     }
                 }
             }
+            CheckRaceState();
         }
         private void No_stateSel_ValueChanged(object sender, EventArgs e)
         {

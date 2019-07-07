@@ -68,6 +68,11 @@ namespace SWE1R
             uint[] path = { Addr.pPod, 0x0 };
             return GetData(path, "", Addr.lPod);
         }
+        public byte[] GetPodCustom(uint offset, uint length)
+        {
+            uint[] path = { Addr.pPod, offset };
+            return GetData(path, "", length);
+        }
         public void WritePodALL(dynamic data)
         {
             uint[] path = { Addr.pPod, 0x0 };
@@ -184,9 +189,7 @@ namespace SWE1R
                 mem.WriteMemory(addr, ((data.GetType()==typeof(byte[]))?data:BitConverter.GetBytes(data)), out bytesIn);
             }
             else
-            {
                 throw new Exception("Game process not found.");
-            }
         }
 
         private IntPtr GetMemoryAddr(Process game, uint[] pointerPath)

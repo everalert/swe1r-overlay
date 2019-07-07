@@ -15,6 +15,7 @@ namespace SWE1R
             private static readonly byte[] fileMagicWord = new byte[16] { 0x89, 0x53, 0x57, 0x45, 0x31, 0x52, 0x53, 0x41, 0x56, 0x53, 0x54, 0x41, 0x0D, 0x0A, 0x1A, 0x0A };
             private static readonly byte[] fileEOFWord = new byte[8] { 0x2E, 0x44, 0x4F, 0x54, 0x44, 0x4F, 0x4E, 0x45 };
             public static readonly string fileExt = "e1rs";
+            private const byte fileVersion = 1;
 
             public byte[] dPodData;
             public byte[] dPod;
@@ -37,10 +38,11 @@ namespace SWE1R
                 pod = racePod;
                 track = raceTrack;
                 data = blocks;
-                if (DataHasId(0))
-                    DataAssignPod();
-                if (DataHasId(1))
-                    DataAssignPodData();
+                ValidateData();
+                //if (DataHasId(0))
+                //    DataAssignPod();
+                //if (DataHasId(1))
+                //    DataAssignPodData();
             }
 
             public void SaveStateToFile(string filename)
@@ -59,7 +61,9 @@ namespace SWE1R
                 WriteFileChunk(file, writerVer, ref headerCRC32);
                 WriteFileChunk(file, readerVer, ref headerCRC32);
                 WriteFileChunk(file, !BitConverter.IsLittleEndian, ref headerCRC32);
-                uint dataLen = 2 + 13 * 2 + Racer.Addr.lPod + Racer.Addr.lPodData + 4;
+                uint dataLen = 2 + 4; // pod/track bytes + final crc32
+                foreach (StateBlock block in data)
+                    dataLen += 13 + (uint)block.data.Length; // + length of each block
                 WriteFileChunk(file, dataLen, ref headerCRC32);
                 ushort dataOff = (ushort)(file.Position + sizeof(ushort) + sizeof(uint));
                 WriteFileChunk(file, dataOff, ref headerCRC32);
@@ -70,20 +74,16 @@ namespace SWE1R
                 uint dataCRC32 = 0;
                 WriteFileChunk(file, pod, ref dataCRC32);
                 WriteFileChunk(file, track, ref dataCRC32);
-                //technically supposed to loop here lol
-                uint blockCRC32 = 0;
-                WriteFileChunk(file, (byte)0, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, (uint)0, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, (uint)dPod.Length, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, dPod, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, blockCRC32, ref dataCRC32);
-                blockCRC32 = 0;
-                WriteFileChunk(file, (byte)1, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, (uint)0, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, (uint)dPodData.Length, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, dPodData, ref blockCRC32, ref dataCRC32);
-                WriteFileChunk(file, blockCRC32, ref dataCRC32);
-                //end "loop"
+                uint blockCRC32;
+                foreach (StateBlock block in data)
+                {
+                    blockCRC32 = 0;
+                    WriteFileChunk(file, block.type, ref blockCRC32, ref dataCRC32);
+                    WriteFileChunk(file, block.offset, ref blockCRC32, ref dataCRC32);
+                    WriteFileChunk(file, block.data.Length, ref blockCRC32, ref dataCRC32);
+                    WriteFileChunk(file, block.data, ref blockCRC32, ref dataCRC32);
+                    WriteFileChunk(file, blockCRC32, ref dataCRC32);
+                }
                 file.Write(BitConverter.GetBytes(dataCRC32), 0, 4);
                 file.Write(fileEOFWord, 0, fileEOFWord.Length);
 
@@ -99,7 +99,6 @@ namespace SWE1R
                 FileStream file = File.OpenRead(filename);
                 uint headerCRC32 = 0;
                 uint dataCRC32 = 0;
-                //tested with handmade state, probably going to run into endianness issues with magic/eof word once files are being written then read
 
                 // READ HEADER
 
@@ -170,9 +169,14 @@ namespace SWE1R
                 return output;
             }
 
-            private bool ValidateData(byte ver)
+            public bool ValidateData(byte ver = fileVersion)
             {
-                return false;
+                bool valid = true;
+                if (!DataHasValue(BlockType.Pod, 0x60, 0x19))
+                    valid = false;
+                if (!DataHasValue(BlockType.PodData, 0x0, Addr.lPodData))
+                    valid = false;
+                return valid;
             }
 
             private bool DataHasId(byte id)
@@ -183,6 +187,20 @@ namespace SWE1R
                 for (var i = 0; found == false && i<data.Count(); i++)
                     if (data[i].type == id)
                         found = true;
+                return found;
+            }
+            private bool DataHasValue(byte id, uint offset, uint length)
+            {
+                if (data == null || data.Count() <= 0)
+                    return false;
+                bool found = false;
+                uint off;
+                for (var i = 0; found == false && i < data.Count(); i++)
+                {
+                    off = BitConverter.ToUInt32(data[i].offset, 0);
+                    if (data[i].type == id && off <= offset && off + data[i].data.Length >= offset + length)
+                        found = true;
+                }
                 return found;
             }
 
@@ -251,9 +269,9 @@ namespace SWE1R
 
             public struct BlockType
             {
-                public static readonly byte Pod = 0;
-                public static readonly byte PodData = 1;
-                public static readonly byte Race = 2;
+                public const byte Pod = 0,
+                    PodData = 1,
+                    Race = 2;
             }
 
 
