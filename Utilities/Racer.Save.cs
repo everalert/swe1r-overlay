@@ -34,6 +34,23 @@ namespace SWE1R
             //game ignores name and pod if time is default
 
             //total length 0x0FD8
+
+            public struct RaceTime
+            {
+                float Time;
+                bool Mirrored;
+                byte TimeType;
+                byte Vehicle;
+                string Name;
+                private const byte NameLimit = 0x20;
+            }
+
+            public struct RaceTimeType
+            {
+                public const byte FullTrack = 0,
+                    SingleLap = 1,
+                    FirstLap = 2;
+            }
         }
     }
 }
