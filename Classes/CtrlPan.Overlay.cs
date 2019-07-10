@@ -25,17 +25,9 @@ using System.Threading;
 
 namespace SWE1R
 {
-    /*
-     * stuff to work on
-     * - doesnt reinitialize the window properly when control panel refocuses the game and sends it here
-     */
-
-    public partial class Overlay : RenderForm
+    public partial class ControlPanel : Form
     {
-        readonly ControlPanel controlpanel;
-        private Process target;
-        private Racer racer;
-
+        //readonly ControlPanel controlpanel;
 
         // setup
         Win32.RECT rect;
@@ -48,8 +40,7 @@ namespace SWE1R
         private bool opt_debug = false;
 
         // racer
-        private string racer_state_old;
-        private string racer_state_new;
+        private string racer_state_old, racer_state_new;
 
         // in race
         private uint race_pod_flags1, race_pod_flags2;
@@ -124,185 +115,25 @@ namespace SWE1R
 
         // OVERLAY LOGIC FLOW & MAIN LOOP
 
-        public Overlay(ControlPanel ctrl, Process tgt, Racer rcr)
-        {
-            controlpanel = ctrl;
-            this.Icon = controlpanel.Icon;
-            UpdateOverlay(tgt, rcr);
-            //input = new Input(this);
+        //public void Overlay(ControlPanel ctrl, Process tgt, Racer rcr)
+        //{
+        //    //controlpanel = ctrl;
+        //    //this.Icon = controlpanel.Icon;
+        //    //input = new Input(this);
 
-            // initial setup
-            InitDX11();
-            InitResources();
-            InitOverlay();
-            stopwatch = new Stopwatch();
-            stopwatch.Start();
+        //    // initial setup
+        //    InitDX11();
+        //    InitResources();
+        //    InitOverlay();
+        //    stopwatch = new Stopwatch();
+        //    stopwatch.Start();
 
-            Application.Idle += new EventHandler(OnAppIdle);
+        //    Application.Idle += new EventHandler(OnAppIdle);
 
-            // clean up
-            //DisposeAll();
-            /* where to call this now that the main loop is asychronous? should eventually garbage collect by itself regardless tho */
-        }
-
-        private void OnAppIdle(object o, EventArgs e)
-        {
-            while (Win32.IsApplicationIdle())
-            {
-                MainLoop();
-            }
-        }
-
-        private void MainLoop()
-        {
-            stopwatch.Stop();
-            var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
-            stopwatch = Stopwatch.StartNew();
-
-            /* this should probably be done in the control panel directly? */
-            if (controlpanel.input != null)
-                controlpanel.input.Update();
-
-            // discontinue if targets no longer valid
-            if (!CheckTargets())
-                return;
-
-            // future: clear screen here then somehow not continue if game is not in focus/taking input, i.e. don't render unless game is actually being played
-            //context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
-            //if (target.MainWindowHandle != Interop.GetForegroundWindow())
-            //    return;
-
-            // logic
-
-            racer_state_old = racer_state_new;
-            racer_state_new = GetGameState();
-
-            if (racer_state_new == "in_race" ^ racer_state_old != "in_race")
-                controlpanel.CheckRaceState();
-
-            if (!this.Visible)
-                return;
-
-            /* implement generalised new/old state system before adding more UI elements? */
-            if (racer_state_new == "in_race")
-            {
-                var frame_time = racer.GetStatic("frame_time","double");
-
-                race_pod_flags1 = racer.GetPodData("flags1", "uint");
-                race_pod_flags2 = racer.GetPodData("flags2", "uint");
-                race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
-                race_pod_is_finished = ((race_pod_flags2 & (1 << 25)) != 0);
-                race_dead_old = race_dead_new;
-                race_dead_new = ((race_pod_flags1 & (1 << 14)) != 0);
-                if (race_dead_new && !race_dead_old)
-                    race_deaths++;
-
-                race_pod_heat = racer.GetPodData("heat","float");
-                race_pod_heatrate = racer.GetPodData("heat_rate", "float");
-                race_pod_coolrate = racer.GetPodData("cool_rate", "float");
-                race_pod_heat_txt = race_pod_heat.ToString("0.0");
-                race_pod_overheat_txt = (race_pod_heat / race_pod_heatrate).ToString("0.0s");
-                race_pod_underheat_txt = ((100 - race_pod_heat) / race_pod_coolrate).ToString("0.0s");
-
-                race_time_src = racer.GetPodTimeALL();
-                race_time = Helper.FormatTimesArray(race_time_src.Where(item => item >= 0).ToArray(), time_format);
-                race_time_label = race_time_label_src.ToList().GetRange(0, race_time.Length).ToArray();
-                race_time_label[race_time_label.Length - 1] = race_time_label_src.Last();
-
-                if (race_pod_loc_new != null)
-                    race_pod_loc_old = race_pod_loc_new;
-                race_pod_loc_new = new Vector3(racer.GetPodData("xpos", "float"), racer.GetPodData("ypos", "float"), racer.GetPodData("zpos", "float"));
-                race_pod_dist_frame = race_pod_loc_old != null ? Math.Sqrt(Math.Pow(race_pod_loc_new.X - race_pod_loc_old.X, 2) + Math.Pow(race_pod_loc_new.Y - race_pod_loc_old.Y, 2) + Math.Pow(race_pod_loc_new.Z - race_pod_loc_old.Z, 2)) : 0;
-                if (!race_pod_is_finished && race_time_src[race_time_src.Length-1]>0)
-                    race_pod_dist_total += race_pod_dist_frame;
-                race_pod_loc_txt = race_pod_dist_frame.ToString("00.000") + " ADU/f  " +
-                    (race_pod_dist_frame / frame_time).ToString("000.0") + " ADU/s  " +
-                    race_pod_dist_total.ToString("0.0") + " ADU/race   "+
-                    (race_pod_dist_total / race_time_src[race_time_src.Length-1]).ToString("000.0") + " avg ADU/s  ";
-            }
-            else
-            {
-                race_deaths = 0;
-                race_pod_dist_total = 0;
-            }
-
-            if (racer_state_new == "pod_select")
-            {
-                podsel_statistics = racer.GetStatsALL();
-                podsel_shown_stats = new float[7];
-                for (var i = 0; i < podsel_shown_map.Length; i++)
-                    podsel_shown_stats[i] = (float)podsel_statistics.GetValue(podsel_shown_map[i]);
-                podsel_hidden_stats = new float[8];
-                for (var i = 0; i < podsel_hidden_map.Length; i++)
-                    podsel_hidden_stats[i] = (float)podsel_statistics.GetValue(podsel_hidden_map[i]);
-
-            }
-
-            // rendering
-
-            Win32.GetWindowRect(target.MainWindowHandle, out rect);
-            WINDOW_SIZE = new Size(rect.right - rect.left - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.bottom - rect.top - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
-            if (WINDOW_SIZE != this.Size)
-            {
-                this.Size = WINDOW_SIZE.ToSize();
-                WINDOW_SCALE.Width = WINDOW_SIZE.Width / WINDOW_SIZE_DFLT.Width;
-                WINDOW_SCALE.Height = WINDOW_SIZE.Height / WINDOW_SIZE_DFLT.Height;
-                /* i.e. all scaling is relative to base 1280x720 design */
-            }
-            this.Left = rect.left + WINDOW_BORDER[0];
-            this.Top = rect.top + WINDOW_BORDER[1];
-
-            context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
-            if (opt_debug)
-                DrawText(ol_coords["txt_debug"], txt_debug, ol_font["default"], ol_color["txt_debug"], TextAlignment.Left | TextAlignment.Top);
-
-            if (racer_state_new == "in_race")
-            {
-                DrawText(ol_coords["txt_debug2"], race_pod_loc_txt, ol_font["default"], ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
-
-                // race times
-                DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
-
-                // not displayed on race end screen
-                if (!race_pod_is_finished)
-                {
-                    //heating
-                    /*  todo - different ms size, colouring */
-                    if (race_pod_is_boosting)
-                        DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
-                            ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_on"], ol_color["txt_race_pod_underheat_off"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
-                    else
-                        DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
-                            ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_off"], ol_color["txt_race_pod_underheat_on"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
-
-                    //cooling
-                    DrawIconWithText(ol_coords["txt_race_pod_cooling"], ol_img["cooling"], race_pod_heat_txt,
-                            ol_font["race_botbar"], ol_color["txt_race_pod_cooling"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
-
-                    //deaths
-                    DrawIconWithText(ol_coords["txt_race_deaths"], ol_img["deaths"], race_deaths.ToString(),
-                            ol_font["race_botbar"], ol_color["txt_race_deaths"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
-
-                    /*
-                        engine notes @ 1280x720
-                        51 x (42*3=126)
-                        col1 x136 y531
-                        col2 x233 y531
-                        whole item incl cooling outline - w177 h139 x120 y525 - gap to bottom of screen 56px
-                    */
-                }
-            }
-            if (racer_state_new == "pod_select")
-            {
-                //hidden stats
-                DrawTextList(ol_coords["podsel_hidden"], podsel_hidden_stats_names, podsel_hidden_stats, ol_font["podsel_hidden"], ol_color["txt_podsel_stats_hidden"], TextAlignment.Left | TextAlignment.Bottom, "   ");
-
-                //shown stats
-                DrawTextList(ol_coords["podsel_shown"], Helper.ArrayToStrList(podsel_shown_stats), ol_font["podsel_shown"], ol_color["txt_podsel_stats_shown"], TextAlignment.Left | TextAlignment.VerticalCenter);
-            }
-            sprite.Flush();
-            swapChain.Present(0, PresentFlags.None);
-        }
+        //    // clean up
+        //    //DisposeAll();
+        //    /* where to call this now that the main loop is asychronous? should eventually garbage collect by itself regardless tho */
+        //}
 
 
         // RENDERING FUNCTIONS
@@ -381,11 +212,13 @@ namespace SWE1R
 
         private void InitDevice()
         {
+            if (overlay == null)
+                throw new Exception("Overlay not set.");
             var description = new SwapChainDescription()
             {
                 BufferCount = 1,
                 Usage = Usage.RenderTargetOutput,
-                OutputHandle = this.Handle,
+                OutputHandle = overlay.Handle,
                 IsWindowed = true,
                 ModeDescription = new ModeDescription(0, 0, new Rational(60, 1), Format.R8G8B8A8_UNorm),
                 SampleDescription = new SampleDescription(1, 0),
@@ -393,7 +226,7 @@ namespace SWE1R
                 SwapEffect = SwapEffect.Discard
             };
             Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, description, out device, out swapChain);
-            device.Factory.SetWindowAssociation(this.Handle, WindowAssociationFlags.IgnoreAll);
+            device.Factory.SetWindowAssociation(overlay.Handle, WindowAssociationFlags.IgnoreAll);
         }
         private void InitContext()
         {
@@ -401,7 +234,9 @@ namespace SWE1R
         }
         private void InitViewport()
         {
-            viewport = new Viewport(0.0f, 0.0f, this.ClientSize.Width, this.ClientSize.Height);
+            if (overlay == null)
+                throw new Exception("Overlay not set.");
+            viewport = new Viewport(0.0f, 0.0f, overlay.ClientSize.Width, overlay.ClientSize.Height);
             context.Rasterizer.SetViewports(viewport);
         }
         private void InitRenderTarget()
@@ -412,11 +247,13 @@ namespace SWE1R
         }
         private void OverlayResize(object o, EventArgs e)
         {
+            if (overlay == null)
+                throw new Exception("Overlay not set.");
             context.Dispose();
             renderTarget.Dispose();
             sprite.Dispose();
             DisposeFont();
-            swapChain.ResizeBuffers(1, this.ClientSize.Width, this.ClientSize.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
+            swapChain.ResizeBuffers(1, overlay.ClientSize.Width, overlay.ClientSize.Height, Format.R8G8B8A8_UNorm, SwapChainFlags.None);
             backBuffer = Texture2D.FromSwapChain<Texture2D>(swapChain, 0);
             InitContext();
             InitRenderTarget();
@@ -507,8 +344,8 @@ namespace SWE1R
 
         private string GetGameState()
         {
-            var gameInRace = racer.GetStatic("in_race","byte");
-            var gameScene = racer.GetStatic("scene","ushort");
+            var gameInRace = racer.GetStatic("in_race", "byte");
+            var gameScene = racer.GetStatic("scene", "ushort");
             if (gameInRace == 1)
                 return "in_race";
             if (gameScene == 60)
@@ -533,33 +370,29 @@ namespace SWE1R
             InitFont();
             InitImg();
         }
+        private void SetOverlay()
+        {
+            if (overlay == null)
+                overlay = new RenderForm();
+        }
         private void InitOverlay()
         {
-            //WINDOW_HANDLE = Interop.FindWindow(null, WINDOW_NAME);
-            int initialStyle = Win32.GetWindowLong(this.Handle, -20);
-            Win32.SetWindowLong(this.Handle, -20, initialStyle | 0x80000 | 0x20);
-            this.Resize += OverlayResize;
-            this.Text = "SWE1R Overlay";
-            //this.ShowInTaskbar = false;   /* doesn't seem to behave as expected; seems to prevent window from redrawing/running main loop? - but, would be nice to not clutter the taskbar/tab window since it's controlled by this form */
-            this.TransparencyKey = ol_color["clear"];
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.TopMost = true;
-        }
-        public void UpdateOverlay(Process tgt, Racer rcr)
-        {
-            target = tgt;
-            racer = rcr;
-        }
-        public void UpdateOverlay(Process tgt)
-        {
-            target = tgt;
-        }
-        public void UpdateOverlay(Racer rcr)
-        {
-            racer = rcr;
+            if (overlay == null)
+                throw new Exception("Overlay not set.");
+            overlay.Resize += OverlayResize;
+            overlay.Text = "SWE1R Overlay";
+            overlay.Icon = this.Icon;
+            overlay.TransparencyKey = ol_color["clear"];
+            overlay.FormBorderStyle = FormBorderStyle.None;
+            overlay.TopMost = true;
+            //overlay.ShowInTaskbar = false;   /* doesn't seem to behave as expected; seems to prevent window from redrawing/running main loop? - but, would be nice to not clutter the taskbar/tab window since it's controlled by this form */
+            int initialStyle = Win32.GetWindowLong(overlay.Handle, -20);
+            Win32.SetWindowLong(overlay.Handle, -20, initialStyle | 0x80000 | 0x20);
         }
         private void DisposeAll()
         {
+            if (overlay == null)
+                throw new Exception("Overlay not set.");
             context.Dispose();
             renderTarget.Dispose();
             swapChain.Dispose();
@@ -567,7 +400,7 @@ namespace SWE1R
             sprite.Dispose();
             DisposeFont();
             DisposeImg();
-            this.Dispose();
+            overlay.Dispose();
         }
         public void SetDebug(bool enable)
         {
@@ -575,22 +408,44 @@ namespace SWE1R
         }
         private bool CheckTargets()
         {
+            // confirm everything is setup
+            if (target == null || racer == null || !overlay_initialized)
+                return false;
+
             // abort and auto hide if target has closed
             if (target != null && target.HasExited)
             {
                 target.Dispose();
                 target = null;
-                this.Hide();
+                overlay.Visible = false;
                 return false;
             }
+            
             // re-enable hidden window if auto hide no longer valid
-            if (target != null && controlpanel.overlay_show && !this.Visible)
-                this.Show();
-            // confirm everything is setup
-                if (controlpanel == null || target == null || racer == null)
-                return false;
+            if (target != null && overlay_show && !overlay.Visible)
+                overlay.Visible = true;
 
             return true;
+        }
+
+        private void Opt_showOverlay_CheckedChanged(object sender, EventArgs e)
+        {
+            ShowOverlay(opt_showOverlay.Checked);
+        }
+        private void ShowOverlay(bool show)
+        {
+            overlay_show = show;
+            //opt_showOverlay.Checked = show;
+            if (show && (overlay == null || !overlay_initialized))
+            {
+                SetOverlay();
+                InitDX11();
+                InitResources();
+                InitOverlay();
+                overlay_initialized = true;
+            }
+            if (overlay_initialized)
+                overlay.Visible = show;
         }
     }
 }
