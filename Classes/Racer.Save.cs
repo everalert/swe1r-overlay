@@ -11,11 +11,11 @@ namespace SWE1R
     {
         public class Save
         {
-            private const string gamePath = @"Z:\GOG\STAR WARS Racer";
-            private const byte timeLen = 0x64;
+            private const string gamePath = @"Z:\GOG\STAR WARS Racer",
+                nameDef = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+            private const byte timeLen = 0x64,
+                nameLen = 0x20;
             private readonly static float timeDef = BitConverter.ToSingle(new byte[4] { 0xD7, 0xFF, 0x60, 0x45 }, 0);
-            private const byte nameLen = 0x20;
-            private const string nameDef = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
             //SAVE.sav structure
 
@@ -23,7 +23,7 @@ namespace SWE1R
             //-> 0x00 4byte, always 03 00 01 00?
             //-> remainder seems to follow same format as "file blocks" (0x18-0x67) in tgfd.dat
 
-            public class PlayerSave
+            public class Profile
             {
 
             }
@@ -70,10 +70,10 @@ namespace SWE1R
 
             //total length 0x0FD8
 
-            public class GameSave
+            public class TGFD
             {
                 private List<RaceTime> Times;
-                private List<PlayerSave> Players;
+                private List<Profile> Players;
 
                 public void ReadFile(string filename = gamePath+@"\data\player\tgfd.dat")
                 {
