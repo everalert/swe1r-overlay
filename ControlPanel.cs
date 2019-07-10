@@ -32,6 +32,11 @@ namespace SWE1R
             input = new Input(this);
             FindGameProcess();
             UpdateHotkeyLabels();
+
+
+            //testcode
+            //Racer.Save.GameSave savetest = new Racer.Save.GameSave();
+            //savetest.ReadFile();
         }
 
         // In-Race Savestate
@@ -44,7 +49,6 @@ namespace SWE1R
                 var track = racer.GetRaceSetting("selected_track", "byte");
                 var pod = racer.GetRaceSetting("selected_pod", "byte");
                 List<Racer.State.StateBlock> data = new List<Racer.State.StateBlock>();
-                //data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Pod, 0, racer.GetPodALL()));
                 data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Pod, 0x60, racer.GetPodCustom(0x60,0x19))); // times + lap byte
                 data.Add(new Racer.State.StateBlock(Racer.State.BlockType.PodData, 0, racer.GetPodDataALL()));
                 Racer.State state = new Racer.State(data.ToArray(), pod, track);
