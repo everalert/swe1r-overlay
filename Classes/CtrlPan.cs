@@ -212,40 +212,23 @@ namespace SWE1R
 
         private void Opt_enableDebugMenu_CheckedChanged(object sender, EventArgs e)
         {
-            if (opt_enableDebugMenu.Checked)
-            {
-                racer.SetDebugMenu(true);
-                SetDebug(true);
-            }
-            else
-            {
-                racer.SetDebugMenu(false);
-                SetDebug(false);
-            }
+            racer.SetDebugMenu(opt_enableDebugMenu.Checked);
+            SetDebug(opt_enableDebugMenu.Checked);
         }
         private void Opt_enableInvincibility_CheckedChanged(object sender, EventArgs e)
         {
-            if (opt_enableInvincibility.Checked)
-                racer.SetDebugInvincibility(true);
-            else
-                racer.SetDebugInvincibility(false);
+            racer.SetDebugInvincibility(opt_enableInvincibility.Checked);
         }
         private void Opt_showTerrainFlags_CheckedChanged(object sender, EventArgs e)
         {
-            if (opt_showTerrainFlags.Checked)
-                racer.SetDebugTerrainLabels(true);
-            else
-                racer.SetDebugTerrainLabels(false);
+            racer.SetDebugTerrainLabels(opt_showTerrainFlags.Checked);
         }
 
         // HOTKEYS
 
         private void Opt_hotkeyEnable_CheckedChanged(object sender, EventArgs e)
         {
-            if (opt_hotkeyEnable.Checked)
-                input.EnableHotkeys(true);
-            else
-                input.EnableHotkeys(false);
+            input.EnableHotkeys(opt_hotkeyEnable.Checked);
         }
         private void Opt_hotkeyAltLayout_CheckedChanged(object sender, EventArgs e)
         {
