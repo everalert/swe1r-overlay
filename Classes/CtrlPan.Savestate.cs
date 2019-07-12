@@ -29,6 +29,9 @@ namespace SWE1R
                 List<Racer.State.StateBlock> data = new List<Racer.State.StateBlock>();
                 data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Pod, 0x60, racer.GetPodCustom(0x60, 0x19))); // times + lap byte
                 data.Add(new Racer.State.StateBlock(Racer.State.BlockType.PodData, 0, racer.GetPodDataALL()));
+                data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Rendering, 0x7C, racer.GetRenderingCustom(0x7C, 0x4))); // camera mode, 0x4 len, also resets death camera
+                data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Rendering, 0x2A8, racer.GetRenderingCustom(0x2A8, 0x4))); // fog flags, 0x4 len, helps but not enough to completely save fog state
+                data.Add(new Racer.State.StateBlock(Racer.State.BlockType.Rendering, 0x2C8, racer.GetRenderingCustom(0x2C8, 0x40))); // fog col, dist
                 Racer.State state = new Racer.State(data.ToArray(), pod, track);
                 if (no_stateSel.Value > savestate_in_race.Count)
                     savestate_in_race.Add(state);
@@ -58,6 +61,9 @@ namespace SWE1R
                             case Racer.State.BlockType.PodData:
                                 racer.WriteCustom(new uint[3] { Racer.Addr.pPod, Racer.Addr.oPod["pPodData"], BitConverter.ToUInt32(block.offset, 0) }, block.data);
                                 //breaks when loading state from old session, probably some pointers being written?
+                                break;
+                            case Racer.State.BlockType.Rendering:
+                                racer.WriteRenderingCustom(BitConverter.ToUInt32(block.offset, 0), block.data);
                                 break;
                             default:
                                 break;

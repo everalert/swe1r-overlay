@@ -43,6 +43,19 @@ namespace SWE1R
             WriteData(pointerpath, data);
         }
 
+
+        public dynamic GetRenderingCustom(uint offset, uint length)
+        {
+            uint[] path = { Addr.pRendering, offset };
+            return GetData(path, "", length);
+        }
+        public void WriteRenderingCustom(uint offset, dynamic data)
+        {
+            uint[] path = { Addr.pRendering, offset };
+            WriteData(path, data);
+        }
+
+
         public dynamic GetRaceSetting(string datapoint, string datatype)
         {
             uint[] path = { Addr.pRaceSetting, Addr.oRaceSetting[datapoint] };

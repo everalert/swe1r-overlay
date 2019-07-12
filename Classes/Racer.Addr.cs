@@ -13,6 +13,7 @@ namespace SWE1R
             /*
                 future
                 - addresses for CD (original) version?
+                - restructuring?
             */
 
             /*
@@ -20,6 +21,18 @@ namespace SWE1R
                 oX = offset
                 lX = length in bytes
              */
+
+            static public uint pRendering = 0xBFE80;
+            //static public uint lRendering = 0x88;
+            static public Dictionary<string, uint> oRendering = new Dictionary<string, uint>
+            {
+                {"camera_mode",      0x7C},
+                {"fog_flags",        0x2A8},
+                {"fog_col_r",        0x2C8},
+                {"fog_col_g",        0x2CC},
+                {"fog_col_b",        0x2D0},
+                {"fog_distance",     0x2D4} //float
+            };
 
             static public uint pPod = 0xD78A4;
             static public uint lPod = 0x88; // length in bytes

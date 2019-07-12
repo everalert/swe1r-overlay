@@ -271,7 +271,8 @@ namespace SWE1R
             {
                 public const byte Pod = 0,
                     PodData = 1,
-                    Race = 2;
+                    Race = 2,
+                    Rendering = 3;
             }
 
 
