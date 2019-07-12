@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SWE1R.Util
 {
-    class Helper
+    static class Helper
     {
         public static List<String> ArrayToStrList(Array input)
         {
@@ -15,12 +15,25 @@ namespace SWE1R.Util
                 output.Add(item.ToString());
             return output;
         }
+
         public static string[] FormatTimesArray( float[] input, string format )
         {
             var output = new string[input.Length];
             for (var i = 0; i < input.Length; i++)
                 output[i] = TimeSpan.FromSeconds(input[i]).ToString(format);
             return output;
+        }
+
+        public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+        {
+            if (val.CompareTo(min) < 0) return min;
+            else if (val.CompareTo(max) > 0) return max;
+            else return val;
+        }
+
+        public static float ByteToFloat(byte b)
+        {
+            return b * 255;
         }
     }
 }

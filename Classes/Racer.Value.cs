@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SWE1R.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,32 +10,6 @@ namespace SWE1R
     {
         readonly public struct Value
         {
-
-            public static float CalculateUpgradedStat(byte vehicle, byte stat, byte level)
-            {
-                if (vehicle < 0 || vehicle > 22)
-                    throw new Exception("Vehicle invalid.");
-                switch (stat)
-                {
-                    case Upgrade.AntiSkid:
-                        return Math.Max(Vehicle.Stats[vehicle].AntiSkid + Upgrade.Stats[stat].GetLevel(level), 1);
-                    case Upgrade.TurnResponse:
-                        return Vehicle.Stats[vehicle].TurnResponse + Upgrade.Stats[stat].GetLevel(level);
-                    case Upgrade.Acceleration:
-                        return Vehicle.Stats[vehicle].Acceleration - Upgrade.Stats[stat].GetLevel(level);
-                    case Upgrade.MaxSpeed:
-                        return Math.Max(Vehicle.Stats[vehicle].MaxSpeed + Upgrade.Stats[stat].GetLevel(level), 650);
-                    case Upgrade.AirBrakeInv:
-                        return Vehicle.Stats[vehicle].AirBrakeInv - Upgrade.Stats[stat].GetLevel(level);
-                    case Upgrade.CoolRate:
-                        return Vehicle.Stats[vehicle].CoolRate + Upgrade.Stats[stat].GetLevel(level);
-                    case Upgrade.RepairRate:
-                        return Math.Max(Vehicle.Stats[vehicle].RepairRate + Upgrade.Stats[stat].GetLevel(level), 1);
-                    default:
-                        throw new Exception("Stat invalid.");
-                }
-            }
-
             readonly public struct Vehicle
             {
                 public const byte AnakinSkywalker = 0x00, 
@@ -114,6 +89,148 @@ namespace SWE1R
                     {21,new VehicleStats(0.5f,270f,86f,1.75f,485f,25f,70f,240f,12.5f,10f,4.99f,0.5f,40f,0.65f,7f)},
                     {22,new VehicleStats(0.7f,322f,120f,1.8f,480f,25f,70f,300f,15f,11f,4.99f,0.55f,45f,0.77f,7f)}
                 };
+            }
+
+            public struct VehicleStats
+            {
+                public const byte AntiSkid = 0,
+                    TurnResponse = 1,
+                    MaxTurnRate = 2,
+                    Acceleration = 3,
+                    MaxSpeed = 4,
+                    AirBrakeInv = 5,
+                    DecelInv = 6,
+                    BoostThrust = 7,
+                    HeatRate = 8,
+                    CoolRate = 9,
+                    HoverHeight = 10,
+                    RepairRate = 11,
+                    BumpMass = 12,
+                    DmgImmunity = 13,
+                    ISectRadius = 14;
+                readonly public Dictionary<byte, float> stats;
+
+                public VehicleStats(float AS, float TR, float MTR, float A, float MS,
+                    float ABI, float DI, float BT, float HR, float CR,
+                    float HH, float RR, float BM, float DmI, float ISR)
+                {
+                    stats = new Dictionary<byte, float>(15);
+                    stats[AntiSkid] = Math.Max(AS, 0);
+                    stats[TurnResponse] = Math.Max(TR, 0);
+                    stats[MaxTurnRate] = Math.Max(MTR, 0);
+                    stats[Acceleration] = Math.Max(A, 0);
+                    stats[MaxSpeed] = Math.Max(MS, 0);
+                    stats[AirBrakeInv] = Math.Max(ABI, 0);
+                    stats[DecelInv] = Math.Max(DI, 0);
+                    stats[BoostThrust] = Math.Max(BT, 0);
+                    stats[HeatRate] = Math.Max(HR, 0);
+                    stats[CoolRate] = Math.Max(CR, 0);
+                    stats[HoverHeight] = Math.Max(HH, 0);
+                    stats[RepairRate] = Math.Max(RR, 0);
+                    stats[BumpMass] = Math.Max(BM, 0);
+                    stats[DmgImmunity] = Math.Max(DmI, 0);
+                    stats[ISectRadius] = Math.Max(ISR, 0);
+                }
+
+                public float Stat(byte stat)
+                {
+                    byte s = Helper.Clamp(stat, (byte)0, (byte)14);
+                    return stats[s];
+                }
+
+                public float CalculateUpgradedStat(byte stat, byte level, byte health = 0xFF)
+                {
+                    byte s = Helper.Clamp(stat, (byte)0, (byte)14);
+                    float bs = stats[s];
+                    if (Upgrade.MapFromStat.ContainsKey(s))
+                    {
+                        UpgradeStats u = Upgrade.Stats[Upgrade.MapFromStat[s]];
+                        return u.CalculateStat(bs, level, health);
+                    }
+                    else
+                        return bs;
+                }
+            }
+
+            readonly public struct Upgrade
+            {
+                public const byte AntiSkid = 0x0,
+                    TurnResponse = 0x1,
+                    Acceleration = 0x2,
+                    MaxSpeed = 0x3,
+                    AirBrakeInv = 0x4,
+                    CoolRate = 0x5,
+                    RepairRate = 0x6;
+
+                readonly public static Dictionary<byte, UpgradeStats> Stats = new Dictionary<byte, UpgradeStats>()
+                {
+                    {AntiSkid,     new UpgradeStats(0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.01f, 1f) },
+                    {TurnResponse, new UpgradeStats(116, 242, 348, 464, 578, 50, 1000) },
+                    {Acceleration, new UpgradeStats(0.14f, 0.28f, 0.42f, 0.56f, 0.70f, 0.1f, 5f, 1) },
+                    {MaxSpeed,     new UpgradeStats(40, 80, 120, 160, 200, 450, 650) },
+                    {AirBrakeInv,  new UpgradeStats(0.08f, 0.17f, 0.26f, 0.35f, 0.44f, 1, 1000, 1) },
+                    {CoolRate,     new UpgradeStats(1.6f, 3.2f, 4.8f, 6.4f, 8.0f, 1, 20) },
+                    {RepairRate,   new UpgradeStats(0.1f, 0.2f, 0.3f, 0.4f, 0.45f, 0, 1) }
+                };
+
+                readonly public static Dictionary<byte, byte> MapToStat = new Dictionary<byte, byte>()
+                {
+                    {AntiSkid,     VehicleStats.AntiSkid },
+                    {TurnResponse, VehicleStats.TurnResponse },
+                    {Acceleration, VehicleStats.Acceleration },
+                    {MaxSpeed,     VehicleStats.MaxSpeed },
+                    {AirBrakeInv,  VehicleStats.AirBrakeInv },
+                    {CoolRate,     VehicleStats.CoolRate },
+                    {RepairRate,   VehicleStats.RepairRate }
+                };
+
+                readonly public static Dictionary<byte, byte> MapFromStat = new Dictionary<byte, byte>()
+                {
+                    {VehicleStats.AntiSkid,     AntiSkid },
+                    {VehicleStats.TurnResponse, TurnResponse },
+                    {VehicleStats.Acceleration, Acceleration },
+                    {VehicleStats.MaxSpeed,     MaxSpeed },
+                    {VehicleStats.AirBrakeInv,  AirBrakeInv },
+                    {VehicleStats.CoolRate,     CoolRate },
+                    {VehicleStats.RepairRate,   RepairRate }
+                };
+            }
+
+            public struct UpgradeStats
+            {
+                readonly private float[] stat;
+                readonly public float Min, Max;
+                readonly private byte type;
+
+                public UpgradeStats(float lv1, float lv2, float lv3, float lv4, float lv5, float mn, float mx, byte t = 0)
+                {
+                    Min = mn;
+                    Max = mx;
+                    stat = new float[5] {
+                        (t == 0) ? Math.Max(lv1, 0) : Helper.Clamp(lv1, 0, 1),
+                        (t == 0) ? Math.Max(lv2, 0) : Helper.Clamp(lv2, 0, 1),
+                        (t == 0) ? Math.Max(lv3, 0) : Helper.Clamp(lv3, 0, 1),
+                        (t == 0) ? Math.Max(lv4, 0) : Helper.Clamp(lv4, 0, 1),
+                        (t == 0) ? Math.Max(lv5, 0) : Helper.Clamp(lv5, 0, 1)
+                    };
+                    type = t;
+                }
+
+                public float Modifier(byte level)
+                {
+                    byte lvl = Helper.Clamp((byte)(level - 1), (byte)0, (byte)4);
+                    return stat[lvl];
+                }
+
+                public float CalculateStat(float bs, byte l, byte h = 0xFF)
+                {
+                    byte lvl = Helper.Clamp((byte)(l - 1), (byte)0, (byte)4);
+                    float hp = Helper.ByteToFloat(h);
+                    if (type == 0)
+                        return Helper.Clamp((hp * stat[lvl] + bs), Min, Max);
+                    else
+                        return Helper.Clamp(((1 - hp) * stat[lvl] - (stat[lvl] - 1) * bs), Min, Max);
+                }
             }
 
             readonly public struct Track
@@ -203,28 +320,6 @@ namespace SWE1R
                 };
             }
 
-            readonly public struct Upgrade
-            {
-                public const byte AntiSkid = 0x0,
-                    TurnResponse = 0x1,
-                    Acceleration = 0x2,
-                    MaxSpeed = 0x3,
-                    AirBrakeInv = 0x4,
-                    CoolRate = 0x5,
-                    RepairRate = 0x6;
-
-                readonly public static Dictionary<byte, UpgradeStats> Stats = new Dictionary<byte, UpgradeStats>()
-                {
-                    {AntiSkid,     new UpgradeStats(0.05f,0.1f,0.15f,0.2f,0.25f) },
-                    {TurnResponse, new UpgradeStats(116,242,348,464,578) },
-                    {Acceleration, new UpgradeStats(0.14f,0.28f,0.42f,0.56f,0.70f) },
-                    {MaxSpeed,     new UpgradeStats(40,80,120,160,200) },
-                    {AirBrakeInv,  new UpgradeStats(0.08f,0.17f,0.26f,0.35f,0.44f) },
-                    {CoolRate,     new UpgradeStats(1.6f,3.2f,4.8f,6.4f,8.0f) },
-                    {RepairRate,   new UpgradeStats(0.1f,0.2f,0.3f,0.4f,0.45f) }
-                };
-            }
-
             readonly public struct World
             {
                 public const byte Tatooine = 0,
@@ -248,66 +343,6 @@ namespace SWE1R
                     { 6,  "Oovo IV" },
                     { 7,  "Malastare" }
                 };
-            }
-
-            public struct VehicleStats
-            {
-                readonly public float AntiSkid, TurnResponse, MaxTurnRate, Acceleration, MaxSpeed,
-                    AirBrakeInv, DecelInv, BoostThrust, HeatRate, CoolRate,
-                    HoverHeight, RepairRate, BumpMass, DmgImmunity, ISectRadius;
-
-                public VehicleStats(float AS, float TR, float MTR, float A, float MS,
-                    float ABI, float DI, float BT, float HR, float CR,
-                    float HH, float RR, float BM, float DmI, float ISR)
-                {
-                    AntiSkid = AS > 0 ? AS : 0;
-                    TurnResponse = TR > 0 ? TR : 0;
-                    MaxTurnRate = MTR > 0 ? MTR : 0;
-                    Acceleration = A > 0 ? A : 0;
-                    MaxSpeed = MS > 0 ? MS : 0;
-                    AirBrakeInv = ABI > 0 ? ABI : 0;
-                    DecelInv = DI > 0 ? DI : 0;
-                    BoostThrust = BT > 0 ? BT : 0;
-                    HeatRate = HR > 0 ? HR : 0;
-                    CoolRate = CR > 0 ? CR : 0;
-                    HoverHeight = HH > 0 ? HH : 0;
-                    RepairRate = RR > 0 ? RR : 0;
-                    BumpMass = BM > 0 ? BM : 0;
-                    DmgImmunity = DmI > 0 ? DmI : 0;
-                    ISectRadius = ISR > 0 ? ISR : 0;
-                }
-            }
-            public struct UpgradeStats
-            {
-                readonly public float level1, level2, level3, level4, level5;
-
-                public UpgradeStats(float lv1, float lv2, float lv3, float lv4, float lv5)
-                {
-                    level1 = lv1 > 0 ? lv1 : 0;
-                    level2 = lv2 > 0 ? lv2 : 0;
-                    level3 = lv3 > 0 ? lv3 : 0;
-                    level4 = lv4 > 0 ? lv4 : 0;
-                    level5 = lv5 > 0 ? lv5 : 0;
-                }
-
-                public float GetLevel(byte l)
-                {
-                    switch (l)
-                    {
-                        case 0:
-                            return level1;
-                        case 1:
-                            return level2;
-                        case 2:
-                            return level3;
-                        case 3:
-                            return level4;
-                        case 4:
-                            return level5;
-                        default:
-                            throw new Exception("Upgrade level out of range.");
-                    }
-                }
             }
         }
     }
