@@ -1,0 +1,4 @@
+﻿SWE1R Timesheet File Format
+
+extension
+.e1rt
