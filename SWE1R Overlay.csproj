@@ -172,8 +172,10 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Format\CtrlPan.Config.txt" />
     <Content Include="Format\Racer.Rec.txt" />
     <Content Include="Format\Racer.State.txt" />
+    <Content Include="Format\Racer.Time.txt" />
     <Content Include="img\icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

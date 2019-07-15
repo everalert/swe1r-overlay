@@ -409,20 +409,20 @@ namespace SWE1R
         private bool CheckTargets()
         {
             // confirm everything is setup
-            if (target == null || racer == null || !overlay_initialized)
+            if (racer == null || racer.game == null || !overlay_initialized)
                 return false;
 
             // abort and auto hide if target has closed
-            if (target != null && target.HasExited)
+            if (racer.game.HasExited)
             {
-                target.Dispose();
-                target = null;
+                racer.game.Dispose();
+                racer.game = null;
                 overlay.Visible = false;
                 return false;
             }
             
             // re-enable hidden window if auto hide no longer valid
-            if (target != null && overlay_show && !overlay.Visible)
+            if (overlay_show && !overlay.Visible)
                 overlay.Visible = true;
 
             return true;

@@ -18,8 +18,8 @@ namespace SWE1R
         // SETUP
 
         const string TARGET_PROCESS_TITLE = "Episode I Racer";
-        private Process target;
-        private Racer racer;
+        //private Process target;
+        private Racer racer = new Racer();
         //private Overlay overlay;
         private RenderForm overlay;
         public Input input;
@@ -148,7 +148,7 @@ namespace SWE1R
 
             // rendering
 
-            Win32.GetWindowRect(target.MainWindowHandle, out rect);
+            Win32.GetWindowRect(racer.game.MainWindowHandle, out rect);
             WINDOW_SIZE = new Size(rect.right - rect.left - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.bottom - rect.top - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
             if (WINDOW_SIZE != overlay.Size)
             {
@@ -255,24 +255,25 @@ namespace SWE1R
         }
         private void Cbx_processList_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            target = (Process)cbx_processList.SelectedItem;
-            SetRacer(target);
-            //SetOverlay(target, racer);
-            SetOverlay();
+            SetRacer((Process)cbx_processList.SelectedItem);
         }
         private void Btn_processFind_Click(object sender, EventArgs e)
         {
             FindGameProcess();
         }
-        private void SetRacer(Process tgt)
+        private void SetRacer(Process target)
         {
             if (racer == null)
-                racer = new Racer(tgt);
-            else
-                racer.SetGameTarget(tgt);
-            gb_stateInRace.Enabled = true;
-            CheckRaceState();
-            gb_debug.Enabled = true;
+                racer = new Racer();
+            if (racer.UpdateGame(target))
+            {
+                CheckRaceState();
+                gb_stateInRace.Enabled = true;
+                gb_debug.Enabled = true;
+                txt_selectGame.Hide();
+                opt_showOverlay.Show();
+                ShowOverlay(overlay_show);
+            }
         }
         private void FindGameProcess()
         {
@@ -280,10 +281,7 @@ namespace SWE1R
             if (cbx_processList.FindStringExact(TARGET_PROCESS_TITLE) > 0)
             {
                 cbx_processList.SelectedIndex = cbx_processList.FindStringExact(TARGET_PROCESS_TITLE);
-                target = (Process)cbx_processList.SelectedItem;
-                SetRacer(target);
-                txt_selectGame.Hide();
-                opt_showOverlay.Show();
+                SetRacer((Process)cbx_processList.SelectedItem);
             }
         }
         private List<Process> GetProcessList()
