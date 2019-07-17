@@ -51,8 +51,10 @@ namespace SWE1R
 
             // TESTING
 
-            //Racer.Save.GameSave savetest = new Racer.Save.GameSave();
+            //Racer.Save.Game savetest = new Racer.Save.Game();
             //savetest.ReadFile();
+            //Racer.Save.Profile profiletest = new Racer.Save.Profile(@"Z:\GOG\STAR WARS Racer\data\player\TEST.sav");
+            //Console.WriteLine(profiletest.PrintString());
         }
 
         private void OnAppIdle(object o, EventArgs e)

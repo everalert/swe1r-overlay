@@ -162,6 +162,17 @@ namespace SWE1R
                     CoolRate = 0x5,
                     RepairRate = 0x6;
 
+                readonly public static Dictionary<byte, string> Name = new Dictionary<byte, string>()
+                {
+                    {AntiSkid,     "Anti Skid" },
+                    {TurnResponse, "Turn Response" },
+                    {Acceleration, "Acceleration" },
+                    {MaxSpeed,     "Max Speed" },
+                    {AirBrakeInv,  "Air Brake Inv" },
+                    {CoolRate,     "Cool Rate" },
+                    {RepairRate,   "Repair Rate" }
+                };
+
                 readonly public static Dictionary<byte, UpgradeStats> Stats = new Dictionary<byte, UpgradeStats>()
                 {
                     {AntiSkid,     new UpgradeStats(0.05f, 0.10f, 0.15f, 0.20f, 0.25f, 0.01f, 1f) },

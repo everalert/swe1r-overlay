@@ -39,10 +39,6 @@ namespace SWE1R
                 track = raceTrack;
                 data = blocks;
                 ValidateData();
-                //if (DataHasId(0))
-                //    DataAssignPod();
-                //if (DataHasId(1))
-                //    DataAssignPodData();
             }
 
             public void SaveStateToFile(string filename)
@@ -55,34 +51,34 @@ namespace SWE1R
                 // HEADER
 
                 uint headerCRC32 = 0;
-                WriteFileChunk(file, fileMagicWord, ref headerCRC32);
+                FileIO.WriteChunk(file, fileMagicWord, ref headerCRC32);
                 byte readerVer = 1;
                 byte writerVer = 1;
-                WriteFileChunk(file, writerVer, ref headerCRC32);
-                WriteFileChunk(file, readerVer, ref headerCRC32);
-                WriteFileChunk(file, !BitConverter.IsLittleEndian, ref headerCRC32);
+                FileIO.WriteChunk(file, writerVer, ref headerCRC32);
+                FileIO.WriteChunk(file, readerVer, ref headerCRC32);
+                FileIO.WriteChunk(file, !BitConverter.IsLittleEndian, ref headerCRC32);
                 uint dataLen = 2 + 4; // pod/track bytes + final crc32
                 foreach (StateBlock block in data)
                     dataLen += 13 + (uint)block.data.Length; // + length of each block
-                WriteFileChunk(file, dataLen, ref headerCRC32);
+                FileIO.WriteChunk(file, dataLen, ref headerCRC32);
                 ushort dataOff = (ushort)(file.Position + sizeof(ushort) + sizeof(uint));
-                WriteFileChunk(file, dataOff, ref headerCRC32);
+                FileIO.WriteChunk(file, dataOff, ref headerCRC32);
                 file.Write(BitConverter.GetBytes(headerCRC32), 0, 4);
 
                 // DATA
 
                 uint dataCRC32 = 0;
-                WriteFileChunk(file, pod, ref dataCRC32);
-                WriteFileChunk(file, track, ref dataCRC32);
+                FileIO.WriteChunk(file, pod, ref dataCRC32);
+                FileIO.WriteChunk(file, track, ref dataCRC32);
                 uint blockCRC32;
                 foreach (StateBlock block in data)
                 {
                     blockCRC32 = 0;
-                    WriteFileChunk(file, block.type, ref blockCRC32, ref dataCRC32);
-                    WriteFileChunk(file, block.offset, ref blockCRC32, ref dataCRC32);
-                    WriteFileChunk(file, block.data.Length, ref blockCRC32, ref dataCRC32);
-                    WriteFileChunk(file, block.data, ref blockCRC32, ref dataCRC32);
-                    WriteFileChunk(file, blockCRC32, ref dataCRC32);
+                    FileIO.WriteChunk(file, block.type, ref blockCRC32, ref dataCRC32);
+                    FileIO.WriteChunk(file, block.offset, ref blockCRC32, ref dataCRC32);
+                    FileIO.WriteChunk(file, block.data.Length, ref blockCRC32, ref dataCRC32);
+                    FileIO.WriteChunk(file, block.data, ref blockCRC32, ref dataCRC32);
+                    FileIO.WriteChunk(file, blockCRC32, ref dataCRC32);
                 }
                 file.Write(BitConverter.GetBytes(dataCRC32), 0, 4);
                 file.Write(fileEOFWord, 0, fileEOFWord.Length);
@@ -103,15 +99,15 @@ namespace SWE1R
                 // READ HEADER
 
                 // read data
-                byte[] inMagicWord = ReadFileChunk(file, fileMagicWord.Length, ref headerCRC32);
+                byte[] inMagicWord = FileIO.ReadChunk(file, fileMagicWord.Length, ref headerCRC32);
                 if (!Win32.ByteArrayCompare(inMagicWord, fileMagicWord))
                     throw new Exception("Read Savestate: Invalid filetype.");
-                byte inVerSrc = ReadFileChunk(file, 0x1, ref headerCRC32)[0]; //ideal/generated-from version
-                byte inVerRead = ReadFileChunk(file, 0x1, ref headerCRC32)[0]; //readable version
-                bool inBigEndian = Convert.ToBoolean(ReadFileChunk(file, 0x1, ref headerCRC32)[0]);
-                byte[] inDataLen = ReadFileChunk(file, 0x4, ref headerCRC32);
-                byte[] inDataOff = ReadFileChunk(file, 0x2, ref headerCRC32);
-                byte[] inHeaderCRC32 = ReadFileChunk(file, 0x4);
+                byte inVerSrc = FileIO.ReadChunk(file, 0x1, ref headerCRC32)[0]; //ideal/generated-from version
+                byte inVerRead = FileIO.ReadChunk(file, 0x1, ref headerCRC32)[0]; //readable version
+                bool inBigEndian = Convert.ToBoolean(FileIO.ReadChunk(file, 0x1, ref headerCRC32)[0]);
+                byte[] inDataLen = FileIO.ReadChunk(file, 0x4, ref headerCRC32);
+                byte[] inDataOff = FileIO.ReadChunk(file, 0x2, ref headerCRC32);
+                byte[] inHeaderCRC32 = FileIO.ReadChunk(file, 0x4);
                 // convert to big endian if needed
                 if (inBigEndian)
                 {
@@ -124,7 +120,7 @@ namespace SWE1R
                     throw new Exception("Read Savestate: Header invalid.");
                 // check eof
                 file.Seek(BitConverter.ToUInt16(inDataOff, 0) + BitConverter.ToUInt32(inDataLen, 0), SeekOrigin.Begin);
-                byte[] inEOFCheck = ReadFileChunk(file, fileEOFWord.Length);
+                byte[] inEOFCheck = FileIO.ReadChunk(file, fileEOFWord.Length);
                 if (!Win32.ByteArrayCompare(inEOFCheck, fileEOFWord))
                     throw new Exception("Read Savestate: File length invalid.");
 
@@ -133,31 +129,31 @@ namespace SWE1R
                 file.Seek(BitConverter.ToUInt16(inDataOff, 0), SeekOrigin.Begin);
                 // read pod and track
                 //if (inVerRead <= 0xFF) //add this when moving to race struct storing
-                byte inDataPod = ReadFileChunk(file, 0x1, ref dataCRC32)[0]; //ideal/generated-from version
-                byte inDataTrack = ReadFileChunk(file, 0x1, ref dataCRC32)[0]; //readable version
+                byte inDataPod = FileIO.ReadChunk(file, 0x1, ref dataCRC32)[0]; //ideal/generated-from version
+                byte inDataTrack = FileIO.ReadChunk(file, 0x1, ref dataCRC32)[0]; //readable version
                 List<StateBlock> inDataBlocks = new List<StateBlock>();
                 while (file.Position < BitConverter.ToUInt16(inDataOff, 0) + BitConverter.ToUInt32(inDataLen, 0) - 4)
                 {
                     uint blockCRC32 = 0;
                     inDataBlocks.Add(new StateBlock());
-                    inDataBlocks.Last().type = ReadFileChunk(file, 0x1, ref blockCRC32, ref dataCRC32)[0];
-                    inDataBlocks.Last().offset = ReadFileChunk(file, 0x4, ref blockCRC32, ref dataCRC32);
-                    inDataBlocks.Last().length = ReadFileChunk(file, 0x4, ref blockCRC32, ref dataCRC32);
-                    inDataBlocks.Last().data = ReadFileChunk(file, BitConverter.ToInt32((inBigEndian?inDataBlocks.Last().length.Reverse().ToArray():inDataBlocks.Last().length),0), ref blockCRC32, ref dataCRC32);
-                    inDataBlocks.Last().crc32 = ReadFileChunk(file, 0x4, ref dataCRC32);
+                    inDataBlocks.Last().type = (BlockType)FileIO.ReadChunk(file, 0x1, ref blockCRC32, ref dataCRC32)[0];
+                    inDataBlocks.Last().offset = FileIO.ReadChunk(file, 0x4, ref blockCRC32, ref dataCRC32);
+                    inDataBlocks.Last().length = FileIO.ReadChunk(file, 0x4, ref blockCRC32, ref dataCRC32);
+                    inDataBlocks.Last().data = FileIO.ReadChunk(file, BitConverter.ToInt32((inBigEndian?inDataBlocks.Last().length.Reverse().ToArray():inDataBlocks.Last().length),0), ref blockCRC32, ref dataCRC32);
+                    inDataBlocks.Last().crc32 = FileIO.ReadChunk(file, 0x4, ref dataCRC32);
                     if (inBigEndian)
                         inDataBlocks.Last().ReverseArrays();
                     if (Crc32Algorithm.Append(blockCRC32, inDataBlocks.Last().crc32) != 0x2144DF1C)
                         throw new Exception("Read Savestate: Data block "+inDataBlocks.Count+" invalid.");
                 }
                 // check entire data set is valid
-                byte[] inDataCRC32 = ReadFileChunk(file, 0x4);
+                byte[] inDataCRC32 = FileIO.ReadChunk(file, 0x4);
                 if (inBigEndian)
                     inDataCRC32 = inDataCRC32.Reverse().ToArray();
                 if (Crc32Algorithm.Append(dataCRC32, inDataCRC32, 0, 0x4) != 0x2144DF1C)
                     throw new Exception("Read Savestate: Data invalid.");
                 // check end of data is actually end of file
-                inEOFCheck = ReadFileChunk(file, fileEOFWord.Length);
+                inEOFCheck = FileIO.ReadChunk(file, fileEOFWord.Length);
                 if (!Win32.ByteArrayCompare(inEOFCheck, fileEOFWord))
                     throw new Exception("Read Savestate: File length invalid.");
 
@@ -179,7 +175,7 @@ namespace SWE1R
                 return valid;
             }
 
-            private bool DataHasId(byte id)
+            private bool DataHasId(BlockType id)
             {
                 if (data == null || data.Count() <= 0)
                     return false;
@@ -189,7 +185,7 @@ namespace SWE1R
                         found = true;
                 return found;
             }
-            private bool DataHasValue(byte id, uint offset, uint length)
+            private bool DataHasValue(BlockType id, uint offset, uint length)
             {
                 if (data == null || data.Count() <= 0)
                     return false;
@@ -204,7 +200,7 @@ namespace SWE1R
                 return found;
             }
 
-            public uint DataFirstIndexOfId(byte id)
+            public uint DataFirstIndexOfId(BlockType id)
             {
                 int index = -1;
                 for (var i = 0; i<data.Count(); i++)
@@ -215,32 +211,12 @@ namespace SWE1R
                 return (uint)index;
             }
 
-            private void DataAssignPod()
-            {
-                if (!DataHasId(0))
-                {
-                    dPod = null;
-                    return;
-                }
-                dPod = data[DataFirstIndexOfId(0)].data;
-            }
-
-            private void DataAssignPodData()
-            {
-                if (!DataHasId(1))
-                {
-                    dPodData = null;
-                    return;
-                }
-                dPodData = data[DataFirstIndexOfId(1)].data;
-            }
-
 
             // STATE DATA HOLDER
 
             public class StateBlock
             {
-                public byte type;
+                public BlockType type;
                 public byte[] offset;
                 public byte[] length;
                 public byte[] data;
@@ -249,7 +225,7 @@ namespace SWE1R
                 public StateBlock()
                 {
                 }
-                public StateBlock(byte t, uint o, byte[] d)
+                public StateBlock(BlockType t, uint o, byte[] d)
                 {
                     type = t;
                     offset = BitConverter.GetBytes(o);
@@ -267,81 +243,13 @@ namespace SWE1R
                 }
             }
 
-            public struct BlockType
+            public enum BlockType
             {
-                public const byte Pod = 0,
-                    PodData = 1,
-                    Race = 2,
-                    Rendering = 3;
-            }
-
-
-
-            // FILE I/O (MOVE TO UTIL CLASS???)
-
-            //writing
-
-            private static void WriteFileChunk(FileStream file, byte[] data, ref uint crc32)
-            {
-                file.Write(data, 0, data.Length);
-                crc32 = Crc32Algorithm.Append(crc32, data);
-            }
-            private static void WriteFileChunk(FileStream file, byte data, ref uint crc32)
-            {
-                byte[] output = new byte[1] { data };
-                file.Write(output, 0, 1);
-                crc32 = Crc32Algorithm.Append(crc32, output);
-            }
-            private static void WriteFileChunk(FileStream file, dynamic data, ref uint crc32)
-            {
-                byte[] output = BitConverter.GetBytes(data);
-                file.Write(output, 0, output.Length);
-                crc32 = Crc32Algorithm.Append(crc32, output);
-            }
-            private static void WriteFileChunk(FileStream file, byte[] data, ref uint crc32a, ref uint crc32b)
-            {
-                file.Write(data, 0, data.Length);
-                crc32a = Crc32Algorithm.Append(crc32a, data);
-                crc32b = Crc32Algorithm.Append(crc32b, data);
-            }
-            private static void WriteFileChunk(FileStream file, byte data, ref uint crc32a, ref uint crc32b)
-            {
-                byte[] output = new byte[1] { data };
-                file.Write(output, 0, 1);
-                crc32a = Crc32Algorithm.Append(crc32a, output);
-                crc32b = Crc32Algorithm.Append(crc32b, output);
-            }
-            private static void WriteFileChunk(FileStream file, dynamic data, ref uint crc32a, ref uint crc32b)
-            {
-                byte[] output = BitConverter.GetBytes(data);
-                file.Write(output, 0, output.Length);
-                crc32a = Crc32Algorithm.Append(crc32a, output);
-                crc32b = Crc32Algorithm.Append(crc32b, output);
-            }
-
-            //reading
-
-            private static byte[] ReadFileChunk(FileStream file, int length)
-            {
-                byte[] data = new byte[length];
-                file.Read(data, 0, length);
-                return data;
-            }
-            private static byte[] ReadFileChunk(FileStream file, int length, ref uint crc32)
-            {
-                byte[] data = new byte[length];
-                file.Read(data, 0, length);
-                crc32 = Crc32Algorithm.Append(crc32, data);
-                return data;
-            }
-            private static byte[] ReadFileChunk(FileStream file, int length, ref uint crc32a, ref uint crc32b)
-            {
-                byte[] data = new byte[length];
-                file.Read(data, 0, length);
-                crc32a = Crc32Algorithm.Append(crc32a, data);
-                crc32b = Crc32Algorithm.Append(crc32b, data);
-                return data;
-            }
+                Pod = 0,
+                PodData = 1,
+                Race = 2,
+                Rendering = 3
+            };
         }
     }
 }

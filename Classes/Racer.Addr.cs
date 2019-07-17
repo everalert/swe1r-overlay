@@ -21,6 +21,105 @@ namespace SWE1R
                 oX = offset
                 lX = length in bytes
              */
+            
+            public enum BasePtr
+            {
+                Pod = 0xD78A4,
+                Rendering = 0xBFE80
+            };
+
+            public enum PtrLen
+            {
+                Pod = 0x88,
+                PodState = 0x1F28
+            };
+
+            public enum Rendering
+            {
+                CameraMode =    0x07C,
+                FogFlags =      0x2A8,
+                FogColR =       0x2C8,
+                FogColG =       0x2CC,
+                FogColB =       0x2D0,
+                FogDistance =   0x2D4
+            };
+
+            public enum Pod
+            {
+                Flags =             0x08,
+                PtrFile =           0x0C,
+                PtrVehicle =        0x18,
+                StatAntiSkid =      0x1C,
+                StatTurnResponse =  0x20,
+                StatMaxTurnRate =   0x24,
+                StatAcceleration =  0x28,
+                StatMaxSpeed =      0x2C,
+                StatAirBrakeInv =   0x30,
+                StatDecelInv =      0x34,
+                StatBoostThrust =   0x38,
+                StatHeatRate =      0x3C,
+                StatCoolRate =      0x40,
+                StatHoverHeight =   0x44,
+                StatRepairRate =    0x48,
+                StatBumpMass =      0x4C,
+                StatDmgImmunity =   0x50,
+                StatISectRadius =   0x54,
+                Position =          0x5C,
+                TimeLap1 =          0x60,
+                TimeLap2 =          0x64,
+                TimeLap3 =          0x68,
+                TimeLap4 =          0x6C,
+                TimeLap5 =          0x70,
+                TimeTotal =         0x74,
+                Lap =               0x78,
+                PtrPodState =       0x84
+            };
+
+            public enum PodState
+            {
+                Vector3D_1A = 0x20,
+                Vector3D_1B = 0x24,
+                Vector3D_1C = 0x28,
+                Vector3D_2A = 0x30,
+                Vector3D_2B = 0x34,
+                Vector3D_2C = 0x38,
+                X = 0x50,
+                Y = 0x54,
+                Z = 0x58,
+                Flags1 = 0x60,
+                Flags2 = 0x64,
+                StatAntiSkid = 0x6C,
+                StatTurnResponse = 0x70,
+                StatMaxTurnRate = 0x74,
+                StatAcceleration = 0x78,
+                StatMaxSpeed = 0x7C,
+                StatAirBrakeInv = 0x80,
+                StatDecelInv = 0x84,
+                StatBoostThrust = 0x88,
+                StatHeatRate = 0x8C,
+                StatCoolRate = 0x90,
+                StatHoverHeight = 0x94,
+                StatRepairRate = 0x98,
+                StatBumpMass = 0x9C,
+                StatDmgImmunity = 0xA0,
+                //BaseHoverHeight = 0xA4,
+                StatISectRadius = 0xA8,
+                LapCompletion = 0xE0,
+                LapCompletionPrev = 0xE4,
+                LapCompletionMax = 0xE8,
+                Speed = 0x1A0,
+                SlideModifier = 0x1E8, //???
+                Heat = 0x218,
+                SlowTerrainModifier = 0x244,
+                IceTerrainModifier = 0x248,
+                Slide = 0x24C, //???
+                FallTimer = 0x2C8
+            };
+
+            public enum StaticOffsets
+            {
+
+            };
 
             static public uint pRendering = 0xBFE80;
             //static public uint lRendering = 0x88;
