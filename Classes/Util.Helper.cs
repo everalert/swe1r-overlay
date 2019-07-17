@@ -33,7 +33,7 @@ namespace SWE1R.Util
 
         public static float ByteToFloat(byte b)
         {
-            return b * 255;
+            return b / 255;
         }
     }
 }
