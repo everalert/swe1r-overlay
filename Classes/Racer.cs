@@ -32,153 +32,103 @@ namespace SWE1R
         // - also, does steam hack detection block this? autosplitter can read steam version so probably no, or livesplit uses a workaround
 
 
+        // RACE
 
-        // lmao
-        public dynamic GetCustom(uint[] pointerpath, string datatype)
+        public dynamic GetData(Addr.Race datapoint, uint len = 0)
         {
-            return GetData(pointerpath, datatype);
+            uint[] path = { (uint)Addr.BasePtr.Race, (uint)datapoint };
+            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForRace.ContainsKey(datapoint) ? Addr.TypesForRace[datapoint] : Addr.DataTypes.Single);
+            return GetData(path, type, Math.Max(0, len));
         }
-        public void WriteCustom(uint[] pointerpath, dynamic data)
+        public void WriteData(Addr.Race offset, dynamic data)
         {
-            WriteData(pointerpath, data);
-        }
-
-
-        public dynamic GetRenderingCustom(uint offset, uint length)
-        {
-            uint[] path = { Addr.pRendering, offset };
-            return GetData(path, "", length);
-        }
-        public void WriteRenderingCustom(uint offset, dynamic data)
-        {
-            uint[] path = { Addr.pRendering, offset };
+            uint[] path = { (uint)Addr.BasePtr.Race, (uint)offset };
             WriteData(path, data);
         }
 
+        // POD
 
-        public dynamic GetRaceSetting(string datapoint, string datatype)
+        public dynamic GetData(Addr.Pod datapoint, uint len = 0)
         {
-            uint[] path = { Addr.pRaceSetting, Addr.oRaceSetting[datapoint] };
-            return GetData(path, datatype);
+            uint[] path = { (uint)Addr.BasePtr.Pod, (uint)datapoint };
+            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForPod.ContainsKey(datapoint) ? Addr.TypesForPod[datapoint] : Addr.DataTypes.Single);
+            return GetData(path, type, Math.Max(0, len));
         }
-
-
-        public dynamic GetPod(string datapoint, string datatype)
+        public void WriteData(Addr.Pod offset, dynamic data)
         {
-            uint[] path = { Addr.pPod, Addr.oPod[datapoint] };
-            return GetData(path, datatype);
-        }
-        public float[] GetPodTimeALL()
-        {
-            byte[] data = GetData(new uint[]{ Addr.pPod, Addr.oPod["time_lap_1"] }, "", 0x18);
-            List<float> times = new List<float>();
-            for (var i = 0; i < data.Length; i += 4)
-                times.Add(BitConverter.ToSingle(data, i));
-            return times.ToArray();
-        }
-        public byte[] GetPodALL()
-        {
-            uint[] path = { Addr.pPod, 0x0 };
-            return GetData(path, "", Addr.lPod);
-        }
-        public byte[] GetPodCustom(uint offset, uint length)
-        {
-            uint[] path = { Addr.pPod, offset };
-            return GetData(path, "", length);
-        }
-        public void WritePodALL(dynamic data)
-        {
-            uint[] path = { Addr.pPod, 0x0 };
+            uint[] path = { (uint)Addr.BasePtr.Pod, (uint)offset };
             WriteData(path, data);
         }
 
+        // POD STATE
 
-
-        public dynamic GetPodData(string datapoint, string datatype)
+        public dynamic GetData(Addr.PodState datapoint, uint len = 0)
         {
-            uint[] path = { Addr.pPod, Addr.oPod["pPodData"], Addr.oPodData[datapoint] };
-            return GetData(path, datatype);
+            uint[] path = { (uint)Addr.BasePtr.Pod, (uint)Addr.Pod.PtrPodState, (uint)datapoint };
+            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForPodState.ContainsKey(datapoint) ? Addr.TypesForPodState[datapoint] : Addr.DataTypes.Single);
+            return GetData(path, type, Math.Max(0, len));
         }
-        public byte[] GetPodDataALL()
+        public void WriteData(Addr.PodState offset, dynamic data)
         {
-            uint[] path = { Addr.pPod, Addr.oPod["pPodData"], 0x0 };
-            return GetData(path, "", Addr.lPodData);
-        }
-        public void WritePodDataALL(dynamic data)
-        {
-            uint[] path = { Addr.pPod, Addr.oPod["pPodData"], 0x0 };
+            uint[] path = { (uint)Addr.BasePtr.Pod, (uint)Addr.Pod.PtrPodState, (uint)offset };
             WriteData(path, data);
         }
 
+        // RENDERING
 
-
-        public dynamic GetStatic(string datapoint, string datatype)
+        public dynamic GetData(Addr.Rendering datapoint, uint len = 0)
         {
-            uint[] path = { Addr.oStatic[datapoint] };
-            return GetData(path, datatype);
+            uint[] path = { (uint)Addr.BasePtr.Rendering, (uint)datapoint };
+            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForRendering.ContainsKey(datapoint) ? Addr.TypesForRendering[datapoint] : Addr.DataTypes.Single);
+            return GetData(path, type, Math.Max(0, len));
+        }
+        public void WriteData(Addr.Rendering offset, dynamic data)
+        {
+            uint[] path = { (uint)Addr.BasePtr.Rendering, (uint)offset };
+            WriteData(path, data);
         }
 
+        // STATIC
 
-
-        public Single[] GetStatsALL()
+        public dynamic GetData(Addr.Static datapoint, uint len = 0)
         {
-            List<Single> output = new List<Single>();
-            foreach (KeyValuePair<string, uint> entry in Addr.oStats)
-            {
-                uint[] path = { Addr.oStats[entry.Key] };
-                output.Add(GetData(path, "float"));
-            }
-            return output.ToArray();
+            uint[] path = { (uint)datapoint };
+            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForStatic.ContainsKey(datapoint) ? Addr.TypesForStatic[datapoint] : Addr.DataTypes.Single);
+            return GetData(path, type, Math.Max(0, len));
+        }
+        public void WriteData(Addr.Static offset, dynamic data)
+        {
+            uint[] path = { (uint)offset };
+            WriteData(path, data);
         }
 
+        // GENERIC FUNCTIONS
 
-
-        public void SetDebugMenu(bool enable)
-        {
-            uint[] path1 = { Addr.oDebug["debug_menu"] };
-            uint[] path2 = { Addr.oDebug["debug_menu_text"] };
-            uint[] path3 = { Addr.oDebug["debug_level"] };
-            WriteData(path1, (uint)(enable ? 0x01 : 0x0));
-            WriteData(path2, (uint)(enable ? 0x3F : 0x0));
-            WriteData(path3, (uint)(enable ? 0x06 : 0x0));
-        }
-        public void SetDebugTerrainLabels(bool enable)
-        {
-            uint[] path = { Addr.oDebug["terrain_labels"] };
-            WriteData(path, (uint)(enable ? 0x01 : 0x0));
-        }
-        public void SetDebugInvincibility(bool enable)
-        {
-            uint[] path = { Addr.oDebug["invincibility"] };
-            WriteData(path, (uint)(enable ? 0x01 : 0x0));
-        }
-
-
-
-        private dynamic GetData(uint[] path, string type = "", uint len = 4)
+        private dynamic GetData(uint[] path, Addr.DataTypes type, uint len = 4)
         {
             IntPtr addr;
             if (CheckGame())
             {
                 try { addr = GetMemoryAddr(game, path); } catch (Exception) { return false; }
+                uint defLen = 4;
                 switch (type)
                 {
-                    case "byte":
+                    case Addr.DataTypes.Byte:
                         return mem.ReadMemory(addr, 1, out bytesOut)[0];
-                    case "ushort":
+                    case Addr.DataTypes.UInt16:
                         return BitConverter.ToUInt16(mem.ReadMemory(addr, 2, out bytesOut), 0);
-                    case "uint":
+                    case Addr.DataTypes.UInt32:
                         return BitConverter.ToUInt32(mem.ReadMemory(addr, 4, out bytesOut), 0);
-                    case "ulong":
+                    case Addr.DataTypes.UInt64:
                         return BitConverter.ToUInt64(mem.ReadMemory(addr, 8, out bytesOut), 0);
-                    case "float":
+                    case Addr.DataTypes.Single:
                         return BitConverter.ToSingle(mem.ReadMemory(addr, 4, out bytesOut), 0);
-                    case "double":
+                    case Addr.DataTypes.Double:
                         return BitConverter.ToDouble(mem.ReadMemory(addr, 8, out bytesOut), 0);
-                    case "string":
-                        return BitConverter.ToString(mem.ReadMemory(addr, len, out bytesOut), 0);
+                    case Addr.DataTypes.String:
+                        return BitConverter.ToString(mem.ReadMemory(addr, len > 0 ? len : defLen, out bytesOut), 0);
                     default:
-                        return mem.ReadMemory(addr, len, out bytesOut);
+                        return mem.ReadMemory(addr, len > 0 ? len : defLen, out bytesOut);
                 }
             }
             else
@@ -201,6 +151,8 @@ namespace SWE1R
         {
             if (!CheckGame())
                 throw new Exception("Game process not assigned.");
+            if (!CheckPointerPath(pointerPath))
+                throw new Exception("Pointer path invalid.");
             uint addr;
             uint next;
             addr = (uint)game.Modules[0].BaseAddress;
@@ -235,7 +187,7 @@ namespace SWE1R
             bool output = true;
             if (game == null || mem.ReadProcess == null)
                 output = false;
-            if (game != null && game.HasExited || mem.ReadProcess != null && mem.ReadProcess.HasExited)
+            if (game != null && game.HasExited || mem.ReadProcess != null && mem.ReadProcess.HasExited) // crashes when game closed for a while?
             {
                 try { mem.CloseHandle(); } catch { }
                 mem.ReadProcess = null;
@@ -243,6 +195,12 @@ namespace SWE1R
                 output = false;
             }
             return output;
+        }
+
+        private bool CheckPointerPath(uint[] path)
+        {
+            //implement checking later
+            return true;
         }
     }
 }

@@ -344,8 +344,8 @@ namespace SWE1R
 
         private string GetGameState()
         {
-            var gameInRace = racer.GetStatic("in_race", "byte");
-            var gameScene = racer.GetStatic("scene", "ushort");
+            var gameInRace = racer.GetData(Racer.Addr.Static.InRace);
+            var gameScene = racer.GetData(Racer.Addr.Static.SceneId);
             if (gameInRace == 1)
                 return "in_race";
             if (gameScene == 60)

@@ -247,6 +247,7 @@ namespace SWE1R
             {
                 Pod = 0,
                 PodData = 1,
+                PodState = 1,
                 Race = 2,
                 Rendering = 3
             };

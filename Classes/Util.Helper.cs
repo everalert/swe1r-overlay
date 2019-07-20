@@ -35,5 +35,23 @@ namespace SWE1R.Util
         {
             return b / 255;
         }
+
+
+
+        public enum DataTypes
+        {
+            //unsigned = no. of bits, signed = bits-1, fractional = bits+1
+            SByte = 7,
+            Byte = 8,
+            Int16 = 15,
+            UInt16 = 16,
+            Int32 = 31,
+            UInt32 = 32,
+            Single = 33,
+            Int64 = 63,
+            UInt64 = 64,
+            Double = 65,
+            Decimal = 129
+        };
     }
 }

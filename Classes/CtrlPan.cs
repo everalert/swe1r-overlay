@@ -96,10 +96,10 @@ namespace SWE1R
             /* implement generalised new/old state system before adding more UI elements? */
             if (racer_state_new == "in_race")
             {
-                var frame_time = racer.GetStatic("frame_time", "double");
+                var frame_time = racer.GetData(Racer.Addr.Static.FrameTime);
 
-                race_pod_flags1 = racer.GetPodData("flags1", "uint");
-                race_pod_flags2 = racer.GetPodData("flags2", "uint");
+                race_pod_flags1 = racer.GetData(Racer.Addr.PodState.Flags1);
+                race_pod_flags2 = racer.GetData(Racer.Addr.PodState.Flags2);
                 race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
                 race_pod_is_finished = ((race_pod_flags2 & (1 << 25)) != 0);
                 race_dead_old = race_dead_new;
@@ -107,21 +107,21 @@ namespace SWE1R
                 if (race_dead_new && !race_dead_old)
                     race_deaths++;
 
-                race_pod_heat = racer.GetPodData("heat", "float");
-                race_pod_heatrate = racer.GetPodData("heat_rate", "float");
-                race_pod_coolrate = racer.GetPodData("cool_rate", "float");
+                race_pod_heat = racer.GetData(Racer.Addr.PodState.Heat);
+                race_pod_heatrate = racer.GetData(Racer.Addr.PodState.StatHeatRate);
+                race_pod_coolrate = racer.GetData(Racer.Addr.PodState.StatCoolRate);
                 race_pod_heat_txt = race_pod_heat.ToString("0.0");
                 race_pod_overheat_txt = (race_pod_heat / race_pod_heatrate).ToString("0.0s");
                 race_pod_underheat_txt = ((100 - race_pod_heat) / race_pod_coolrate).ToString("0.0s");
 
-                race_time_src = racer.GetPodTimeALL();
+                race_time_src = GetInRaceTimes(); 
                 race_time = Helper.FormatTimesArray(race_time_src.Where(item => item >= 0).ToArray(), time_format);
                 race_time_label = race_time_label_src.ToList().GetRange(0, race_time.Length).ToArray();
                 race_time_label[race_time_label.Length - 1] = race_time_label_src.Last();
 
                 if (race_pod_loc_new != null)
                     race_pod_loc_old = race_pod_loc_new;
-                race_pod_loc_new = new Vector3(racer.GetPodData("xpos", "float"), racer.GetPodData("ypos", "float"), racer.GetPodData("zpos", "float"));
+                race_pod_loc_new = new Vector3(racer.GetData(Racer.Addr.PodState.X), racer.GetData(Racer.Addr.PodState.Y), racer.GetData(Racer.Addr.PodState.Z));
                 race_pod_dist_frame = race_pod_loc_old != null ? Math.Sqrt(Math.Pow(race_pod_loc_new.X - race_pod_loc_old.X, 2) + Math.Pow(race_pod_loc_new.Y - race_pod_loc_old.Y, 2) + Math.Pow(race_pod_loc_new.Z - race_pod_loc_old.Z, 2)) : 0;
                 if (!race_pod_is_finished && race_time_src[race_time_src.Length - 1] > 0)
                     race_pod_dist_total += race_pod_dist_frame;
@@ -138,7 +138,7 @@ namespace SWE1R
 
             if (racer_state_new == "pod_select")
             {
-                podsel_statistics = racer.GetStatsALL();
+                podsel_statistics = GetVehicleSelectStats();
                 podsel_shown_stats = new float[7];
                 for (var i = 0; i < podsel_shown_map.Length; i++)
                     podsel_shown_stats[i] = (float)podsel_statistics.GetValue(podsel_shown_map[i]);
@@ -214,16 +214,16 @@ namespace SWE1R
 
         private void Opt_enableDebugMenu_CheckedChanged(object sender, EventArgs e)
         {
-            racer.SetDebugMenu(opt_enableDebugMenu.Checked);
+            SetDebugMenu(opt_enableDebugMenu.Checked);
             SetDebug(opt_enableDebugMenu.Checked);
         }
         private void Opt_enableInvincibility_CheckedChanged(object sender, EventArgs e)
         {
-            racer.SetDebugInvincibility(opt_enableInvincibility.Checked);
+            SetDebugInvincibility(opt_enableInvincibility.Checked);
         }
         private void Opt_showTerrainFlags_CheckedChanged(object sender, EventArgs e)
         {
-            racer.SetDebugTerrainLabels(opt_showTerrainFlags.Checked);
+            SetDebugTerrainLabels(opt_showTerrainFlags.Checked);
         }
 
         // HOTKEYS
@@ -293,6 +293,42 @@ namespace SWE1R
                 if (process.MainWindowTitle.Length > 0)
                     output.Add(process);
             return output;
+        }
+
+
+
+
+        private float[] GetInRaceTimes()
+        {
+            byte[] data = racer.GetData(Racer.Addr.Pod.TimeLap1, 0x18);
+            List<float> times = new List<float>();
+            for (var i = 0; i < data.Length; i += 4)
+                times.Add(BitConverter.ToSingle(data, i));
+            return times.ToArray();
+        }
+
+        private Single[] GetVehicleSelectStats()
+        {
+            byte[] data = racer.GetData(Racer.Addr.Static.StatAntiSkid, 0x3C);
+            List<float> stats = new List<float>();
+            for (var i = 0; i < data.Length; i += 4)
+                stats.Add(BitConverter.ToSingle(data, i));
+            return stats.ToArray();
+        }
+
+        private void SetDebugMenu(bool enable)
+        {
+            racer.WriteData(Racer.Addr.Static.DebugMenu, (uint)(enable ? 0x01 : 0x0));
+            racer.WriteData(Racer.Addr.Static.DebugMenuText, (uint)(enable ? 0x3F : 0x0));
+            racer.WriteData(Racer.Addr.Static.DebugLevel, (uint)(enable ? 0x06 : 0x0));
+        }
+        public void SetDebugTerrainLabels(bool enable)
+        {
+            racer.WriteData(Racer.Addr.Static.DebugTerrainLabels, (uint)(enable ? 0x01 : 0x0));
+        }
+        public void SetDebugInvincibility(bool enable)
+        {
+            racer.WriteData(Racer.Addr.Static.DebugInvincibility, (uint)(enable ? 0x01 : 0x0));
         }
     }
 }

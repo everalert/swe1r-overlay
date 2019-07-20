@@ -25,6 +25,7 @@ namespace SWE1R
             public enum BasePtr
             {
                 Pod = 0xD78A4,
+                Race = 0xBFDB8,
                 Rendering = 0xBFE80
             };
 
@@ -36,16 +37,47 @@ namespace SWE1R
 
             public enum Rendering
             {
-                CameraMode =    0x07C,
-                FogFlags =      0x2A8,
-                FogColR =       0x2C8,
-                FogColG =       0x2CC,
-                FogColB =       0x2D0,
-                FogDistance =   0x2D4
+                CameraMode = 0x07C,
+                FogFlags = 0x2A8,
+                FogColR = 0x2C8,
+                FogColG = 0x2CC,
+                FogColB = 0x2D0,
+                FogDistance = 0x2D4
+            };
+
+            public static Dictionary<Rendering, DataTypes> TypesForRendering = new Dictionary<Rendering, DataTypes>
+            {
+                { Rendering.CameraMode , DataTypes.UInt32 },
+                { Rendering.FogFlags , DataTypes.UInt32 },
+                { Rendering.FogColR , DataTypes.UInt32 },
+                { Rendering.FogColG , DataTypes.UInt32 },
+                { Rendering.FogColB , DataTypes.UInt32 },
+                { Rendering.FogDistance , DataTypes.Single },
+            };
+
+            public enum Race
+            {
+                SelectedTrack = 0x5D, //byte
+                SelectedCircuit = 0x5E, //byte
+                SetMirrored = 0x6E, //byte
+                SelectedVehicle = 0x73, //byte
+                SetAiDifficulty = 0x74, //byte, i think it's difficulty (i.e. not number of ai racers)
+                SetWinnings = 0x91, //byte
+            };
+
+            public static Dictionary<Race, DataTypes> TypesForRace = new Dictionary<Race, DataTypes>
+            {
+                { Race.SelectedTrack , DataTypes.Byte },
+                { Race.SelectedCircuit , DataTypes.Byte },
+                { Race.SetMirrored , DataTypes.Byte },
+                { Race.SelectedVehicle , DataTypes.Byte },
+                { Race.SetAiDifficulty , DataTypes.Byte },
+                { Race.SetWinnings , DataTypes.Byte },
             };
 
             public enum Pod
             {
+                Begin = 0x00,
                 Flags =             0x08,
                 PtrFile =           0x0C,
                 PtrVehicle =        0x18,
@@ -75,8 +107,19 @@ namespace SWE1R
                 PtrPodState =       0x84
             };
 
+            public static Dictionary<Pod, DataTypes> TypesForPod = new Dictionary<Pod, DataTypes>
+            {
+                { Pod.Flags, DataTypes.UInt32 },
+                { Pod.PtrFile, DataTypes.UInt32 },
+                { Pod.PtrVehicle, DataTypes.UInt32 },
+                { Pod.Position, DataTypes.UInt16 }, //pretty sure, code writes 2 bytes
+                { Pod.Lap, DataTypes.Byte }, //i think?
+                { Pod.PtrPodState, DataTypes.UInt32 },
+            };
+
             public enum PodState
             {
+                Begin = 0x00,
                 Vector3D_1A = 0x20,
                 Vector3D_1B = 0x24,
                 Vector3D_1C = 0x28,
@@ -116,94 +159,53 @@ namespace SWE1R
                 FallTimer = 0x2C8
             };
 
-            public enum StaticOffsets
+            public static Dictionary<PodState, DataTypes> TypesForPodState = new Dictionary<PodState, DataTypes>
             {
-
+                { PodState.Flags1, DataTypes.UInt32 },
+                { PodState.Flags2, DataTypes.UInt32 },
             };
 
-            static public uint pRendering = 0xBFE80;
-            //static public uint lRendering = 0x88;
-            static public Dictionary<string, uint> oRendering = new Dictionary<string, uint>
+            public enum Static
             {
-                {"camera_mode",      0x7C},
-                {"fog_flags",        0x2A8},
-                {"fog_col_r",        0x2C8},
-                {"fog_col_g",        0x2CC},
-                {"fog_col_b",        0x2D0},
-                {"fog_distance",     0x2D4} //float
+                DebugLevel = 0x10C040,
+                DebugMenu = 0x10C044,
+                DebugMenuText = 0x10C048,
+                DebugTerrainLabels = 0x10C88C,
+                DebugInvincibility = 0x10CA28,
+                FrameCount = 0xA22A30,
+                FrameTime = 0xA22A40,
+                StatAntiSkid = 0xA29BDC,
+                StatTurnResponse = 0xA29BE0,
+                StatMaxTurnRate = 0xA29BE4,
+                StatAcceleration = 0xA29BE8,
+                StatMaxSpeed = 0xA29BEC,
+                StatAirBrakeInv = 0xA29BF0,
+                StatDecelInv = 0xA29BF4,
+                StatBoostThrust = 0xA29BF8,
+                StatHeatRate = 0xA29BFC,
+                StatCoolRate = 0xA29C00,
+                StatHoverHeight = 0xA29C04,
+                StatRepairRate = 0xA29C08,
+                StatBumpMass = 0xA29C0C,
+                StatDmgImmunity = 0xA29C10,
+                StatISectRadius = 0xA29C14,
+                SceneId = 0xA9BA62,
+                InRace = 0xA9BB81,
+                InTournamentMode = 0x10C450
             };
 
-            static public uint pPod = 0xD78A4;
-            static public uint lPod = 0x88; // length in bytes
-            static public Dictionary<string, uint> oPod = new Dictionary<string, uint>
+            public static Dictionary<Static, DataTypes> TypesForStatic = new Dictionary<Static, DataTypes>
             {
-                {"position",   0x5C},
-                {"time_lap_1", 0x60},
-                {"time_lap_2", 0x64},
-                {"time_lap_3", 0x68},
-                {"time_lap_4", 0x6C},
-                {"time_lap_5", 0x70},
-                {"time_total", 0x74},
-                {"lap",        0x78},
-                {"pPodData",   0x84}
-            };
-            static public uint lPodData = 0x1F28;
-            static public Dictionary<string, uint> oPodData = new Dictionary<string, uint>
-            {
-                {"3d_vector_1a",  0x20},
-                {"3d_vector_1b",  0x24},
-                {"3d_vector_1c",  0x28},
-                {"3d_vector_2a",  0x30},
-                {"3d_vector_2b",  0x34},
-                {"3d_vector_2c",  0x38},
-                {"xpos",          0x50},
-                {"ypos",          0x54},
-                {"zpos",          0x58},
-                {"flags1",        0x60},
-                {"flags2",        0x64},
-                {"anti_skid",     0x6C},
-                {"turn_response", 0x70},
-                {"max_turn_rate", 0x74},
-                {"acceleration",  0x78},
-                {"max_speed",     0x7C},
-                {"air_brake_inv", 0x80},
-                {"decel_inv",     0x84},
-                {"boost_thrust",  0x88},
-                {"heat_rate",     0x8C},
-                {"cool_rate",     0x90},
-                {"hover_height",  0x94},
-                {"repair_rate",   0x98},
-                {"bump_mass",     0x9C},
-                {"dmg_immunity",  0xA0},
-                {"isect_radius",  0xA8},
-                {"lap_completion_1",  0xE0},
-                {"lap_completion_2",  0xE4},
-                {"lap_completion_3",  0xE8},
-                {"speed",             0x1A0},
-                {"slide_mult",        0x1E8},
-                {"heat",              0x218},
-                {"slow_terrain_mult", 0x244},
-                {"ice_terrain_mult",  0x248},
-                {"slide",             0x24C}
-            };
-
-            static public Dictionary<string, uint> oStats = new Dictionary<string, uint>
-            {
-                {"anti_skid",     0xA29BDC},
-                {"turn_response", 0xA29BE0},
-                {"max_turn_rate", 0xA29BE4},
-                {"acceleration",  0xA29BE8},
-                {"max_speed",     0xA29BEC},
-                {"air_brake_inv", 0xA29BF0},
-                {"decel_inv",     0xA29BF4},
-                {"boost_thrust",  0xA29BF8},
-                {"heat_rate",     0xA29BFC},
-                {"cool_rate",     0xA29C00},
-                {"hover_height",  0xA29C04},
-                {"repair_rate",   0xA29C08},
-                {"bump_mass",     0xA29C0C},
-                {"dmg_immunity",  0xA29C10},
-                {"isect_radius",  0xA29C14}
+                { Static.DebugLevel, DataTypes.UInt32 },
+                { Static.DebugMenu, DataTypes.UInt32 },
+                { Static.DebugMenuText, DataTypes.UInt32 },
+                { Static.DebugTerrainLabels, DataTypes.UInt32 },
+                { Static.DebugInvincibility, DataTypes.UInt32 },
+                { Static.FrameCount, DataTypes.UInt32 },
+                { Static.FrameTime, DataTypes.Double},
+                { Static.SceneId, DataTypes.UInt16},
+                { Static.InRace, DataTypes.Byte},
+                { Static.InTournamentMode, DataTypes.Byte},
             };
 
             static public Dictionary<string, uint> oInput = new Dictionary<string, uint>()
@@ -226,34 +228,22 @@ namespace SWE1R
                 { "pause",        0xD5F20 },
             };
 
-            static public Dictionary<string, uint> oStatic = new Dictionary<string, uint>
+            public enum DataTypes
             {
-                {"selected_pod_stats", 0xA29BDC }, //len=0x78
-                {"frame_count",        0xA22A30 }, //uint
-                {"frame_time",       0xA22A40 }, //double
-                {"scene",              0xA9BA62 }, //ushort
-                {"in_race",            0xA9BB81 }, //byte
-                {"in_tournament_mode", 0x10C450 }  //byte
-            };
-
-            static public Dictionary<string, uint> oDebug = new Dictionary<string, uint>
-            {
-                {"debug_level",     0x10C040 }, //long, 0-6 normally
-                {"debug_menu",      0x10C044 }, //ulong
-                {"debug_menu_text", 0x10C048 }, //ulong
-                {"terrain_labels",  0x10C88C }, //ulong
-                {"invincibility",   0x10CA28 } //ulong
-            };
-
-            static public uint pRaceSetting = 0xBFDB8;
-            static public Dictionary<string, uint> oRaceSetting = new Dictionary<string, uint>
-            {
-                {"selected_track",    0x5D }, //byte
-                {"selected_circuit",  0x5E }, //byte
-                {"set_mirrored",      0x6E }, //byte
-                {"selected_pod",      0x73 }, //byte
-                {"set_ai_difficulty", 0x74 }, //byte, i think it's difficulty (i.e. not number of ai racers)
-                {"set_winnings",      0x91 }, //byte
+                //unsigned = no. of bits, signed = bits-1, fractional = bits+1
+                None = -1,
+                String = 0,
+                SByte = 7,
+                Byte = 8,
+                Int16 = 15,
+                UInt16 = 16,
+                Int32 = 31,
+                UInt32 = 32,
+                Single = 33,
+                Int64 = 63,
+                UInt64 = 64,
+                Double = 65,
+                Decimal = 129
             };
         }
     }
