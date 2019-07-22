@@ -65,11 +65,12 @@ namespace SWE1R
 
         private void MainLoop()
         {
+            string txt_debug;
+
             stopwatch.Stop();
-            var txt_debug = stopwatch.ElapsedMilliseconds.ToString();
+            txt_debug = stopwatch.ElapsedMilliseconds.ToString("00ms");
             stopwatch = Stopwatch.StartNew();
 
-            /* this should probably be done in the control panel directly? */
             if (input != null)
                 input.Update();
 
@@ -83,18 +84,21 @@ namespace SWE1R
             //    return;
 
             // logic
+            racerStateOld = racerState;
+            racerState = GetGameState();
+            racerStateDeepOld = racerStateDeep;
+            racerStateDeep = GetGameState(true);
 
-            racer_state_old = racer_state_new;
-            racer_state_new = GetGameState();
+            txt_debug += "   State:" + racerStateDeep.ToString();
 
-            if (racer_state_new == "in_race" ^ racer_state_old != "in_race")
+            if (racerState == GameStateId.InRace ^ racerStateOld != GameStateId.InRace)
                 CheckRaceState();
 
             if (!overlay.Visible)
                 return;
 
             /* implement generalised new/old state system before adding more UI elements? */
-            if (racer_state_new == "in_race")
+            if (racerState == GameStateId.InRace)
             {
                 var frame_time = racer.GetData(Racer.Addr.Static.FrameTime);
 
@@ -136,7 +140,7 @@ namespace SWE1R
                 race_pod_dist_total = 0;
             }
 
-            if (racer_state_new == "pod_select")
+            if (racerStateDeep == GameStateId.VehicleSelect)
             {
                 podsel_statistics = GetVehicleSelectStats();
                 podsel_shown_stats = new float[7];
@@ -166,7 +170,7 @@ namespace SWE1R
             if (opt_debug)
                 DrawText(ol_coords["txt_debug"], txt_debug, ol_font["default"], ol_color["txt_debug"], TextAlignment.Left | TextAlignment.Top);
 
-            if (racer_state_new == "in_race")
+            if (racerState == GameStateId.InRace)
             {
                 DrawText(ol_coords["txt_debug2"], race_pod_loc_txt, ol_font["default"], ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
 
@@ -174,7 +178,7 @@ namespace SWE1R
                 DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
 
                 // not displayed on race end screen
-                if (!race_pod_is_finished)
+                if (racerStateDeep != GameStateId.RaceEnded)
                 {
                     //heating
                     /*  todo - different ms size, colouring */
@@ -200,7 +204,7 @@ namespace SWE1R
                     */
                 }
             }
-            if (racer_state_new == "pod_select")
+            if (racerStateDeep == GameStateId.VehicleSelect)
             {
                 DrawTextList(ol_coords["podsel_hidden"], podsel_hidden_stats_names, podsel_hidden_stats, ol_font["podsel_hidden"], ol_color["txt_podsel_stats_hidden"], TextAlignment.Left | TextAlignment.Bottom, "   ");
                 DrawTextList(ol_coords["podsel_shown"], Helper.ArrayToStrList(podsel_shown_stats), ol_font["podsel_shown"], ol_color["txt_podsel_stats_shown"], TextAlignment.Left | TextAlignment.VerticalCenter);
@@ -322,13 +326,127 @@ namespace SWE1R
             racer.WriteData(Racer.Addr.Static.DebugMenuText, (uint)(enable ? 0x3F : 0x0));
             racer.WriteData(Racer.Addr.Static.DebugLevel, (uint)(enable ? 0x06 : 0x0));
         }
-        public void SetDebugTerrainLabels(bool enable)
+        private void SetDebugTerrainLabels(bool enable)
         {
             racer.WriteData(Racer.Addr.Static.DebugTerrainLabels, (uint)(enable ? 0x01 : 0x0));
         }
-        public void SetDebugInvincibility(bool enable)
+        private void SetDebugInvincibility(bool enable)
         {
             racer.WriteData(Racer.Addr.Static.DebugInvincibility, (uint)(enable ? 0x01 : 0x0));
+        }
+
+
+        // following maybe should be in racer class? becoming more generalised than intended
+
+        private enum GameStateId
+        {
+            Unknown,
+            Title,
+            FileSelect,
+            VehicleSelect,
+            VehicleSelectAnimFile,
+            VehicleSelectAnimTrack,
+            VehicleSelectAnim,
+            TrackSelect,
+            TrackSelectAmateur,
+            TrackSelectSemipro,
+            TrackSelectGalactic,
+            TrackSelectInvitational,
+            TrackSettings,
+            TrackReady,
+            TrackResults,
+            InRace,
+            RaceStarting,
+            RacePaused,
+            RaceEnded,
+            Settings,
+            SettingsVideo,
+            SettingsAudio,
+            SettingsJoystick,
+            SettingsMouse,
+            SettingsKeyboard,
+            SettingsKeyboardReservedKeys,
+            SettingsForceFeedback,
+            SettingsLoadSave,
+            Loading
+        }
+
+        private GameStateId GetGameState(bool deep = false)
+        {
+            // setup
+            uint textBase = (uint)Racer.Addr.Static.Text01;
+            uint textLen = Racer.Addr.LengthsForStatic[Racer.Addr.Static.Text01];
+            byte textCnt = 52;
+            List<string> textItems = new List<string>(textCnt);
+            for (byte z = 0; z < textCnt; z++)
+                textItems.Add(System.Text.Encoding.Default.GetString(racer.GetData((Racer.Addr.Static)(textBase+textLen*z), textLen)));
+            var gameInRace = racer.GetData(Racer.Addr.Static.InRace);
+            var gameRaceFlags = racer.GetData(Racer.Addr.Pod.Flags);
+            var gamePause = racer.GetData(Racer.Addr.Static.PauseState);
+            var gameScene = racer.GetData(Racer.Addr.Static.SceneId);
+
+            // in-race
+            if (gameInRace == 1)
+            {
+                if (deep && gamePause > 0)
+                    return GameStateId.RacePaused;
+                if (deep && (gameRaceFlags & (1 << 0)) == 0 && (gameRaceFlags & (1 << 1)) == 0)
+                    return GameStateId.RaceStarting;
+                if (deep && (gameRaceFlags & (1 << 0)) != 0 && (gameRaceFlags & (1 << 1)) != 0)
+                    return GameStateId.RaceEnded;
+                return GameStateId.InRace;
+            }
+
+            // vehicle selection
+            if (gameScene == 60)
+            {
+                if (deep && textItems[2].Substring(5, 18) != "Vehicle Statistics")
+                    return GameStateId.VehicleSelectAnim;
+                return GameStateId.VehicleSelect;
+            }
+
+            // track selection
+            if (gameScene == 260)
+            {
+                if (deep && textItems[2].Substring(5, 6) == "Mirror")
+                    return GameStateId.TrackSettings;
+                if (textItems[3].Substring(5, 10) == "Start Race")
+                    return GameStateId.TrackReady;
+                return GameStateId.TrackSelect;
+            }
+            if (deep && textItems[2].Substring(5, 6) == "Mirror")
+                return deep ? GameStateId.TrackSettings : GameStateId.TrackSelect;
+            if (textItems[3].Substring(5, 10) == "Start Race")
+                return deep ? GameStateId.TrackReady : GameStateId.TrackSelect;
+            if (textItems[0].Substring(4, 7) == "Results")
+                return deep ? GameStateId.TrackResults : GameStateId.TrackSelect;
+
+            // title screen & game settings
+            if (textItems[0].Substring(5, 24) == "Single Player Tournament")
+                return GameStateId.Title;
+            if (textItems[0].Substring(3, 14) == "Current Player")
+                return GameStateId.FileSelect;
+            if (textItems[0].Substring(5, 14) == "VIDEO SETTINGS" && textItems[1].Substring(5, 14) == "AUDIO SETTINGS")
+                return GameStateId.Settings;
+            if (textItems[0].Substring(5, 14) == "VIDEO SETTINGS")
+                return deep ? GameStateId.SettingsVideo : GameStateId.Settings;
+            if (textItems[0].Substring(5, 14) == "AUDIO SETTINGS")
+                return deep ? GameStateId.SettingsAudio : GameStateId.Settings;
+            if (textItems[0].Substring(5, 17) == "JOYSTICK SETTINGS")
+                return deep ? GameStateId.SettingsJoystick : GameStateId.Settings;
+            if (textItems[0].Substring(5, 14) == "MOUSE SETTINGS")
+                return deep ? GameStateId.SettingsMouse : GameStateId.Settings;
+            if (textItems[1].Substring(5, 17) == "KEYBOARD SETTINGS" && textItems[0].Substring(5, 22) == "Show Reserved Settings")
+                return deep ? GameStateId.SettingsKeyboard : GameStateId.Settings;
+            if (textItems[0].Substring(5, 13) == "RESERVED KEYS")
+                return deep ? GameStateId.SettingsKeyboardReservedKeys : GameStateId.Settings;
+            if (textItems[0].Substring(5, 23) == "FORCE FEEDBACK SETTINGS")
+                return deep ? GameStateId.SettingsForceFeedback : GameStateId.Settings;
+            if (textItems[1].Substring(5, 18) == "LOAD/SAVE SETTINGS" && textItems[0].Substring(5, 6) == "Cancel")
+                return deep ? GameStateId.SettingsLoadSave : GameStateId.Settings;
+
+            // default
+            return GameStateId.Unknown;
         }
     }
 }

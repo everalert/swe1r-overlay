@@ -40,7 +40,8 @@ namespace SWE1R
         private bool opt_debug = false;
 
         // racer
-        private string racer_state_old, racer_state_new;
+        private GameStateId racerState, racerStateOld;
+        private GameStateId racerStateDeep, racerStateDeepOld;
 
         // in race
         private uint race_pod_flags1, race_pod_flags2;
@@ -337,22 +338,6 @@ namespace SWE1R
                 img.Value.Dispose();
                 ol_img.Remove(img.Key);
             }
-        }
-
-
-        // LOGIC FUNCTIONS
-
-        private string GetGameState()
-        {
-            var gameInRace = racer.GetData(Racer.Addr.Static.InRace);
-            var gameScene = racer.GetData(Racer.Addr.Static.SceneId);
-            if (gameInRace == 1)
-                return "in_race";
-            if (gameScene == 60)
-                return "pod_select";
-            if (gameScene == 260)
-                return "track_select";
-            return "";
         }
 
 

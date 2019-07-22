@@ -191,7 +191,9 @@ namespace SWE1R
                 StatISectRadius = 0xA29C14,
                 SceneId = 0xA9BA62,
                 InRace = 0xA9BB81,
-                InTournamentMode = 0x10C450
+                InTournamentMode = 0x10C450,
+                PauseState = 0x10C5F0,
+                Text01 = 0xA2C380
             };
 
             public static Dictionary<Static, DataTypes> TypesForStatic = new Dictionary<Static, DataTypes>
@@ -206,6 +208,13 @@ namespace SWE1R
                 { Static.SceneId, DataTypes.UInt16},
                 { Static.InRace, DataTypes.Byte},
                 { Static.InTournamentMode, DataTypes.Byte},
+                { Static.PauseState, DataTypes.Byte},
+                { Static.Text01, DataTypes.String }, // known to repeat every 0x80 at least 52 times
+            };
+
+            public static Dictionary<Static, uint> LengthsForStatic = new Dictionary<Static, uint>
+            {
+                { Static.Text01, 0x80 }
             };
 
             static public Dictionary<string, uint> oInput = new Dictionary<string, uint>()
