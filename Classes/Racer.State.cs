@@ -170,7 +170,7 @@ namespace SWE1R
                 bool valid = true;
                 if (!DataHasValue(BlockType.Pod, 0x60, 0x19))
                     valid = false;
-                if (!DataHasValue(BlockType.PodData, 0x0, Addr.lPodData))
+                if (!DataHasValue(BlockType.PodData, 0x0, (uint)Addr.PtrLen.PodState))
                     valid = false;
                 return valid;
             }
