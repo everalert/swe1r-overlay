@@ -21,6 +21,9 @@ namespace SWE1R
                 oX = offset
                 lX = length in bytes
              */
+
+            public const DataType DefaultType = DataType.Single;
+            public const uint DefaultLength = 4;
             
             public enum BasePtr
             {
@@ -45,15 +48,17 @@ namespace SWE1R
                 FogDistance = 0x2D4
             };
 
-            public static Dictionary<Rendering, DataTypes> TypesForRendering = new Dictionary<Rendering, DataTypes>
+            public static Dictionary<Rendering, DataType> TypesForRendering = new Dictionary<Rendering, DataType>
             {
-                { Rendering.CameraMode , DataTypes.UInt32 },
-                { Rendering.FogFlags , DataTypes.UInt32 },
-                { Rendering.FogColR , DataTypes.UInt32 },
-                { Rendering.FogColG , DataTypes.UInt32 },
-                { Rendering.FogColB , DataTypes.UInt32 },
-                { Rendering.FogDistance , DataTypes.Single },
+                { Rendering.CameraMode , DataType.UInt32 },
+                { Rendering.FogFlags , DataType.UInt32 },
+                { Rendering.FogColR , DataType.UInt32 },
+                { Rendering.FogColG , DataType.UInt32 },
+                { Rendering.FogColB , DataType.UInt32 },
+                { Rendering.FogDistance , DataType.Single },
             };
+
+            public static Dictionary<Rendering, uint> LengthsForRendering = new Dictionary<Rendering, uint> { };
 
             public enum Race
             {
@@ -65,15 +70,17 @@ namespace SWE1R
                 SetWinnings = 0x91, //byte
             };
 
-            public static Dictionary<Race, DataTypes> TypesForRace = new Dictionary<Race, DataTypes>
+            public static Dictionary<Race, DataType> TypesForRace = new Dictionary<Race, DataType>
             {
-                { Race.SelectedTrack , DataTypes.Byte },
-                { Race.SelectedCircuit , DataTypes.Byte },
-                { Race.SetMirrored , DataTypes.Byte },
-                { Race.SelectedVehicle , DataTypes.Byte },
-                { Race.SetAiDifficulty , DataTypes.Byte },
-                { Race.SetWinnings , DataTypes.Byte },
+                { Race.SelectedTrack , DataType.Byte },
+                { Race.SelectedCircuit , DataType.Byte },
+                { Race.SetMirrored , DataType.Byte },
+                { Race.SelectedVehicle , DataType.Byte },
+                { Race.SetAiDifficulty , DataType.Byte },
+                { Race.SetWinnings , DataType.Byte },
             };
+
+            public static Dictionary<Race, uint> LengthsForRace = new Dictionary<Race, uint> { };
 
             public enum Pod
             {
@@ -107,15 +114,17 @@ namespace SWE1R
                 PtrPodState =       0x84
             };
 
-            public static Dictionary<Pod, DataTypes> TypesForPod = new Dictionary<Pod, DataTypes>
+            public static Dictionary<Pod, DataType> TypesForPod = new Dictionary<Pod, DataType>
             {
-                { Pod.Flags, DataTypes.UInt32 },
-                { Pod.PtrFile, DataTypes.UInt32 },
-                { Pod.PtrVehicle, DataTypes.UInt32 },
-                { Pod.Position, DataTypes.UInt16 }, //pretty sure, code writes 2 bytes
-                { Pod.Lap, DataTypes.Byte }, //i think?
-                { Pod.PtrPodState, DataTypes.UInt32 },
+                { Pod.Flags, DataType.UInt32 },
+                { Pod.PtrFile, DataType.UInt32 },
+                { Pod.PtrVehicle, DataType.UInt32 },
+                { Pod.Position, DataType.UInt16 }, //pretty sure, code writes 2 bytes
+                { Pod.Lap, DataType.Byte }, //i think?
+                { Pod.PtrPodState, DataType.UInt32 },
             };
+
+            public static Dictionary<Pod, uint> LengthsForPod = new Dictionary<Pod, uint> { };
 
             public enum PodState
             {
@@ -159,11 +168,13 @@ namespace SWE1R
                 FallTimer = 0x2C8
             };
 
-            public static Dictionary<PodState, DataTypes> TypesForPodState = new Dictionary<PodState, DataTypes>
+            public static Dictionary<PodState, DataType> TypesForPodState = new Dictionary<PodState, DataType>
             {
-                { PodState.Flags1, DataTypes.UInt32 },
-                { PodState.Flags2, DataTypes.UInt32 },
+                { PodState.Flags1, DataType.UInt32 },
+                { PodState.Flags2, DataType.UInt32 },
             };
+
+            public static Dictionary<PodState, uint> LengthsForPodState = new Dictionary<PodState, uint>{};
 
             public enum Static
             {
@@ -196,20 +207,20 @@ namespace SWE1R
                 Text01 = 0xA2C380
             };
 
-            public static Dictionary<Static, DataTypes> TypesForStatic = new Dictionary<Static, DataTypes>
+            public static Dictionary<Static, DataType> TypesForStatic = new Dictionary<Static, DataType>
             {
-                { Static.DebugLevel, DataTypes.UInt32 },
-                { Static.DebugMenu, DataTypes.UInt32 },
-                { Static.DebugMenuText, DataTypes.UInt32 },
-                { Static.DebugTerrainLabels, DataTypes.UInt32 },
-                { Static.DebugInvincibility, DataTypes.UInt32 },
-                { Static.FrameCount, DataTypes.UInt32 },
-                { Static.FrameTime, DataTypes.Double},
-                { Static.SceneId, DataTypes.UInt16},
-                { Static.InRace, DataTypes.Byte},
-                { Static.InTournamentMode, DataTypes.Byte},
-                { Static.PauseState, DataTypes.Byte},
-                { Static.Text01, DataTypes.String }, // known to repeat every 0x80 at least 52 times
+                { Static.DebugLevel, DataType.UInt32 },
+                { Static.DebugMenu, DataType.UInt32 },
+                { Static.DebugMenuText, DataType.UInt32 },
+                { Static.DebugTerrainLabels, DataType.UInt32 },
+                { Static.DebugInvincibility, DataType.UInt32 },
+                { Static.FrameCount, DataType.UInt32 },
+                { Static.FrameTime, DataType.Double},
+                { Static.SceneId, DataType.UInt16},
+                { Static.InRace, DataType.Byte},
+                { Static.InTournamentMode, DataType.Byte},
+                { Static.PauseState, DataType.Byte},
+                { Static.Text01, DataType.String }, // known to repeat every 0x80 at least 52 times
             };
 
             public static Dictionary<Static, uint> LengthsForStatic = new Dictionary<Static, uint>
@@ -235,24 +246,6 @@ namespace SWE1R
                 { "menu_down",        0xD5F00 },
                 { "menu_up",        0xD5F04 },
                 { "pause",        0xD5F20 },
-            };
-
-            public enum DataTypes
-            {
-                //unsigned = no. of bits, signed = bits-1, fractional = bits+1
-                None = -1,
-                String = 0,
-                SByte = 7,
-                Byte = 8,
-                Int16 = 15,
-                UInt16 = 16,
-                Int32 = 31,
-                UInt32 = 32,
-                Single = 33,
-                Int64 = 63,
-                UInt64 = 64,
-                Double = 65,
-                Decimal = 129
             };
         }
     }

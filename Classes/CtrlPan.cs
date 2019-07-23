@@ -28,6 +28,8 @@ namespace SWE1R
             overlay_initialized = false;
         private List<Racer.State> savestate_in_race;
 
+        //private Racer.DataCollection data_in_race = new Racer.DataCollection();
+
         public ControlPanel()
         {
             InitializeComponent();

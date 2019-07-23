@@ -37,7 +37,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Race datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Race, (uint)datapoint };
-            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForRace.ContainsKey(datapoint) ? Addr.TypesForRace[datapoint] : Addr.DataTypes.Single);
+            DataType type = len > 0 ? DataType.None : (Addr.TypesForRace.ContainsKey(datapoint) ? Addr.TypesForRace[datapoint] : Addr.DefaultType);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Race offset, dynamic data)
@@ -51,7 +51,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Pod datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Pod, (uint)datapoint };
-            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForPod.ContainsKey(datapoint) ? Addr.TypesForPod[datapoint] : Addr.DataTypes.Single);
+            DataType type = len > 0 ? DataType.None : (Addr.TypesForPod.ContainsKey(datapoint) ? Addr.TypesForPod[datapoint] : Addr.DefaultType);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Pod offset, dynamic data)
@@ -65,7 +65,7 @@ namespace SWE1R
         public dynamic GetData(Addr.PodState datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Pod, (uint)Addr.Pod.PtrPodState, (uint)datapoint };
-            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForPodState.ContainsKey(datapoint) ? Addr.TypesForPodState[datapoint] : Addr.DataTypes.Single);
+            DataType type = len > 0 ? DataType.None : (Addr.TypesForPodState.ContainsKey(datapoint) ? Addr.TypesForPodState[datapoint] : Addr.DefaultType);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.PodState offset, dynamic data)
@@ -79,7 +79,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Rendering datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Rendering, (uint)datapoint };
-            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForRendering.ContainsKey(datapoint) ? Addr.TypesForRendering[datapoint] : Addr.DataTypes.Single);
+            DataType type = len > 0 ? DataType.None : (Addr.TypesForRendering.ContainsKey(datapoint) ? Addr.TypesForRendering[datapoint] : Addr.DefaultType);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Rendering offset, dynamic data)
@@ -93,7 +93,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Static datapoint, uint len = 0)
         {
             uint[] path = { (uint)datapoint };
-            Addr.DataTypes type = len > 0 ? Addr.DataTypes.None : (Addr.TypesForStatic.ContainsKey(datapoint) ? Addr.TypesForStatic[datapoint] : Addr.DataTypes.Single);
+            DataType type = len > 0 ? DataType.None : (Addr.TypesForStatic.ContainsKey(datapoint) ? Addr.TypesForStatic[datapoint] : Addr.DefaultType);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Static offset, dynamic data)
@@ -104,7 +104,7 @@ namespace SWE1R
 
         // GENERIC FUNCTIONS
 
-        private dynamic GetData(uint[] path, Addr.DataTypes type, uint len = 4)
+        private dynamic GetData(uint[] path, DataType type, uint len = 4)
         {
             IntPtr addr;
             if (CheckGame())
@@ -113,19 +113,19 @@ namespace SWE1R
                 uint defLen = 4;
                 switch (type)
                 {
-                    case Addr.DataTypes.Byte:
+                    case DataType.Byte:
                         return mem.ReadMemory(addr, 1, out bytesOut)[0];
-                    case Addr.DataTypes.UInt16:
+                    case DataType.UInt16:
                         return BitConverter.ToUInt16(mem.ReadMemory(addr, 2, out bytesOut), 0);
-                    case Addr.DataTypes.UInt32:
+                    case DataType.UInt32:
                         return BitConverter.ToUInt32(mem.ReadMemory(addr, 4, out bytesOut), 0);
-                    case Addr.DataTypes.UInt64:
+                    case DataType.UInt64:
                         return BitConverter.ToUInt64(mem.ReadMemory(addr, 8, out bytesOut), 0);
-                    case Addr.DataTypes.Single:
+                    case DataType.Single:
                         return BitConverter.ToSingle(mem.ReadMemory(addr, 4, out bytesOut), 0);
-                    case Addr.DataTypes.Double:
+                    case DataType.Double:
                         return BitConverter.ToDouble(mem.ReadMemory(addr, 8, out bytesOut), 0);
-                    case Addr.DataTypes.String:
+                    case DataType.String:
                         return BitConverter.ToString(mem.ReadMemory(addr, len > 0 ? len : defLen, out bytesOut), 0);
                     default:
                         return mem.ReadMemory(addr, len > 0 ? len : defLen, out bytesOut);
@@ -201,6 +201,39 @@ namespace SWE1R
         {
             //implement checking later
             return true;
+        }
+
+        public enum DataType
+        {
+            //unsigned = no. of bits, signed = bits-1, fractional = bits+1
+            None = -1,
+            String = 0,
+            SByte = 7,
+            Byte = 8,
+            Int16 = 15,
+            UInt16 = 16,
+            Int32 = 31,
+            UInt32 = 32,
+            Single = 33,
+            Int64 = 63,
+            UInt64 = 64,
+            Double = 65,
+            Decimal = 129
+        };
+
+        public static uint DataTypeLength(DataType type)
+        {
+            if (type == DataType.Byte || type == DataType.SByte)
+                return 1;
+            if (type == DataType.Int16 || type == DataType.UInt16)
+                return 2;
+            if (type == DataType.Int32 || type == DataType.UInt32 || type == DataType.Single)
+                return 4;
+            if (type == DataType.Int64 || type == DataType.UInt64 || type == DataType.Double)
+                return 8;
+            if (type == DataType.Decimal)
+                return 16;
+            return 0;
         }
     }
 }

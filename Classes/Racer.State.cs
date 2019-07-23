@@ -26,13 +26,6 @@ namespace SWE1R
             //camera?
             //racetime?
 
-            public State(byte[] infoPod, byte[] infoPodData, byte racePod, byte raceTrack)
-            {
-                dPod = infoPod;
-                dPodData = infoPodData;
-                track = raceTrack;
-                pod = racePod;
-            }
             public State(StateBlock[] blocks, byte racePod, byte raceTrack)
             {
                 pod = racePod;
@@ -222,9 +215,8 @@ namespace SWE1R
                 public byte[] data;
                 public byte[] crc32;
 
-                public StateBlock()
-                {
-                }
+                public StateBlock() {}
+
                 public StateBlock(BlockType t, uint o, byte[] d)
                 {
                     type = t;
