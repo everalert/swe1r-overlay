@@ -27,7 +27,10 @@ namespace SWE1R
 {
     public partial class ControlPanel : Form
     {
-        //readonly ControlPanel controlpanel;
+        //todo
+        //- move render functions to util class
+        //- move/make overlay update classes here
+        //  - data processing management classes by game state, general data rendering class
 
         // setup
         Win32.RECT rect;
@@ -40,23 +43,15 @@ namespace SWE1R
         private bool opt_debug = false;
 
         // racer
-        private GameStateId racerState, racerStateOld;
-        private GameStateId racerStateDeep, racerStateDeepOld;
+        //private GameStateId racerState, racerStateOld;
+        //private GameStateId racerStateDeep, racerStateDeepOld;
 
         // in race
-        private uint race_pod_flags1, race_pod_flags2;
-        private bool race_pod_is_boosting, race_pod_is_finished;
-        private Vector3 race_pod_loc_new, race_pod_loc_old;
-        private double race_pod_dist_frame, race_pod_dist_total;
+        private double race_pod_dist_total;
         private string race_pod_loc_txt;
-        private float race_pod_heat, race_pod_heatrate, race_pod_coolrate;
         private string race_pod_heat_txt, race_pod_overheat_txt, race_pod_underheat_txt;
-        private string[] race_time;
-        private float[] race_time_src;
-        private string[] race_time_label;
+        private string[] race_time, race_time_label;
         readonly private string[] race_time_label_src = { "1", "2", "3", "4", "5", "T" };
-        private bool race_dead_old = false;
-        private bool race_dead_new = false;
         private uint race_deaths = 0;
 
         // pod select
@@ -114,30 +109,8 @@ namespace SWE1R
         };
 
 
-        // OVERLAY LOGIC FLOW & MAIN LOOP
-
-        //public void Overlay(ControlPanel ctrl, Process tgt, Racer rcr)
-        //{
-        //    //controlpanel = ctrl;
-        //    //this.Icon = controlpanel.Icon;
-        //    //input = new Input(this);
-
-        //    // initial setup
-        //    InitDX11();
-        //    InitResources();
-        //    InitOverlay();
-        //    stopwatch = new Stopwatch();
-        //    stopwatch.Start();
-
-        //    Application.Idle += new EventHandler(OnAppIdle);
-
-        //    // clean up
-        //    //DisposeAll();
-        //    /* where to call this now that the main loop is asychronous? should eventually garbage collect by itself regardless tho */
-        //}
-
-
         // RENDERING FUNCTIONS
+        // MOVE TO UTIL RENDER CLASS ASAP
 
         private void DrawIconWithText(RectangleF coords, ShaderResourceView image, String text, TextBlockRenderer font, Color color, TextAlignment align, Point offset)
         {

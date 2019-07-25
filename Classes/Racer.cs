@@ -10,6 +10,8 @@ namespace SWE1R
 {
     public partial class Racer
     {
+        //eventually, move this to its own Racer subclass with the view to treat SWE1R.Racer wholly as a namespace
+
         static int bytesOut;
         static int bytesIn;
         const string PROCESS_NAME = "SWEP1RCR";
@@ -37,7 +39,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Race datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Race, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : (Addr.TypesForRace.ContainsKey(datapoint) ? Addr.TypesForRace[datapoint] : Addr.DefaultType);
+            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Race offset, dynamic data)
@@ -51,7 +53,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Pod datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Pod, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : (Addr.TypesForPod.ContainsKey(datapoint) ? Addr.TypesForPod[datapoint] : Addr.DefaultType);
+            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Pod offset, dynamic data)
@@ -65,7 +67,7 @@ namespace SWE1R
         public dynamic GetData(Addr.PodState datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Pod, (uint)Addr.Pod.PtrPodState, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : (Addr.TypesForPodState.ContainsKey(datapoint) ? Addr.TypesForPodState[datapoint] : Addr.DefaultType);
+            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.PodState offset, dynamic data)
@@ -79,7 +81,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Rendering datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Rendering, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : (Addr.TypesForRendering.ContainsKey(datapoint) ? Addr.TypesForRendering[datapoint] : Addr.DefaultType);
+            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Rendering offset, dynamic data)
@@ -93,7 +95,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Static datapoint, uint len = 0)
         {
             uint[] path = { (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : (Addr.TypesForStatic.ContainsKey(datapoint) ? Addr.TypesForStatic[datapoint] : Addr.DefaultType);
+            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Static offset, dynamic data)

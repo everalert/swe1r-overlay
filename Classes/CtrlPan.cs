@@ -28,7 +28,8 @@ namespace SWE1R
             overlay_initialized = false;
         private List<Racer.State> savestate_in_race;
 
-        //private Racer.DataCollection data_in_race = new Racer.DataCollection();
+        private InRaceData data_in_race = new InRaceData();
+        private Racer.GameState game_state = new Racer.GameState();
 
         public ControlPanel()
         {
@@ -86,63 +87,46 @@ namespace SWE1R
             //    return;
 
             // logic
-            racerStateOld = racerState;
-            racerState = GetGameState();
-            racerStateDeepOld = racerStateDeep;
-            racerStateDeep = GetGameState(true);
 
-            txt_debug += "   State:" + racerStateDeep.ToString();
-
-            if (racerState == GameStateId.InRace ^ racerStateOld != GameStateId.InRace)
+            game_state.Update(racer);
+            if (game_state.EnterOrLeaveRace(racer))
                 CheckRaceState();
+            txt_debug += "   State:" + game_state.DeepState(racer).ToString();
 
             if (!overlay.Visible)
                 return;
 
             /* implement generalised new/old state system before adding more UI elements? */
-            if (racerState == GameStateId.InRace)
+            if (game_state.State(racer) == Racer.GameState.Id.InRace)
             {
-                var frame_time = racer.GetData(Racer.Addr.Static.FrameTime);
+                if (game_state.DeepState(racer) == Racer.GameState.Id.RaceStarting)
+                {
+                    race_deaths = 0;
+                    race_pod_dist_total = 0;
+                }
 
-                race_pod_flags1 = racer.GetData(Racer.Addr.PodState.Flags1);
-                race_pod_flags2 = racer.GetData(Racer.Addr.PodState.Flags2);
-                race_pod_is_boosting = ((race_pod_flags1 & (1 << 23)) != 0);
-                race_pod_is_finished = ((race_pod_flags2 & (1 << 25)) != 0);
-                race_dead_old = race_dead_new;
-                race_dead_new = ((race_pod_flags1 & (1 << 14)) != 0);
-                if (race_dead_new && !race_dead_old)
+                data_in_race.Update(racer);
+
+                if (data_in_race.JustDied(racer))
                     race_deaths++;
 
-                race_pod_heat = racer.GetData(Racer.Addr.PodState.Heat);
-                race_pod_heatrate = racer.GetData(Racer.Addr.PodState.StatHeatRate);
-                race_pod_coolrate = racer.GetData(Racer.Addr.PodState.StatCoolRate);
-                race_pod_heat_txt = race_pod_heat.ToString("0.0");
-                race_pod_overheat_txt = (race_pod_heat / race_pod_heatrate).ToString("0.0s");
-                race_pod_underheat_txt = ((100 - race_pod_heat) / race_pod_coolrate).ToString("0.0s");
+                race_pod_heat_txt = data_in_race.Heat(racer).ToString("0.0");
+                race_pod_overheat_txt = (data_in_race.Heat(racer) / data_in_race.HeatRate(racer)).ToString("0.0s");
+                race_pod_underheat_txt = ((100 - data_in_race.Heat(racer)) / data_in_race.CoolRate(racer)).ToString("0.0s");
 
-                race_time_src = GetInRaceTimes(); 
-                race_time = Helper.FormatTimesArray(race_time_src.Where(item => item >= 0).ToArray(), time_format);
+                race_time = Helper.FormatTimesArray(data_in_race.AllTimes(racer).Where(item => item >= 0).ToArray(), time_format);
                 race_time_label = race_time_label_src.ToList().GetRange(0, race_time.Length).ToArray();
                 race_time_label[race_time_label.Length - 1] = race_time_label_src.Last();
 
-                if (race_pod_loc_new != null)
-                    race_pod_loc_old = race_pod_loc_new;
-                race_pod_loc_new = new Vector3(racer.GetData(Racer.Addr.PodState.X), racer.GetData(Racer.Addr.PodState.Y), racer.GetData(Racer.Addr.PodState.Z));
-                race_pod_dist_frame = race_pod_loc_old != null ? Math.Sqrt(Math.Pow(race_pod_loc_new.X - race_pod_loc_old.X, 2) + Math.Pow(race_pod_loc_new.Y - race_pod_loc_old.Y, 2) + Math.Pow(race_pod_loc_new.Z - race_pod_loc_old.Z, 2)) : 0;
-                if (!race_pod_is_finished && race_time_src[race_time_src.Length - 1] > 0)
-                    race_pod_dist_total += race_pod_dist_frame;
-                race_pod_loc_txt = race_pod_dist_frame.ToString("00.000") + " ADU/f  " +
-                    (race_pod_dist_frame / frame_time).ToString("000.0") + " ADU/s  " +
+                if (!data_in_race.IsFinished(racer) && data_in_race.TimeTotal(racer) > 0)
+                    race_pod_dist_total += data_in_race.FrameDistance3D(racer);
+                race_pod_loc_txt = data_in_race.FrameDistance3D(racer).ToString("00.000") + " ADU/f  " +
+                    data_in_race.Speed3D(racer).ToString("000.0") + " ADU/s  " +
                     race_pod_dist_total.ToString("0.0") + " ADU/race   " +
-                    (race_pod_dist_total / race_time_src[race_time_src.Length - 1]).ToString("000.0") + " avg ADU/s  ";
-            }
-            else
-            {
-                race_deaths = 0;
-                race_pod_dist_total = 0;
+                    (race_pod_dist_total / data_in_race.TimeTotal(racer)).ToString("000.0") + " avg ADU/s  ";
             }
 
-            if (racerStateDeep == GameStateId.VehicleSelect)
+            if (game_state.DeepState(racer) == Racer.GameState.Id.VehicleSelect)
             {
                 podsel_statistics = GetVehicleSelectStats();
                 podsel_shown_stats = new float[7];
@@ -151,7 +135,6 @@ namespace SWE1R
                 podsel_hidden_stats = new float[8];
                 for (var i = 0; i < podsel_hidden_map.Length; i++)
                     podsel_hidden_stats[i] = (float)podsel_statistics.GetValue(podsel_hidden_map[i]);
-
             }
 
             // rendering
@@ -172,7 +155,7 @@ namespace SWE1R
             if (opt_debug)
                 DrawText(ol_coords["txt_debug"], txt_debug, ol_font["default"], ol_color["txt_debug"], TextAlignment.Left | TextAlignment.Top);
 
-            if (racerState == GameStateId.InRace)
+            if (game_state.State(racer) == Racer.GameState.Id.InRace)
             {
                 DrawText(ol_coords["txt_debug2"], race_pod_loc_txt, ol_font["default"], ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
 
@@ -180,11 +163,11 @@ namespace SWE1R
                 DrawTextList(ol_coords["txt_race_times"], race_time_label, race_time, ol_font["race_times"], ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
 
                 // not displayed on race end screen
-                if (racerStateDeep != GameStateId.RaceEnded)
+                if (game_state.DeepState(racer) != Racer.GameState.Id.RaceEnded)
                 {
                     //heating
                     /*  todo - different ms size, colouring */
-                    if (race_pod_is_boosting)
+                    if (data_in_race.IsBoosting(racer))
                         DrawIconWithText(ol_coords["txt_race_pod_heating"], ol_img["heating"], new List<String>() { race_pod_overheat_txt, race_pod_underheat_txt },
                             ol_font["race_heating"], new List<Color>() { ol_color["txt_race_pod_overheat_on"], ol_color["txt_race_pod_underheat_off"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
                     else
@@ -206,7 +189,7 @@ namespace SWE1R
                     */
                 }
             }
-            if (racerStateDeep == GameStateId.VehicleSelect)
+            if (game_state.DeepState(racer) == Racer.GameState.Id.VehicleSelect)
             {
                 DrawTextList(ol_coords["podsel_hidden"], podsel_hidden_stats_names, podsel_hidden_stats, ol_font["podsel_hidden"], ol_color["txt_podsel_stats_hidden"], TextAlignment.Left | TextAlignment.Bottom, "   ");
                 DrawTextList(ol_coords["podsel_shown"], Helper.ArrayToStrList(podsel_shown_stats), ol_font["podsel_shown"], ol_color["txt_podsel_stats_shown"], TextAlignment.Left | TextAlignment.VerticalCenter);
@@ -304,23 +287,6 @@ namespace SWE1R
 
 
 
-        private float[] GetInRaceTimes()
-        {
-            byte[] data = racer.GetData(Racer.Addr.Pod.TimeLap1, 0x18);
-            List<float> times = new List<float>();
-            for (var i = 0; i < data.Length; i += 4)
-                times.Add(BitConverter.ToSingle(data, i));
-            return times.ToArray();
-        }
-
-        private Single[] GetVehicleSelectStats()
-        {
-            byte[] data = racer.GetData(Racer.Addr.Static.StatAntiSkid, 0x3C);
-            List<float> stats = new List<float>();
-            for (var i = 0; i < data.Length; i += 4)
-                stats.Add(BitConverter.ToSingle(data, i));
-            return stats.ToArray();
-        }
 
         private void SetDebugMenu(bool enable)
         {
@@ -338,117 +304,111 @@ namespace SWE1R
         }
 
 
-        // following maybe should be in racer class? becoming more generalised than intended
 
-        private enum GameStateId
+        //move to new file?
+        private class InRaceData
         {
-            Unknown,
-            Title,
-            FileSelect,
-            VehicleSelect,
-            VehicleSelectAnimFile,
-            VehicleSelectAnimTrack,
-            VehicleSelectAnim,
-            TrackSelect,
-            TrackSelectAmateur,
-            TrackSelectSemipro,
-            TrackSelectGalactic,
-            TrackSelectInvitational,
-            TrackSettings,
-            TrackReady,
-            TrackResults,
-            InRace,
-            RaceStarting,
-            RacePaused,
-            RaceEnded,
-            Settings,
-            SettingsVideo,
-            SettingsAudio,
-            SettingsJoystick,
-            SettingsMouse,
-            SettingsKeyboard,
-            SettingsKeyboardReservedKeys,
-            SettingsForceFeedback,
-            SettingsLoadSave,
-            Loading
+            private Racer.DataCollection data = new Racer.DataCollection(), data_prev;
+
+            public void Update(Racer r)
+            {
+                data_prev = (Racer.DataCollection)data.Clone();
+                data.Update(r);
+            }
+
+            public bool IsBoosting(Racer r)
+            {
+                return ((data.GetValue(r, Racer.Addr.PodState.Flags1) & (1 << 23)) != 0);
+            }
+
+            public bool IsFinished(Racer r)
+            {
+                return ((data.GetValue(r, Racer.Addr.PodState.Flags2) & (1 << 25)) != 0);
+            }
+
+            public bool JustDied(Racer r)
+            {
+                int i = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Flags1, Racer.Addr.GetLength(Racer.Addr.PodState.Flags1));
+                bool prev = (i < 0)?false:(data_prev.GetValue(i) & (1 << 14)) != 0;
+                return (data.GetValue(r, Racer.Addr.PodState.Flags1) & (1 << 14)) != 0 && !prev;
+            }
+
+            public Vector3 Location3D(Racer r)
+            {
+                return new Vector3(data.GetValue(r, Racer.Addr.PodState.X), data.GetValue(r, Racer.Addr.PodState.Y), data.GetValue(r, Racer.Addr.PodState.Z));
+            }
+
+            public double FrameDistance3D(Racer r)
+            {
+                int iX = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.X, Racer.Addr.GetLength(Racer.Addr.PodState.X));
+                int iY = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Y, Racer.Addr.GetLength(Racer.Addr.PodState.Y));
+                int iZ = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Z, Racer.Addr.GetLength(Racer.Addr.PodState.Z));
+                Vector3 loc_old = (iX >= 0 && iY >= 0 && iZ >= 0) ? new Vector3(data_prev.GetValue(iX), data_prev.GetValue(iY), data_prev.GetValue(iZ)) : Location3D(r);
+                Vector3 loc_new = Location3D(r);
+                return Math.Sqrt(Math.Pow(loc_new.X - loc_old.X, 2) + Math.Pow(loc_new.Y - loc_old.Y, 2) + Math.Pow(loc_new.Z - loc_old.Z, 2));
+            }
+
+            public double FrameTime(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Static.FrameTime);
+            }
+
+            public double Speed3D(Racer r)
+            {
+                return FrameDistance3D(r) / FrameTime(r);
+            }
+
+            public float[] AllTimes(Racer r)
+            {
+                return new float[6] { TimeLap1(r), TimeLap2(r), TimeLap3(r), TimeLap4(r), TimeLap5(r), TimeTotal(r) };
+            }
+            public float TimeLap1(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap1);
+            }
+            public float TimeLap2(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap2);
+            }
+            public float TimeLap3(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap3);
+            }
+            public float TimeLap4(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap4);
+            }
+            public float TimeLap5(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap5);
+            }
+            public float TimeTotal(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeTotal);
+            }
+
+
+            public float Heat(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.PodState.Heat);
+            }
+            public float HeatRate(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.PodState.StatHeatRate);
+            }
+            public float CoolRate(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.PodState.StatCoolRate);
+            }
         }
 
-        private GameStateId GetGameState(bool deep = false)
+        private Single[] GetVehicleSelectStats()
         {
-            // setup
-            uint textBase = (uint)Racer.Addr.Static.Text01;
-            uint textLen = Racer.Addr.LengthsForStatic[Racer.Addr.Static.Text01];
-            byte textCnt = 52;
-            List<string> textItems = new List<string>(textCnt);
-            for (byte z = 0; z < textCnt; z++)
-                textItems.Add(System.Text.Encoding.Default.GetString(racer.GetData((Racer.Addr.Static)(textBase+textLen*z), textLen)));
-            var gameInRace = racer.GetData(Racer.Addr.Static.InRace);
-            var gameRaceFlags = racer.GetData(Racer.Addr.Pod.Flags);
-            var gamePause = racer.GetData(Racer.Addr.Static.PauseState);
-            var gameScene = racer.GetData(Racer.Addr.Static.SceneId);
-
-            // in-race
-            if (gameInRace == 1)
-            {
-                if (deep && gamePause > 0)
-                    return GameStateId.RacePaused;
-                if (deep && (gameRaceFlags & (1 << 0)) == 0 && (gameRaceFlags & (1 << 1)) == 0)
-                    return GameStateId.RaceStarting;
-                if (deep && (gameRaceFlags & (1 << 0)) != 0 && (gameRaceFlags & (1 << 1)) != 0)
-                    return GameStateId.RaceEnded;
-                return GameStateId.InRace;
-            }
-
-            // vehicle selection
-            if (gameScene == 60)
-            {
-                if (deep && textItems[2].Substring(5, 18) != "Vehicle Statistics")
-                    return GameStateId.VehicleSelectAnim;
-                return GameStateId.VehicleSelect;
-            }
-
-            // track selection
-            if (gameScene == 260)
-            {
-                if (deep && textItems[2].Substring(5, 6) == "Mirror")
-                    return GameStateId.TrackSettings;
-                if (textItems[3].Substring(5, 10) == "Start Race")
-                    return GameStateId.TrackReady;
-                return GameStateId.TrackSelect;
-            }
-            if (deep && textItems[2].Substring(5, 6) == "Mirror")
-                return deep ? GameStateId.TrackSettings : GameStateId.TrackSelect;
-            if (textItems[3].Substring(5, 10) == "Start Race")
-                return deep ? GameStateId.TrackReady : GameStateId.TrackSelect;
-            if (textItems[0].Substring(4, 7) == "Results")
-                return deep ? GameStateId.TrackResults : GameStateId.TrackSelect;
-
-            // title screen & game settings
-            if (textItems[0].Substring(5, 24) == "Single Player Tournament")
-                return GameStateId.Title;
-            if (textItems[0].Substring(3, 14) == "Current Player")
-                return GameStateId.FileSelect;
-            if (textItems[0].Substring(5, 14) == "VIDEO SETTINGS" && textItems[1].Substring(5, 14) == "AUDIO SETTINGS")
-                return GameStateId.Settings;
-            if (textItems[0].Substring(5, 14) == "VIDEO SETTINGS")
-                return deep ? GameStateId.SettingsVideo : GameStateId.Settings;
-            if (textItems[0].Substring(5, 14) == "AUDIO SETTINGS")
-                return deep ? GameStateId.SettingsAudio : GameStateId.Settings;
-            if (textItems[0].Substring(5, 17) == "JOYSTICK SETTINGS")
-                return deep ? GameStateId.SettingsJoystick : GameStateId.Settings;
-            if (textItems[0].Substring(5, 14) == "MOUSE SETTINGS")
-                return deep ? GameStateId.SettingsMouse : GameStateId.Settings;
-            if (textItems[1].Substring(5, 17) == "KEYBOARD SETTINGS" && textItems[0].Substring(5, 22) == "Show Reserved Settings")
-                return deep ? GameStateId.SettingsKeyboard : GameStateId.Settings;
-            if (textItems[0].Substring(5, 13) == "RESERVED KEYS")
-                return deep ? GameStateId.SettingsKeyboardReservedKeys : GameStateId.Settings;
-            if (textItems[0].Substring(5, 23) == "FORCE FEEDBACK SETTINGS")
-                return deep ? GameStateId.SettingsForceFeedback : GameStateId.Settings;
-            if (textItems[1].Substring(5, 18) == "LOAD/SAVE SETTINGS" && textItems[0].Substring(5, 6) == "Cancel")
-                return deep ? GameStateId.SettingsLoadSave : GameStateId.Settings;
-
-            // default
-            return GameStateId.Unknown;
+            byte[] data = racer.GetData(Racer.Addr.Static.StatAntiSkid, 0x3C);
+            List<float> stats = new List<float>();
+            for (var i = 0; i < data.Length; i += 4)
+                stats.Add(BitConverter.ToSingle(data, i));
+            return stats.ToArray();
         }
     }
 }

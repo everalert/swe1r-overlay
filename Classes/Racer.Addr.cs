@@ -16,12 +16,6 @@ namespace SWE1R
                 - restructuring?
             */
 
-            /*
-                pX = pointer
-                oX = offset
-                lX = length in bytes
-             */
-
             public const DataType DefaultType = DataType.Single;
             public const uint DefaultLength = 4;
             
@@ -48,7 +42,7 @@ namespace SWE1R
                 FogDistance = 0x2D4
             };
 
-            public static Dictionary<Rendering, DataType> TypesForRendering = new Dictionary<Rendering, DataType>
+            private static Dictionary<Rendering, DataType> TypesForRendering = new Dictionary<Rendering, DataType>
             {
                 { Rendering.CameraMode , DataType.UInt32 },
                 { Rendering.FogFlags , DataType.UInt32 },
@@ -58,7 +52,7 @@ namespace SWE1R
                 { Rendering.FogDistance , DataType.Single },
             };
 
-            public static Dictionary<Rendering, uint> LengthsForRendering = new Dictionary<Rendering, uint> { };
+            private static Dictionary<Rendering, uint> LengthsForRendering = new Dictionary<Rendering, uint> { };
 
             public enum Race
             {
@@ -70,7 +64,7 @@ namespace SWE1R
                 SetWinnings = 0x91, //byte
             };
 
-            public static Dictionary<Race, DataType> TypesForRace = new Dictionary<Race, DataType>
+            private static Dictionary<Race, DataType> TypesForRace = new Dictionary<Race, DataType>
             {
                 { Race.SelectedTrack , DataType.Byte },
                 { Race.SelectedCircuit , DataType.Byte },
@@ -80,7 +74,7 @@ namespace SWE1R
                 { Race.SetWinnings , DataType.Byte },
             };
 
-            public static Dictionary<Race, uint> LengthsForRace = new Dictionary<Race, uint> { };
+            private static Dictionary<Race, uint> LengthsForRace = new Dictionary<Race, uint> { };
 
             public enum Pod
             {
@@ -114,7 +108,7 @@ namespace SWE1R
                 PtrPodState =       0x84
             };
 
-            public static Dictionary<Pod, DataType> TypesForPod = new Dictionary<Pod, DataType>
+            private static Dictionary<Pod, DataType> TypesForPod = new Dictionary<Pod, DataType>
             {
                 { Pod.Flags, DataType.UInt32 },
                 { Pod.PtrFile, DataType.UInt32 },
@@ -124,7 +118,8 @@ namespace SWE1R
                 { Pod.PtrPodState, DataType.UInt32 },
             };
 
-            public static Dictionary<Pod, uint> LengthsForPod = new Dictionary<Pod, uint> { };
+            private static Dictionary<Pod, uint> LengthsForPod = new Dictionary<Pod, uint> { };
+
 
             public enum PodState
             {
@@ -168,13 +163,14 @@ namespace SWE1R
                 FallTimer = 0x2C8
             };
 
-            public static Dictionary<PodState, DataType> TypesForPodState = new Dictionary<PodState, DataType>
+            private static Dictionary<PodState, DataType> TypesForPodState = new Dictionary<PodState, DataType>
             {
                 { PodState.Flags1, DataType.UInt32 },
                 { PodState.Flags2, DataType.UInt32 },
             };
 
-            public static Dictionary<PodState, uint> LengthsForPodState = new Dictionary<PodState, uint>{};
+            private static Dictionary<PodState, uint> LengthsForPodState = new Dictionary<PodState, uint>{};
+
 
             public enum Static
             {
@@ -207,7 +203,7 @@ namespace SWE1R
                 Text01 = 0xA2C380
             };
 
-            public static Dictionary<Static, DataType> TypesForStatic = new Dictionary<Static, DataType>
+            private static Dictionary<Static, DataType> TypesForStatic = new Dictionary<Static, DataType>
             {
                 { Static.DebugLevel, DataType.UInt32 },
                 { Static.DebugMenu, DataType.UInt32 },
@@ -223,10 +219,59 @@ namespace SWE1R
                 { Static.Text01, DataType.String }, // known to repeat every 0x80 at least 52 times
             };
 
-            public static Dictionary<Static, uint> LengthsForStatic = new Dictionary<Static, uint>
+            private static Dictionary<Static, uint> LengthsForStatic = new Dictionary<Static, uint>
             {
                 { Static.Text01, 0x80 }
             };
+
+
+
+
+            public static DataType GetType(Pod k)
+            {
+                return TypesForPod.ContainsKey(k) ? TypesForPod[k] : DefaultType;
+            }
+            public static DataType GetType(PodState k)
+            {
+                return TypesForPodState.ContainsKey(k) ? TypesForPodState[k] : DefaultType;
+            }
+            public static DataType GetType(Race k)
+            {
+                return TypesForRace.ContainsKey(k) ? TypesForRace[k] : DefaultType;
+            }
+            public static DataType GetType(Rendering k)
+            {
+                return TypesForRendering.ContainsKey(k) ? TypesForRendering[k] : DefaultType;
+            }
+            public static DataType GetType(Static k)
+            {
+                return TypesForStatic.ContainsKey(k) ? TypesForStatic[k] : DefaultType;
+            }
+
+
+            public static uint GetLength(Pod k)
+            {
+                return LengthsForPod.ContainsKey(k) ? LengthsForPod[k] : TypesForPod.ContainsKey(k) ? (DataTypeLength(TypesForPod[k]) > 0 ? DataTypeLength(TypesForPod[k]) : DefaultLength) : DataTypeLength(DefaultType);
+            }
+            public static uint GetLength(PodState k)
+            {
+                return LengthsForPodState.ContainsKey(k) ? LengthsForPodState[k] : TypesForPodState.ContainsKey(k) ? (DataTypeLength(TypesForPodState[k]) > 0 ? DataTypeLength(TypesForPodState[k]) : DefaultLength) : DataTypeLength(DefaultType);
+            }
+            public static uint GetLength(Race k)
+            {
+                return LengthsForRace.ContainsKey(k) ? LengthsForRace[k] : TypesForRace.ContainsKey(k) ? (DataTypeLength(TypesForRace[k]) > 0 ? DataTypeLength(TypesForRace[k]) : DefaultLength) : DataTypeLength(DefaultType);
+            }
+            public static uint GetLength(Rendering k)
+            {
+                return LengthsForRendering.ContainsKey(k) ? LengthsForRendering[k] : TypesForRendering.ContainsKey(k) ? (DataTypeLength(TypesForRendering[k]) > 0 ? DataTypeLength(TypesForRendering[k]) : DefaultLength) : DataTypeLength(DefaultType);
+            }
+            public static uint GetLength(Static k)
+            {
+                return LengthsForStatic.ContainsKey(k) ? LengthsForStatic[k] : TypesForStatic.ContainsKey(k) ? (DataTypeLength(TypesForStatic[k]) > 0 ? DataTypeLength(TypesForStatic[k]) : DefaultLength) : DataTypeLength(DefaultType);
+            }
+
+
+
 
             static public Dictionary<string, uint> oInput = new Dictionary<string, uint>()
             {
