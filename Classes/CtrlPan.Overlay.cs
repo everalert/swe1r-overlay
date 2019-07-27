@@ -1,76 +1,42 @@
 ﻿using SWE1R.Util;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using SlimDX;
 using SlimDX.Direct3D11;
 using SlimDX.DXGI;
 using SlimDX.Windows;
-using SlimDX.XInput;
 using Device = SlimDX.Direct3D11.Device;
 using Resource = SlimDX.Direct3D11.Resource;
 using SpriteTextRenderer;
-using SpriteTextRenderer.SlimDX;
 using SpriteRenderer = SpriteTextRenderer.SlimDX.SpriteRenderer;
 using TextBlockRenderer = SpriteTextRenderer.SlimDX.TextBlockRenderer;
-using System.Collections;
-using System.Threading;
 
 namespace SWE1R
 {
     public partial class ControlPanel : Form
     {
         //todo
-        //- move render functions to util class
+        //- maybe d3d setup stuff can be moved to util class too?
         //- move/make overlay update classes here
         //  - data processing management classes by game state, general data rendering class
 
         // setup
         Win32.RECT rect;
         readonly int[] WINDOW_BORDER = { 10, 32, 10, 10 };
-        SizeF WINDOW_SIZE = new SizeF(1280, 720);
-        readonly SizeF WINDOW_SIZE_DFLT = new SizeF(1280, 720);
-        SizeF WINDOW_SCALE = new SizeF(1, 1);
-        readonly string time_format = "m\\:ss\\.fff";
+        Vector2 WINDOW_SIZE = new Vector2(1280, 720);
+        readonly Vector2 WINDOW_SIZE_DFLT = new Vector2(1280, 720);
+        Vector2 WINDOW_SCALE = new Vector2(1, 1);
+        private const string time_format = "m\\:ss\\.fff";
         Stopwatch stopwatch;
         private bool opt_debug = false;
 
-        // racer
-        //private GameStateId racerState, racerStateOld;
-        //private GameStateId racerStateDeep, racerStateDeepOld;
-
         // in race
-        private double race_pod_dist_total;
-        private string race_pod_loc_txt;
-        private string race_pod_heat_txt, race_pod_overheat_txt, race_pod_underheat_txt;
-        private string[] race_time, race_time_label;
-        readonly private string[] race_time_label_src = { "1", "2", "3", "4", "5", "T" };
+        private double race_pod_dist_total = 0d;
         private uint race_deaths = 0;
-
-        // pod select
-        private float[] podsel_statistics;
-        private float[] podsel_shown_stats;
-        private float[] podsel_hidden_stats;
-        readonly int[] podsel_shown_map = { 0, 1, 3, 4, 5, 9, 11 };
-        readonly int[] podsel_hidden_map = { 2, 6, 7, 8, 10, 12, 13, 14 };
-        readonly private string[] podsel_hidden_stats_names =
-        {
-            "MAX TURN RATE",
-            "DECELERATION",
-            "BOOST THRUST",
-            "HEAT RATE",
-            "HOVER HEIGHT",
-            "BUMP MASS",
-            "DAMAGE IMMUNITY",
-            "ISECT RADIUS"
-        };
 
         // dx11/rendering
         Device device;
@@ -109,80 +75,8 @@ namespace SWE1R
         };
 
 
-        // RENDERING FUNCTIONS
-        // MOVE TO UTIL RENDER CLASS ASAP
-
-        private void DrawIconWithText(RectangleF coords, ShaderResourceView image, String text, TextBlockRenderer font, Color color, TextAlignment align, Point offset)
-        {
-            var fntSz = font.FontSize * WINDOW_SCALE.Width;
-            var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Width); // to avoid img distortion
-            sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
-            var region = new RectangleF(
-                PointF.Add(new PointF(loc.X, loc.Y), new SizeF(size.X + offset.X * WINDOW_SCALE.Width, size.Y / 2 + offset.Y * WINDOW_SCALE.Height - (float)Math.Ceiling(font.MeasureString(text, fntSz, CoordinateType.Absolute).Size.Y) / 2)),
-                new SizeF(
-                    (float)Math.Ceiling(font.MeasureString(text, fntSz, CoordinateType.Absolute).Size.X),
-                    (float)Math.Ceiling(font.MeasureString(text, fntSz, CoordinateType.Absolute).Size.Y)
-                )
-            );
-            font.DrawString(text, region, align, fntSz, color, CoordinateType.Absolute);
-        }
-        private void DrawIconWithText(RectangleF coords, ShaderResourceView image, List<String> text, TextBlockRenderer font, List<Color> color, TextAlignment align, Point offset, int sep = 0, String measure = "000")
-        {
-            var fntSz = font.FontSize * WINDOW_SCALE.Width;
-            var loc = new Vector2(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new Vector2(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Width); // to avoid img distortion
-            sprite.Draw(image, loc, size, new Vector2(0, 0), 0, CoordinateType.Absolute);
-            List<RectangleF> regions = new List<RectangleF>() {
-                new RectangleF(
-                    PointF.Add(
-                        new PointF(loc.X, loc.Y), new SizeF(size.X + offset.X * WINDOW_SCALE.Width, size.Y / 2 + offset.Y * WINDOW_SCALE.Height - ((float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.Y) * text.Count() + (sep * (text.Count() - 1)) * WINDOW_SCALE.Width) / 2)),
-                        new SizeF((float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.X),(float)Math.Ceiling(font.MeasureString(measure, fntSz, CoordinateType.Absolute).Size.Y)
-                    )
-                )
-            };
-            for (var i = 1; i < text.Count(); i++)
-                regions.Add(new RectangleF(PointF.Add(regions[0].Location, new SizeF(0, (regions[0].Height + sep) * i)), regions[0].Size));
-            for (var i = 0; i < text.Count(); i++)
-                font.DrawString(text[i], regions[i], align, fntSz, color[i % text.Count()], CoordinateType.Absolute);
-        }
-        private void DrawTextList(RectangleF coords, List<String> text, TextBlockRenderer font, Color color, TextAlignment align)
-        {
-            var fntSz = font.FontSize * WINDOW_SCALE.Width;
-            var pos = new PointF(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new SizeF(coords.Width * WINDOW_SCALE.Width, coords.Height / text.Count() * WINDOW_SCALE.Height);
-            for (var i = 0; i < text.Count(); i++)
-            {
-                var region = new RectangleF(pos, size);
-                region.Offset(0, size.Height * i);
-                font.DrawString(text[i], region, align, fntSz, color, CoordinateType.Absolute);
-            }
-        }
-        private void DrawTextList(RectangleF coords, Array text1, Array text2, TextBlockRenderer font, Color color, TextAlignment align, String gap = "   ")
-        {
-            var fntSz = font.FontSize * WINDOW_SCALE.Width;
-            string[] str = new string[2];
-            foreach (dynamic item in text1)
-                str[0] += "\n\r" + item.ToString();
-            foreach (dynamic item in text2)
-                str[1] += "\n\r" + item.ToString();
-            var region = new RectangleF(new PointF(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height), new SizeF(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height));
-            var col1_w = (float)Math.Ceiling(font.MeasureString(str[0], fntSz, CoordinateType.Absolute).Size.X);
-            var gap_w = (float)Math.Ceiling(font.MeasureString(gap, fntSz, CoordinateType.Absolute).Size.X);
-            font.DrawString(str[0], region, align, fntSz, color, CoordinateType.Absolute);
-            region.Offset(col1_w + gap_w, 0);
-            font.DrawString(str[1], region, align, fntSz, color, CoordinateType.Absolute);
-        }
-        private void DrawText(RectangleF coords, string text, TextBlockRenderer font, Color color, TextAlignment align)
-        {
-            var fntSz = font.FontSize * WINDOW_SCALE.Width;
-            var pos = new PointF(coords.X * WINDOW_SCALE.Width, coords.Y * WINDOW_SCALE.Height);
-            var size = new SizeF(coords.Width * WINDOW_SCALE.Width, coords.Height * WINDOW_SCALE.Height);
-            font.DrawString(text, new RectangleF(pos, size), align, fntSz, color, CoordinateType.Absolute);
-        }
-
-
         // RESOURCE MANAGEMENT
+        // maybe some of this can be moved to util class too?
 
         private void InitDevice()
         {
@@ -378,7 +272,7 @@ namespace SWE1R
                 overlay.Visible = false;
                 return false;
             }
-            
+
             // re-enable hidden window if auto hide no longer valid
             if (overlay_show && !overlay.Visible)
                 overlay.Visible = true;
@@ -404,6 +298,199 @@ namespace SWE1R
             }
             if (overlay_initialized)
                 overlay.Visible = show;
+        }
+
+
+        private void RepositionOverlay()
+        {
+            Win32.GetWindowRect(racer.game.MainWindowHandle, out rect);
+            WINDOW_SIZE = new Vector2(rect.Width - WINDOW_BORDER[0] - WINDOW_BORDER[2], rect.Height - WINDOW_BORDER[1] - WINDOW_BORDER[3]);
+            if (WINDOW_SIZE != new Vector2(overlay.Size.Width, overlay.Size.Height))
+            {
+                overlay.Size = new Size((int)WINDOW_SIZE.X, (int)WINDOW_SIZE.Y);
+                WINDOW_SCALE.X = WINDOW_SIZE.X / WINDOW_SIZE_DFLT.X;
+                WINDOW_SCALE.Y = WINDOW_SIZE.Y / WINDOW_SIZE_DFLT.Y;
+                /* i.e. all scaling is relative to base 1280x720 design */
+            }
+            overlay.Left = rect.Left + WINDOW_BORDER[0];
+            overlay.Top = rect.Top + WINDOW_BORDER[1];
+        }
+
+
+        // INRACE DATA HANDLER
+
+        private class InRaceData : Racer.TwoFrameDataCollection
+        {
+            public bool IsBoosting(Racer r)
+            {
+                return ((data.GetValue(r, Racer.Addr.PodState.Flags1) & (1 << 23)) != 0);
+            }
+
+            public bool IsFinished(Racer r)
+            {
+                return ((data.GetValue(r, Racer.Addr.PodState.Flags2) & (1 << 25)) != 0);
+            }
+
+            public bool JustDied(Racer r)
+            {
+                int i = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Flags1, Racer.Addr.GetLength(Racer.Addr.PodState.Flags1));
+                bool prev = (i < 0) ? false : (data_prev.GetValue(i) & (1 << 14)) != 0;
+                return (data.GetValue(r, Racer.Addr.PodState.Flags1) & (1 << 14)) != 0 && !prev;
+            }
+
+            public Vector3 Location3D(Racer r)
+            {
+                return new Vector3(data.GetValue(r, Racer.Addr.PodState.X), data.GetValue(r, Racer.Addr.PodState.Y), data.GetValue(r, Racer.Addr.PodState.Z));
+            }
+
+            public double FrameDistance3D(Racer r)
+            {
+                int iX = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.X, Racer.Addr.GetLength(Racer.Addr.PodState.X));
+                int iY = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Y, Racer.Addr.GetLength(Racer.Addr.PodState.Y));
+                int iZ = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Z, Racer.Addr.GetLength(Racer.Addr.PodState.Z));
+                Vector3 loc_old = (iX >= 0 && iY >= 0 && iZ >= 0) ? new Vector3(data_prev.GetValue(iX), data_prev.GetValue(iY), data_prev.GetValue(iZ)) : Location3D(r);
+                Vector3 loc_new = Location3D(r);
+                return Math.Sqrt(Math.Pow(loc_new.X - loc_old.X, 2) + Math.Pow(loc_new.Y - loc_old.Y, 2) + Math.Pow(loc_new.Z - loc_old.Z, 2));
+            }
+
+            public double FrameTime(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Static.FrameTime);
+            }
+
+            public double Speed3D(Racer r)
+            {
+                return FrameDistance3D(r) / FrameTime(r);
+            }
+
+            public float[] AllTimes(Racer r)
+            {
+                return new float[6] { TimeLap1(r), TimeLap2(r), TimeLap3(r), TimeLap4(r), TimeLap5(r), TimeTotal(r) };
+            }
+            public float TimeLap1(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap1);
+            }
+            public float TimeLap2(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap2);
+            }
+            public float TimeLap3(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap3);
+            }
+            public float TimeLap4(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap4);
+            }
+            public float TimeLap5(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeLap5);
+            }
+            public float TimeTotal(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.Pod.TimeTotal);
+            }
+
+
+            public float Heat(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.PodState.Heat);
+            }
+            public float HeatRate(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.PodState.StatHeatRate);
+            }
+            public float CoolRate(Racer r)
+            {
+                return data.GetValue(r, Racer.Addr.PodState.StatCoolRate);
+            }
+        }
+
+
+        // VEHICLE SELECT DATA HANDLING
+
+        private class VehicleSelectData : Racer.TwoFrameDataCollection
+        {
+            public float[] AllStats(Racer r)
+            {
+                List<float> stats = new List<float>();
+                byte[] raw = data.GetValue(r, Racer.DataCollection.DataBlock.Path.Static, (uint)Racer.Addr.Static.StatAntiSkid, Racer.DataType.None, 0x3C);
+                for (var i = 0; i < raw.Length; i += 4)
+                    stats.Add(BitConverter.ToSingle(raw, i));
+                return stats.ToArray();
+            }
+        }
+
+
+        // TEXT HANDLER
+
+        private static class OverlayRenderer
+        {
+            private const string time_format = "m\\:ss\\.fff";
+
+            public static class InRace
+            {
+                public static void RenderHeatTimers(ControlPanel cp, float heat, float heatrate, float coolrate, bool boosting)
+                {
+                    /*  todo - different ms size, colouring */
+                    List<string> outTimers = new List<string>() { (heat / heatrate).ToString("0.0s"), ((100 - heat) / coolrate).ToString("0.0s") };
+
+                    if (boosting)
+                        Render.DrawIconWithText(cp.WINDOW_SCALE, cp.ol_coords["txt_race_pod_heating"], cp.sprite, cp.ol_img["heating"], outTimers,
+                            cp.ol_font["race_heating"], new List<Color>() { cp.ol_color["txt_race_pod_overheat_on"], cp.ol_color["txt_race_pod_underheat_off"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
+                    else
+                        Render.DrawIconWithText(cp.WINDOW_SCALE, cp.ol_coords["txt_race_pod_heating"], cp.sprite, cp.ol_img["heating"], outTimers,
+                            cp.ol_font["race_heating"], new List<Color>() { cp.ol_color["txt_race_pod_overheat_off"], cp.ol_color["txt_race_pod_underheat_on"] }, TextAlignment.Right | TextAlignment.VerticalCenter, new Point(4, 0), sep: -6, measure: "00.0s");
+                }
+
+                public static void RenderEngineBar(ControlPanel cp, float heat, uint deaths)
+                {
+                    Render.DrawIconWithText(cp.WINDOW_SCALE, cp.ol_coords["txt_race_pod_cooling"], cp.sprite, cp.ol_img["cooling"], heat.ToString("0.0"),
+                            cp.ol_font["race_botbar"], cp.ol_color["txt_race_pod_cooling"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
+                    Render.DrawIconWithText(cp.WINDOW_SCALE, cp.ol_coords["txt_race_deaths"], cp.sprite, cp.ol_img["deaths"], deaths.ToString(),
+                            cp.ol_font["race_botbar"], cp.ol_color["txt_race_deaths"], TextAlignment.Left | TextAlignment.VerticalCenter, new Point(8, 0));
+                }
+
+                public static void RenderTimes(ControlPanel cp, float[] timelist, string format = time_format)
+                {
+                    string[] labelSrc = { "1", "2", "3", "4", "5", "T" };
+                    string[] times = Helper.FormatTimesArray(timelist.Where(item => item >= 0).ToArray(), format);
+                    string[] labels = labelSrc.ToList().GetRange(0, times.Length).ToArray();
+                    labels[labels.Length - 1] = labelSrc.Last();
+                    Render.DrawTextList(cp.WINDOW_SCALE, cp.ol_coords["txt_race_times"], labels, times, cp.ol_font["race_times"], cp.ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
+                }
+
+                public static void RenderMovementData(ControlPanel cp, double distance3d, double speed3d, double distancetotal, float timetotal)
+                {
+                    string output = distance3d.ToString("00.000") + " ADU/f  " + speed3d.ToString("000.0") + " ADU/s  " + distancetotal.ToString("0.0") + " ADU/race   " + (distancetotal / timetotal).ToString("000.0") + " avg ADU/s  ";
+                    Render.DrawText(cp.WINDOW_SCALE, cp.ol_coords["txt_debug2"], output, cp.ol_font["default"], cp.ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
+                }
+            }
+
+            public static class VehicleSelect
+            {
+                private static float[] ExtractStats(float[] vehiclestats, int[] map)
+                {
+                    float[] output = new float[map.Length];
+                    for (var i = 0; i < map.Length; i++)
+                        output[i] = (float)vehiclestats.GetValue(map[i]);
+                    return output;
+                }
+
+                public static void RenderMainStats(ControlPanel cp, float[] vehiclestats)
+                {
+                    float[] stats = ExtractStats(vehiclestats, new int[] { 0, 1, 3, 4, 5, 9, 11 });
+                    Render.DrawTextList(cp.WINDOW_SCALE, cp.ol_coords["podsel_shown"], Helper.ArrayToStrList(stats), cp.ol_font["podsel_shown"], cp.ol_color["txt_podsel_stats_shown"], TextAlignment.Left | TextAlignment.VerticalCenter);
+                }
+
+                public static void RenderHiddenStats(ControlPanel cp, float[] vehiclestats)
+                {
+                    string[] statNames = { "MAX TURN RATE", "DECELERATION", "BOOST THRUST", "HEAT RATE", "HOVER HEIGHT", "BUMP MASS", "DAMAGE IMMUNITY", "ISECT RADIUS" };
+                    float[] stats = ExtractStats(vehiclestats, new int[] { 2, 6, 7, 8, 10, 12, 13, 14 });
+                    Render.DrawTextList(cp.WINDOW_SCALE, cp.ol_coords["podsel_hidden"], statNames, stats, cp.ol_font["podsel_hidden"], cp.ol_color["txt_podsel_stats_hidden"], TextAlignment.Left | TextAlignment.Bottom, "   ");
+                }
+            }
         }
     }
 }
