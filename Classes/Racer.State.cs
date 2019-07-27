@@ -15,7 +15,7 @@ namespace SWE1R
 
             private static readonly byte[] fileMagicWord = new byte[16] { 0x89, 0x53, 0x57, 0x45, 0x31, 0x52, 0x53, 0x41, 0x56, 0x53, 0x54, 0x41, 0x0D, 0x0A, 0x1A, 0x0A };
             private static readonly byte[] fileEOFWord = new byte[8] { 0x2E, 0x44, 0x4F, 0x54, 0x44, 0x4F, 0x4E, 0x45 };
-            public static readonly string fileExt = "e1rs";
+            public const string fileExt = "e1rs";
             private const byte fileVersion = 1;
 
             public byte[] dPodData;
