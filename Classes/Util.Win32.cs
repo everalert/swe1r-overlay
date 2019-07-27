@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Drawing;
 
@@ -14,7 +10,21 @@ namespace SWE1R.Util
     {
         public struct RECT
         {
-            public int left, top, right, bottom;
+            public int Left, Top, Right, Bottom;
+            public int Width
+            {
+                get
+                {
+                    return Right - Left;
+                }
+            }
+            public int Height
+            {
+                get
+                {
+                    return Bottom - Top;
+                }
+            }
         }
 
         [DllImport("user32.dll")]
