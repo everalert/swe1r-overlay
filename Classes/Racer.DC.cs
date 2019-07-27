@@ -263,5 +263,17 @@ namespace SWE1R
                 }
             }
         }
+
+
+        public class TwoFrameDataCollection
+        {
+            public DataCollection data = new DataCollection(), data_prev;
+
+            public void Update(Racer r)
+            {
+                data_prev = (DataCollection)data.Clone();
+                data.Update(r);
+            }
+        }
     }
 }
