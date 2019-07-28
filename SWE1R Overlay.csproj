@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Classes\Racer.DC.cs" />
     <Compile Include="Classes\Racer.GameState.cs" />
+    <Compile Include="Classes\Racer.Savestate.cs" />
     <Compile Include="Classes\Util.FileIO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -178,7 +179,7 @@
   <ItemGroup>
     <Content Include="Format\CtrlPan.Config.txt" />
     <Content Include="Format\Racer.Rec.txt" />
-    <Content Include="Format\Racer.State.txt" />
+    <Content Include="Format\Racer.Savestate.txt" />
     <Content Include="Format\Racer.Time.txt" />
     <Content Include="img\icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

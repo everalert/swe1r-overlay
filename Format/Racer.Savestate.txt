@@ -17,8 +17,6 @@ v1 = pod + pod data classes data read/write, foundation for expansion into other
 0x19	0x4	CRC32 hash (0x00 to 0x18)
 
 -> DATA
-0x1D	0x1	pod - retire as soon as race info struct is known
-0x1E	0x1	track - retire as soon as race info struct is known
 [loop start] data blocks
 	0x00	0x1	type ID (i.e. basis for pointer path building)
 				0 = pod info (struct with lap times, etc.)

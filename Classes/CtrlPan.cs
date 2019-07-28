@@ -23,7 +23,6 @@ namespace SWE1R
 
         private bool overlay_show = false,
             overlay_initialized = false;
-        private List<Racer.State> savestate_in_race;
 
         private InRaceData data_in_race = new InRaceData();
         private VehicleSelectData data_vehicle_select = new VehicleSelectData();
@@ -32,7 +31,7 @@ namespace SWE1R
         public ControlPanel()
         {
             InitializeComponent();
-            savestate_in_race = new List<Racer.State>();
+            savestate_in_race = new List<Racer.Savestate>();
             Icon = new Icon("img\\icon.ico");
             cbx_processList.DisplayMember = "MainWindowTitle";
             cbx_processList.ValueMember = "Id";

@@ -23,7 +23,7 @@ namespace SWE1R
             //might also be able to abstract into savestate class too
 
 
-            private List<DataBlock> data;
+            public List<DataBlock> data;
 
             public DataCollection()
             {
@@ -118,13 +118,13 @@ namespace SWE1R
             [Serializable]
             public class DataBlock
             {
-                private Path pathId;
-                private uint offset;
                 private byte[] data;
-                private DataType dataType = DataType.None;
                 private uint dataLen = 0;
+                private uint offset;
+                private Path pathId;
+                private DataType dataType = DataType.None;
 
-                public DataBlock() { }
+                //public DataBlock() { }
 
                 public DataBlock(Racer racer, Path path, uint off, DataType type, uint len = 4)
                 {
@@ -133,6 +133,30 @@ namespace SWE1R
                     dataType = type;
                     dataLen = DataTypeLength(type) > 0 ? DataTypeLength(type) : len;
                     Update(racer);
+                }
+
+                public DataBlock(byte[] d, Path p, uint o, DataType t)
+                {
+                    data = d;
+                    dataLen = (uint)d.Length;
+                    pathId = p;
+                    offset = o;
+                    dataType = t;
+                }
+
+                public uint DataLen
+                {
+                    get { return dataLen; }
+                }
+
+                public uint Offset
+                {
+                    get { return offset; }
+                }
+
+                public Path PathId
+                {
+                    get { return pathId; }
                 }
 
                 public byte[] GetBytes(uint off, uint len)
