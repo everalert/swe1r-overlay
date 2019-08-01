@@ -15,9 +15,7 @@ namespace SWE1R
         // SETUP
 
         const string TARGET_PROCESS_TITLE = "Episode I Racer";
-        //private Process target;
         private Racer racer = new Racer();
-        //private Overlay overlay;
         private RenderForm overlay;
         public Input input;
 
@@ -75,22 +73,26 @@ namespace SWE1R
                 input.Update();
 
             // discontinue if targets no longer valid
-            if (!CheckTargets())
+            if (!CheckTargets()) //tied to having the overlay open at least once, need to separate checking for game attachment and checking for overlay drawability
                 return;
+
+            game_state.Update(racer);
+            if (game_state.EnterOrLeaveRace(racer))
+            {
+                CheckRaceState();
+                CheckReplay();
+            }
+            txt_debug += "   State:" + game_state.DeepState(racer).ToString();
+
+            if (game_state.State(racer) == Racer.GameState.Id.InRace)
+                race_replay.Update(racer);
+
+            // rendering overlay
 
             //prep new frame
             RepositionOverlay();
             context.ClearRenderTargetView(renderTarget, ol_color["clear"]);
-
             // future: check here and somehow not continue if game is not in focus/taking input, i.e. don't render unless game is actually being played
-
-
-            // rendering overlay
-
-            game_state.Update(racer);
-            if (game_state.EnterOrLeaveRace(racer))
-                CheckRaceState();
-            txt_debug += "   State:" + game_state.DeepState(racer).ToString();
 
             if (!overlay.Visible)
                 goto finalize_rendered_frame;
@@ -174,8 +176,8 @@ namespace SWE1R
             if (overlay == null)
                 return;
             Input.HotkeyMap hkMap = input.GetCurrentMap();
-            tt_stateS.SetToolTip(btn_stateS, hkMap.MAP["state_inrace_save"].GetLabel("Hotkeys"+Environment.NewLine, Environment.NewLine));
-            tt_stateL.SetToolTip(btn_stateL, hkMap.MAP["state_inrace_load"].GetLabel("Hotkeys"+Environment.NewLine, Environment.NewLine));
+            tt_stateS.SetToolTip(btn_stateS, hkMap.MAP["state_inrace_save"].GetLabel("Hotkeys" + Environment.NewLine, Environment.NewLine));
+            tt_stateL.SetToolTip(btn_stateL, hkMap.MAP["state_inrace_load"].GetLabel("Hotkeys" + Environment.NewLine, Environment.NewLine));
         }
 
         // GAME DETECTION/ASSIGNMENT
@@ -200,6 +202,7 @@ namespace SWE1R
             {
                 CheckRaceState();
                 gb_stateInRace.Enabled = true;
+                gb_replay.Enabled = true;
                 gb_debug.Enabled = true;
                 txt_selectGame.Hide();
                 opt_showOverlay.Show();
@@ -235,6 +238,7 @@ namespace SWE1R
         {
             racer.WriteData(Racer.Addr.Static.DebugTerrainLabels, (uint)(enable ? 0x01 : 0x0));
         }
+
         private void SetDebugInvincibility(bool enable)
         {
             racer.WriteData(Racer.Addr.Static.DebugInvincibility, (uint)(enable ? 0x01 : 0x0));

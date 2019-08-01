@@ -75,8 +75,20 @@ namespace SWE1R
         {
             int thisSlot = (int)no_stateSel.Value - 1;
             if (thisSlot < savestate_in_race.Count)
+            {
                 if (dlg_stateSFile.ShowDialog() == DialogResult.OK)
-                    savestate_in_race[thisSlot].Export(dlg_stateSFile.FileName);
+                {
+                    try
+                    {
+                        savestate_in_race[thisSlot].Export(dlg_stateSFile.FileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Export Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+            }
         }
         private void Btn_stateLFile_Click(object sender, EventArgs e)
         {

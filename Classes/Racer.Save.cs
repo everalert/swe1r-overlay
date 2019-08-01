@@ -108,7 +108,7 @@ namespace SWE1R
                 {
                     string output = "";
                     output += Name + Environment.NewLine;
-                    output += Racer.Value.Vehicle.Name[(byte)SelectedVehicle] + Environment.NewLine;
+                    output += Value.Vehicle.Name[(byte)SelectedVehicle] + Environment.NewLine;
                     output += Truguts + " Truguts" + Environment.NewLine;
                     output += PitDroids + " Pit Droids" + Environment.NewLine;
                     output += Vehicles.ToString() + Environment.NewLine;
@@ -129,7 +129,7 @@ namespace SWE1R
                                 break;
                         }
                     for (byte a = 0; a < 7; a++)
-                        output += Racer.Value.Upgrade.Name[a]+": Level "+Upgrades[a].Level+" ("+Helper.ByteToFloat(Upgrades[a].Health).ToString("0.0%")+ " HP)" + Environment.NewLine;
+                        output += Value.Upgrade.Name[a]+": Level "+Upgrades[a].Level+" ("+Helper.ByteToFloat(Upgrades[a].Health).ToString("0.0%")+ " HP)" + Environment.NewLine;
                     return output;
                 }
             }
@@ -225,7 +225,7 @@ namespace SWE1R
                                 set.Times[mir * 2 + typ * 1] = time;
                             }
                         }
-                        Console.WriteLine(Racer.Value.Track.Name[trk].PadRight(30) + set.Times[0].TimeString().PadRight(12) + set.Times[1].TimeString().PadRight(12) + set.Times[2].TimeString().PadRight(12) + set.Times[3].TimeString().PadRight(12));
+                        Console.WriteLine(Value.Track.Name[trk].PadRight(30) + set.Times[0].TimeString().PadRight(12) + set.Times[1].TimeString().PadRight(12) + set.Times[2].TimeString().PadRight(12) + set.Times[3].TimeString().PadRight(12));
                         Times.Add(set);
                     }
 

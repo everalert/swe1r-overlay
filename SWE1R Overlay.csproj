@@ -107,26 +107,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\CtrlPan.cs">
+    <Compile Include="Classes\Panel.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\CtrlPan.Designer.cs">
-      <DependentUpon>CtrlPan.cs</DependentUpon>
+    <Compile Include="Classes\Panel.Designer.cs">
+      <DependentUpon>Panel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Classes\CtrlPan.Overlay.cs">
+    <Compile Include="Classes\Panel.Overlay.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Classes\CtrlPan.Savestate.cs">
+    <Compile Include="Classes\Panel.Savestate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Classes\Panel.Replay.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Classes\Racer.DC.cs" />
     <Compile Include="Classes\Racer.GameState.cs" />
+    <Compile Include="Classes\Racer.Replay.cs" />
     <Compile Include="Classes\Racer.Savestate.cs" />
     <Compile Include="Classes\Util.FileIO.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\Racer.Save.cs" />
-    <Compile Include="Classes\Racer.State.cs" />
     <Compile Include="Classes\Util.Helper.cs" />
     <Compile Include="Classes\Util.Input.cs" />
     <Compile Include="Classes\Util.Win32.cs" />
@@ -134,8 +137,8 @@
     <Compile Include="Classes\Racer.Value.cs" />
     <Compile Include="Classes\Racer.Addr.cs" />
     <Compile Include="Classes\Racer.cs" />
-    <EmbeddedResource Include="Classes\CtrlPan.resx">
-      <DependentUpon>CtrlPan.cs</DependentUpon>
+    <EmbeddedResource Include="Classes\Panel.resx">
+      <DependentUpon>Panel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -178,7 +181,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Format\CtrlPan.Config.txt" />
-    <Content Include="Format\Racer.Rec.txt" />
+    <Content Include="Format\Racer.Replay.txt" />
     <Content Include="Format\Racer.Savestate.txt" />
     <Content Include="Format\Racer.Time.txt" />
     <Content Include="img\icon.ico">

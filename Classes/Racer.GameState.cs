@@ -125,9 +125,10 @@ namespace SWE1R
 
             public bool EnterOrLeaveRace(Racer r)
             {
-                int i = data_prev.ValueExists(DataCollection.DataBlock.Path.Static, (uint)Addr.Static.InRace, Addr.GetLength(Addr.Static.InRace));
+                int i = data_prev.ValueExists(Path.Static, (uint)Addr.Static.InRace, Addr.GetLength(Addr.Static.InRace));
                 bool prev = (i < 0) ? false : data_prev.GetValue(i)>0;
-                return data.GetValue(r, Addr.Static.InRace)==1 ^ !prev;
+                bool now = data.GetValue(r, Addr.Static.InRace) > 0;
+                return now ^ prev;
             }
 
             public enum Id

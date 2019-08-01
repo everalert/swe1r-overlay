@@ -233,7 +233,7 @@ namespace SWE1R
                 throw new Exception("Overlay not set.");
             overlay.Resize += OverlayResize;
             overlay.Text = "SWE1R Overlay";
-            overlay.Icon = this.Icon;
+            overlay.Icon = Icon;
             overlay.TransparencyKey = ol_color["clear"];
             overlay.FormBorderStyle = FormBorderStyle.None;
             overlay.TopMost = true;

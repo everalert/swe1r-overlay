@@ -30,10 +30,7 @@ namespace SWE1R
                 data = new List<DataBlock>();
             }
 
-            public DataBlock[] Data
-            {
-                get { return data.ToArray(); }
-            }
+            public DataBlock[] Data => data.ToArray();
 
             public dynamic GetValue(Racer racer, DataBlock.Path path, uint offset, DataType type, uint length)
             {
@@ -135,7 +132,7 @@ namespace SWE1R
                     Update(racer);
                 }
 
-                public DataBlock(byte[] d, Path p, uint o, DataType t)
+                public DataBlock(byte[] d, Path p, uint o, DataType t = DataType.None)
                 {
                     data = d;
                     dataLen = (uint)d.Length;
@@ -144,20 +141,11 @@ namespace SWE1R
                     dataType = t;
                 }
 
-                public uint DataLen
-                {
-                    get { return dataLen; }
-                }
+                public uint DataLen => dataLen;
 
-                public uint Offset
-                {
-                    get { return offset; }
-                }
+                public uint Offset => offset;
 
-                public Path PathId
-                {
-                    get { return pathId; }
-                }
+                public Path PathId => pathId;
 
                 public byte[] GetBytes(uint off, uint len)
                 {
@@ -258,6 +246,31 @@ namespace SWE1R
                     Rendering = 4
                 };
 
+                public static Path GetPathFromAddr(Addr.Pod a)
+                {
+                    return Path.Pod;
+                }
+
+                public static Path GetPathFromAddr(Addr.PodState a)
+                {
+                    return Path.PodState;
+                }
+
+                public static Path GetPathFromAddr(Addr.Race a)
+                {
+                    return Path.Race;
+                }
+
+                public static Path GetPathFromAddr(Addr.Rendering a)
+                {
+                    return Path.Rendering;
+                }
+
+                public static Path GetPathFromAddr(Addr.Static a)
+                {
+                    return Path.Static;
+                }
+
                 // zzz
 
                 private void CheckDataLoaded()
@@ -299,5 +312,6 @@ namespace SWE1R
                 data.Update(r);
             }
         }
+        //also add generalised multi-frame version?
     }
 }

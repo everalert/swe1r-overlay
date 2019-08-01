@@ -57,17 +57,24 @@
             this.tt_stateL = new System.Windows.Forms.ToolTip(this.components);
             this.dlg_stateSFile = new System.Windows.Forms.SaveFileDialog();
             this.dlg_stateLFile = new System.Windows.Forms.OpenFileDialog();
+            this.gb_replay = new System.Windows.Forms.GroupBox();
+            this.btn_replayInfo = new System.Windows.Forms.Button();
+            this.btn_replayImport = new System.Windows.Forms.Button();
+            this.btn_replayExport = new System.Windows.Forms.Button();
+            this.dlg_replayExport = new System.Windows.Forms.SaveFileDialog();
+            this.dlg_replayImport = new System.Windows.Forms.OpenFileDialog();
             this.gb_stateInRace.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.no_stateSel)).BeginInit();
             this.gb_debug.SuspendLayout();
             this.gb_hotkeys.SuspendLayout();
+            this.gb_replay.SuspendLayout();
             this.SuspendLayout();
             // 
             // opt_showOverlay
             // 
             this.opt_showOverlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.opt_showOverlay.AutoSize = true;
-            this.opt_showOverlay.Location = new System.Drawing.Point(11, 382);
+            this.opt_showOverlay.Location = new System.Drawing.Point(11, 450);
             this.opt_showOverlay.Name = "opt_showOverlay";
             this.opt_showOverlay.Size = new System.Drawing.Size(92, 17);
             this.opt_showOverlay.TabIndex = 0;
@@ -81,7 +88,7 @@
             this.cbx_processList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cbx_processList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbx_processList.FormattingEnabled = true;
-            this.cbx_processList.Location = new System.Drawing.Point(11, 401);
+            this.cbx_processList.Location = new System.Drawing.Point(11, 469);
             this.cbx_processList.Name = "cbx_processList";
             this.cbx_processList.Size = new System.Drawing.Size(115, 21);
             this.cbx_processList.TabIndex = 9;
@@ -93,7 +100,7 @@
             this.txt_selectGame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.txt_selectGame.AutoSize = true;
             this.txt_selectGame.ForeColor = System.Drawing.Color.Red;
-            this.txt_selectGame.Location = new System.Drawing.Point(11, 383);
+            this.txt_selectGame.Location = new System.Drawing.Point(11, 451);
             this.txt_selectGame.Name = "txt_selectGame";
             this.txt_selectGame.Size = new System.Drawing.Size(110, 13);
             this.txt_selectGame.TabIndex = 10;
@@ -102,7 +109,7 @@
             // btn_processFind
             // 
             this.btn_processFind.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btn_processFind.Location = new System.Drawing.Point(132, 400);
+            this.btn_processFind.Location = new System.Drawing.Point(132, 468);
             this.btn_processFind.Name = "btn_processFind";
             this.btn_processFind.Size = new System.Drawing.Size(48, 23);
             this.btn_processFind.TabIndex = 11;
@@ -132,12 +139,12 @@
             this.gb_stateInRace.Size = new System.Drawing.Size(169, 175);
             this.gb_stateInRace.TabIndex = 13;
             this.gb_stateInRace.TabStop = false;
-            this.gb_stateInRace.Text = "In-Race Savestate";
+            this.gb_stateInRace.Text = "Savestate";
             // 
             // btn_stateLFile
             // 
             this.btn_stateLFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btn_stateLFile.Location = new System.Drawing.Point(62, 141);
+            this.btn_stateLFile.Location = new System.Drawing.Point(11, 141);
             this.btn_stateLFile.Name = "btn_stateLFile";
             this.btn_stateLFile.Size = new System.Drawing.Size(48, 23);
             this.btn_stateLFile.TabIndex = 27;
@@ -149,7 +156,7 @@
             // 
             this.btn_stateSFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btn_stateSFile.Enabled = false;
-            this.btn_stateSFile.Location = new System.Drawing.Point(62, 118);
+            this.btn_stateSFile.Location = new System.Drawing.Point(62, 141);
             this.btn_stateSFile.Name = "btn_stateSFile";
             this.btn_stateSFile.Size = new System.Drawing.Size(48, 23);
             this.btn_stateSFile.TabIndex = 26;
@@ -249,7 +256,7 @@
             // 
             this.btn_stateL.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btn_stateL.Enabled = false;
-            this.btn_stateL.Location = new System.Drawing.Point(11, 141);
+            this.btn_stateL.Location = new System.Drawing.Point(11, 118);
             this.btn_stateL.Margin = new System.Windows.Forms.Padding(0);
             this.btn_stateL.Name = "btn_stateL";
             this.btn_stateL.Size = new System.Drawing.Size(48, 23);
@@ -263,7 +270,7 @@
             // 
             this.btn_stateS.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btn_stateS.Enabled = false;
-            this.btn_stateS.Location = new System.Drawing.Point(11, 118);
+            this.btn_stateS.Location = new System.Drawing.Point(62, 118);
             this.btn_stateS.Margin = new System.Windows.Forms.Padding(0);
             this.btn_stateS.Name = "btn_stateS";
             this.btn_stateS.Size = new System.Drawing.Size(48, 23);
@@ -279,7 +286,7 @@
             this.gb_debug.Controls.Add(this.opt_enableInvincibility);
             this.gb_debug.Controls.Add(this.opt_enableDebugMenu);
             this.gb_debug.Enabled = false;
-            this.gb_debug.Location = new System.Drawing.Point(11, 199);
+            this.gb_debug.Location = new System.Drawing.Point(11, 268);
             this.gb_debug.Margin = new System.Windows.Forms.Padding(8);
             this.gb_debug.Name = "gb_debug";
             this.gb_debug.Padding = new System.Windows.Forms.Padding(8);
@@ -325,7 +332,7 @@
             // 
             this.gb_hotkeys.Controls.Add(this.opt_hotkeyAltLayout);
             this.gb_hotkeys.Controls.Add(this.opt_hotkeyEnable);
-            this.gb_hotkeys.Location = new System.Drawing.Point(11, 297);
+            this.gb_hotkeys.Location = new System.Drawing.Point(11, 366);
             this.gb_hotkeys.Name = "gb_hotkeys";
             this.gb_hotkeys.Size = new System.Drawing.Size(169, 68);
             this.gb_hotkeys.TabIndex = 15;
@@ -368,11 +375,69 @@
             this.dlg_stateLFile.Filter = "SWE1R Savestate (*.e1rs)|*.e1rs|All Files (*.*)|*.*";
             this.dlg_stateLFile.Title = "Import Savestate";
             // 
+            // gb_replay
+            // 
+            this.gb_replay.Controls.Add(this.btn_replayInfo);
+            this.gb_replay.Controls.Add(this.btn_replayImport);
+            this.gb_replay.Controls.Add(this.btn_replayExport);
+            this.gb_replay.Enabled = false;
+            this.gb_replay.Location = new System.Drawing.Point(11, 201);
+            this.gb_replay.Name = "gb_replay";
+            this.gb_replay.Size = new System.Drawing.Size(169, 54);
+            this.gb_replay.TabIndex = 16;
+            this.gb_replay.TabStop = false;
+            this.gb_replay.Text = "Replay";
+            // 
+            // btn_replayInfo
+            // 
+            this.btn_replayInfo.Enabled = false;
+            this.btn_replayInfo.Location = new System.Drawing.Point(113, 20);
+            this.btn_replayInfo.Name = "btn_replayInfo";
+            this.btn_replayInfo.Size = new System.Drawing.Size(40, 23);
+            this.btn_replayInfo.TabIndex = 2;
+            this.btn_replayInfo.Text = "Info";
+            this.btn_replayInfo.UseVisualStyleBackColor = true;
+            this.btn_replayInfo.Click += new System.EventHandler(this.Btn_replayInfo_Click);
+            // 
+            // btn_replayImport
+            // 
+            this.btn_replayImport.Location = new System.Drawing.Point(11, 20);
+            this.btn_replayImport.Name = "btn_replayImport";
+            this.btn_replayImport.Size = new System.Drawing.Size(48, 23);
+            this.btn_replayImport.TabIndex = 1;
+            this.btn_replayImport.Text = "Import";
+            this.btn_replayImport.UseVisualStyleBackColor = true;
+            this.btn_replayImport.Click += new System.EventHandler(this.Btn_replayImport_Click);
+            // 
+            // btn_replayExport
+            // 
+            this.btn_replayExport.Enabled = false;
+            this.btn_replayExport.Location = new System.Drawing.Point(62, 20);
+            this.btn_replayExport.Name = "btn_replayExport";
+            this.btn_replayExport.Size = new System.Drawing.Size(48, 23);
+            this.btn_replayExport.TabIndex = 0;
+            this.btn_replayExport.Text = "Export";
+            this.btn_replayExport.UseVisualStyleBackColor = true;
+            this.btn_replayExport.Click += new System.EventHandler(this.Btn_replayExport_Click);
+            // 
+            // dlg_replayExport
+            // 
+            this.dlg_replayExport.DefaultExt = "e1rs";
+            this.dlg_replayExport.Filter = "SWE1R Replay (*.e1rm)|*.e1rm";
+            this.dlg_replayExport.Title = "Export Savestate";
+            // 
+            // dlg_replayImport
+            // 
+            this.dlg_replayImport.DefaultExt = "e1rs";
+            this.dlg_replayImport.Filter = "SWE1R Savestate (*.e1rm)|*.e1rm|All Files (*.*)|*.*";
+            this.dlg_replayImport.Title = "Import Replay";
+            // 
             // ControlPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(192, 434);
+            this.ClientSize = new System.Drawing.Size(200, 502);
+            this.Controls.Add(this.gb_replay);
             this.Controls.Add(this.gb_hotkeys);
             this.Controls.Add(this.gb_debug);
             this.Controls.Add(this.gb_stateInRace);
@@ -381,8 +446,8 @@
             this.Controls.Add(this.cbx_processList);
             this.Controls.Add(this.opt_showOverlay);
             this.MaximizeBox = false;
-            this.MaximumSize = new System.Drawing.Size(208, 472);
-            this.MinimumSize = new System.Drawing.Size(208, 472);
+            this.MaximumSize = new System.Drawing.Size(216, 540);
+            this.MinimumSize = new System.Drawing.Size(216, 540);
             this.Name = "ControlPanel";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "SWE1R Controls";
@@ -393,6 +458,7 @@
             this.gb_debug.PerformLayout();
             this.gb_hotkeys.ResumeLayout(false);
             this.gb_hotkeys.PerformLayout();
+            this.gb_replay.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -428,6 +494,12 @@
         private System.Windows.Forms.Button btn_stateSFile;
         private System.Windows.Forms.SaveFileDialog dlg_stateSFile;
         private System.Windows.Forms.OpenFileDialog dlg_stateLFile;
+        private System.Windows.Forms.GroupBox gb_replay;
+        private System.Windows.Forms.Button btn_replayImport;
+        private System.Windows.Forms.Button btn_replayExport;
+        private System.Windows.Forms.SaveFileDialog dlg_replayExport;
+        private System.Windows.Forms.Button btn_replayInfo;
+        private System.Windows.Forms.OpenFileDialog dlg_replayImport;
     }
 }
 

@@ -196,7 +196,8 @@ namespace SWE1R
                 InRace = 0xA9BB81,
                 InTournamentMode = 0x10C450,
                 PauseState = 0x10C5F0,
-                Text01 = 0xA2C380
+                Text01 = 0xA2C380,
+                SaveFile01 = 0xA35A60
             };
 
             private static Dictionary<Static, DataType> TypesForStatic = new Dictionary<Static, DataType>
@@ -213,11 +214,13 @@ namespace SWE1R
                 { Static.InTournamentMode, DataType.Byte},
                 { Static.PauseState, DataType.Byte},
                 { Static.Text01, DataType.String }, // known to repeat every 0x80 at least 52 times
+                { Static.SaveFile01, DataType.None }, // seems to repeat for 20 times
             };
 
             private static Dictionary<Static, uint> LengthsForStatic = new Dictionary<Static, uint>
             {
-                { Static.Text01, 0x80 }
+                { Static.Text01, 0x80 },
+                { Static.SaveFile01, 0x50 }
             };
 
 

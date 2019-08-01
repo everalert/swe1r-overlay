@@ -12,42 +12,41 @@ HEADER
 0x10	0x01	file format version
 0x11	0x01	format version required for loading
 0x12	0x01	endianness
-0x13	0x02	item count (number of data points saved per frame)
-0x15	0x04	metadata offset 
-0x19	0x02	metadata length (byte after header to byte before definition)
-0x1B	0x04	definition offset 
-0x1F	0x02	definition length (byte after metadata to byte before frames)
-0x21	0x04	frames offset
-0x25	0x02	frames length (byte after definition to byte before eof marker)
-0x27	0x04	header CRC32 (0x00 to 0x18)
+0x13	0x04	metadata offset 
+0x17	0x04	definition offset 
+0x1B	0x04	frames offset
+0x1F	0x04	total data length (first byte of metadata to byte before whole file crc32)
+0x23	0x04	header CRC32 (0x00 to 0x18)
 
 
 METADATA
 
-0x2B	0x20	player name
-0x2B	0x01	track
-0x2B	0x01	pod
-0x2B	0x07	upgrades
-0x2B	0x07	upgrade healths
+0x27	0x20	player name
+0x47	0x01	track
+0x48	0x01	pod
+0x49	0x07	upgrades
+0x50	0x07	upgrade healths
 ...??
 
 
 FRAME DEFINITION
 
-[loop start] items
+0x57
+[loop start] items => item count = total bytes / 9
 	0x00	0x01	type ID (i.e. basis for pointer path building)
 				0 = pod info (struct with lap times, etc.)
 				1 = pod state (struct with speed, coord, etc.)
 				...etc (same as savestate)
 	0x01	0x04	offset in struct
-	0x05	0x01	length
+	0x05	0x04	length
 [loop end]
 
 
 MOVIE FRAMES
 
+0x57 + itemcount*9
 [loop start] frames
-	[loop start] items
+	[loop start] items, data only as lengths, order, etc are defined above
 		0x00	0x??	datapoint of arbitrary length (as defined above)
 	[loop end]
 [loop end]
