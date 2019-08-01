@@ -11,11 +11,11 @@ namespace SWE1R
         private void CheckReplay()
         {
             bool in_race = game_state.State(racer) == Racer.GameState.Id.InRace;
-            if (in_race)
-                race_replay.Reset(racer);
             btn_replayImport.Enabled = !in_race;
             btn_replayExport.Enabled = !in_race && race_replay.CheckExportable();
-            btn_replayInfo.Enabled = true;
+            btn_replayInfo.Enabled = !in_race && race_replay.CheckExportable();
+            if (in_race)
+                race_replay.Reset(racer);
         }
 
         private void Btn_replayImport_Click(object sender, EventArgs e)
@@ -53,7 +53,14 @@ namespace SWE1R
 
         private void Btn_replayInfo_Click(object sender, EventArgs e)
         {
-            string bodytext = race_replay.CheckExportable() ? race_replay.TrackName + Environment.NewLine + race_replay.VehicleName : "No replay data";
+            string bodytext = "";
+            if (race_replay.CheckExportable())
+            {
+                bodytext += race_replay.TrackName + Environment.NewLine;
+                bodytext += race_replay.VehicleName;
+            }
+            else
+                bodytext = "No replay data.";
             MessageBox.Show(bodytext,
                 "Replay Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }

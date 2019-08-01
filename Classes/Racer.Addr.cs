@@ -156,6 +156,18 @@ namespace SWE1R
                 SlowTerrainModifier = 0x244,
                 IceTerrainModifier = 0x248,
                 Slide = 0x24C, //???
+                EngineDamageMaxTL = 0x288,
+                EngineDamageMaxML = 0x28C,
+                EngineDamageMaxBL = 0x290,
+                EngineDamageMaxTR = 0x294,
+                EngineDamageMaxMR = 0x298,
+                EngineDamageMaxBR = 0x29C,
+                EngineDamageTL = 0x288,
+                EngineDamageML = 0x28C,
+                EngineDamageBL = 0x290,
+                EngineDamageTR = 0x294,
+                EngineDamageMR = 0x298,
+                EngineDamageBR = 0x29C,
                 FallTimer = 0x2C8
             };
 

@@ -18,30 +18,14 @@ namespace SWE1R
             private const byte file_version = 1;
 
             private List<DataCollection> data = new List<DataCollection>();
+            public DataCollection[] Data => data.ToArray(); 
+
             private byte meta_track = 0xFF, meta_vehicle = 0xFF;
             private byte[] meta_player, meta_upgrade_level, meta_upgrade_health;
 
             private bool initialized = false; // only true when first frame fully written
 
-            public byte Vehicle => meta_vehicle;
-            public string VehicleName
-            {
-                get
-                {
-                    string output;
-                    return Value.Vehicle.Name.TryGetValue(Vehicle, out output) != false ? output : "-";
-                }
-            }
-
-            public byte Track => meta_track;
-            public string TrackName
-            {
-                get
-                {
-                    string output;
-                    return Value.Track.Name.TryGetValue(Track, out output) != false ? output : "-";
-                }
-            }
+            private string string_processor;
 
             // CONTROL
 
@@ -62,13 +46,30 @@ namespace SWE1R
                     first.GetValue(r, Addr.Pod.TimeTotal);
                     first.GetValue(r, Addr.Pod.Lap);
                     first.GetValue(r, Addr.Pod.Flags);
-                    first.GetValue(r, Addr.PodState.LapCompletion);
+                    first.GetValue(r, Addr.PodState.Flags1);
+                    first.GetValue(r, Addr.PodState.Flags2);
                     first.GetValue(r, Addr.PodState.X);
                     first.GetValue(r, Addr.PodState.Y);
                     first.GetValue(r, Addr.PodState.Z);
+                    first.GetValue(r, Addr.PodState.Vector3D_1A);
+                    first.GetValue(r, Addr.PodState.Vector3D_1B);
+                    first.GetValue(r, Addr.PodState.Vector3D_1C);
+                    first.GetValue(r, Addr.PodState.Vector3D_2A);
+                    first.GetValue(r, Addr.PodState.Vector3D_2B);
+                    first.GetValue(r, Addr.PodState.Vector3D_2C);
+                    first.GetValue(r, Addr.PodState.LapCompletion);
                     first.GetValue(r, Addr.PodState.Speed);
-                    first.GetValue(r, Addr.PodState.Flags1);
-                    first.GetValue(r, Addr.PodState.Flags2);
+                    first.GetValue(r, Addr.PodState.Heat);
+                    first.GetValue(r, Addr.PodState.EngineDamageTL);
+                    first.GetValue(r, Addr.PodState.EngineDamageML);
+                    first.GetValue(r, Addr.PodState.EngineDamageBL);
+                    first.GetValue(r, Addr.PodState.EngineDamageTR);
+                    first.GetValue(r, Addr.PodState.EngineDamageMR);
+                    first.GetValue(r, Addr.PodState.EngineDamageBR);
+                    /* also add inputs at some point; need to figure out how to conflate all the input methods */
+                    //also - LightningPirate: I'd say just the main stuff like what pod, upgrades, upgrade health, and track and then xyz, time, current lap, progress, speed, boost, thrust, pitch, brake, turning, repair, slide, tilt, deaths, engine stuff (health, fire, temp)
+                    //also also - 3d transformation data, animation id, animation frame
+                    //so far mostly included except animation stuff (addresses not known) and input stuff
                     data.Add(first);
                     initialized = true;
                 }
@@ -263,6 +264,137 @@ namespace SWE1R
                     }
                 }
             }
+
+
+            // DATA PROCESSING
+
+            public byte Vehicle => meta_vehicle;
+
+            public string VehicleName => Value.Vehicle.Name.TryGetValue(Vehicle, out string_processor) != false ? string_processor : "-";
+
+            public byte Track => meta_track;
+
+            public string TrackName => Value.Track.Name.TryGetValue(Track, out string_processor) != false ? string_processor : "-";
+
+            /* need to implement generalised functions to cut down the following but cbf atm lol */
+            public float XMin
+            {
+                get
+                {
+                    Addr.PodState off = Addr.PodState.X;
+                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
+                    float x = float.MaxValue;
+                    if (i >= 0)
+                    {
+                        foreach (DataCollection frame in data)
+                        {
+                            float this_x = frame.data[i].GetValue((uint)off, Addr.GetType(off));
+                            x = Math.Min(x, this_x);
+                        }
+                    }
+                    return x;
+                }
+            }
+
+            public float XMax
+            {
+                get
+                {
+                    Addr.PodState off = Addr.PodState.X;
+                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
+                    float x = float.MinValue;
+                    if (i >= 0)
+                    {
+                        foreach (DataCollection frame in data)
+                        {
+                            float this_x = frame.data[i].GetValue((uint)off, Addr.GetType(off));
+                            x = Math.Max(x, this_x);
+                        }
+                    }
+                    return x;
+                }
+            }
+
+            public float XRange => XMin > XMax ? 0 : XMax - XMin;
+            public float YMin
+            {
+                get
+                {
+                    Addr.PodState off = Addr.PodState.Y;
+                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
+                    float y = float.MaxValue;
+                    if (i >= 0)
+                    {
+                        foreach (DataCollection frame in data)
+                        {
+                            float this_y = frame.data[i].GetValue((uint)off, Addr.GetType(off));
+                            y = Math.Min(y, this_y);
+                        }
+                    }
+                    return y;
+                }
+            }
+
+            public float YMax
+            {
+                get
+                {
+                    Addr.PodState off = Addr.PodState.Y;
+                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
+                    float y = float.MinValue;
+                    if (i >= 0)
+                    {
+                        foreach (DataCollection frame in data)
+                        {
+                            float this_y = frame.data[i].GetValue((uint)off, Addr.GetType(off));
+                            y = Math.Max(y, this_y);
+                        }
+                    }
+                    return y;
+                }
+            }
+
+            public float YRange => YMin > YMax ? 0 : YMax - YMin;
+
+            public float ZMin
+            {
+                get
+                {
+                    Addr.PodState off = Addr.PodState.Z;
+                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
+                    float z = float.MaxValue;
+                    if (i >= 0)
+                    {
+                        foreach (DataCollection frame in data)
+                        {
+                            float this_z = frame.data[i].GetValue((uint)off, Addr.GetType(off));
+                            z = Math.Min(z, this_z);
+                        }
+                    }
+                    return z;
+                }
+            }
+
+            public float ZMax
+            {
+                get
+                {
+                    Addr.PodState off = Addr.PodState.Z;
+                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
+                    float z = float.MinValue;
+                    if (i >= 0)
+                    {
+                        foreach (DataCollection frame in data)
+                        {
+                            float this_z = frame.data[i].GetValue((uint)off, Addr.GetType(off));
+                            z = Math.Max(z, this_z);
+                        }
+                    }
+                    return z;
+                }
+            }
+
+            public float ZRange => ZMin > ZMax ? 0 : ZMax - ZMin;
 
 
             // CHECKING
