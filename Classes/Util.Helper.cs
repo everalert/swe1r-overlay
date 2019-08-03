@@ -34,7 +34,6 @@ namespace SWE1R.Util
         }
 
 
-
         public enum DataTypes
         {
             //unsigned = no. of bits, signed = bits-1, fractional = bits+1

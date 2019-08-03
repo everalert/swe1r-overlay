@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Numerics;
 
 namespace SWE1R
 {
@@ -277,124 +278,52 @@ namespace SWE1R
             public string TrackName => Value.Track.Name.TryGetValue(Track, out string_processor) != false ? string_processor : "-";
 
             /* need to implement generalised functions to cut down the following but cbf atm lol */
-            public float XMin
+
+            public Vector3 PositionMin
             {
                 get
                 {
-                    Addr.PodState off = Addr.PodState.X;
-                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
-                    float x = float.MaxValue;
-                    if (i >= 0)
+                    Addr.PodState xOff = Addr.PodState.X, yOff = Addr.PodState.Y, zOff = Addr.PodState.Z;
+                    int xI = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)xOff, Addr.GetLength(xOff)) : -1;
+                    int yI = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)yOff, Addr.GetLength(yOff)) : -1;
+                    int zI = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)zOff, Addr.GetLength(zOff)) : -1;
+                    Vector3 output = new Vector3(float.MaxValue);
+                    if (xI >= 0 && yI >= 0 && zI >= 0)
                     {
                         foreach (DataCollection frame in data)
                         {
-                            float this_x = frame.data[i].GetValue((uint)off, Addr.GetType(off));
-                            x = Math.Min(x, this_x);
+                            output.X = Math.Min(output.X, frame.data[xI].GetValue((uint)xOff, Addr.GetType(xOff)));
+                            output.Y = Math.Min(output.Y, frame.data[yI].GetValue((uint)yOff, Addr.GetType(yOff)));
+                            output.Z = Math.Min(output.Z, frame.data[zI].GetValue((uint)zOff, Addr.GetType(zOff)));
                         }
                     }
-                    return x;
+                    return output;
                 }
             }
 
-            public float XMax
+            public Vector3 PositionMax
             {
                 get
                 {
-                    Addr.PodState off = Addr.PodState.X;
-                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
-                    float x = float.MinValue;
-                    if (i >= 0)
+                    Addr.PodState xOff = Addr.PodState.X, yOff = Addr.PodState.Y, zOff = Addr.PodState.Z;
+                    int xI = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)xOff, Addr.GetLength(xOff)) : -1;
+                    int yI = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)yOff, Addr.GetLength(yOff)) : -1;
+                    int zI = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)zOff, Addr.GetLength(zOff)) : -1;
+                    Vector3 output = new Vector3(float.MinValue);
+                    if (xI >= 0 && yI >= 0 && zI >= 0)
                     {
                         foreach (DataCollection frame in data)
                         {
-                            float this_x = frame.data[i].GetValue((uint)off, Addr.GetType(off));
-                            x = Math.Max(x, this_x);
+                            output.X = Math.Max(output.X, frame.data[xI].GetValue((uint)xOff, Addr.GetType(xOff)));
+                            output.Y = Math.Max(output.Y, frame.data[yI].GetValue((uint)yOff, Addr.GetType(yOff)));
+                            output.Z = Math.Max(output.Z, frame.data[zI].GetValue((uint)zOff, Addr.GetType(zOff)));
                         }
                     }
-                    return x;
+                    return output;
                 }
             }
 
-            public float XRange => XMin > XMax ? 0 : XMax - XMin;
-            public float YMin
-            {
-                get
-                {
-                    Addr.PodState off = Addr.PodState.Y;
-                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
-                    float y = float.MaxValue;
-                    if (i >= 0)
-                    {
-                        foreach (DataCollection frame in data)
-                        {
-                            float this_y = frame.data[i].GetValue((uint)off, Addr.GetType(off));
-                            y = Math.Min(y, this_y);
-                        }
-                    }
-                    return y;
-                }
-            }
-
-            public float YMax
-            {
-                get
-                {
-                    Addr.PodState off = Addr.PodState.Y;
-                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
-                    float y = float.MinValue;
-                    if (i >= 0)
-                    {
-                        foreach (DataCollection frame in data)
-                        {
-                            float this_y = frame.data[i].GetValue((uint)off, Addr.GetType(off));
-                            y = Math.Max(y, this_y);
-                        }
-                    }
-                    return y;
-                }
-            }
-
-            public float YRange => YMin > YMax ? 0 : YMax - YMin;
-
-            public float ZMin
-            {
-                get
-                {
-                    Addr.PodState off = Addr.PodState.Z;
-                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
-                    float z = float.MaxValue;
-                    if (i >= 0)
-                    {
-                        foreach (DataCollection frame in data)
-                        {
-                            float this_z = frame.data[i].GetValue((uint)off, Addr.GetType(off));
-                            z = Math.Min(z, this_z);
-                        }
-                    }
-                    return z;
-                }
-            }
-
-            public float ZMax
-            {
-                get
-                {
-                    Addr.PodState off = Addr.PodState.Z;
-                    int i = data.Count > 0 ? data[0].ValueExists(DataCollection.DataBlock.Path.PodState, (uint)off, Addr.GetLength(off)) : -1;
-                    float z = float.MinValue;
-                    if (i >= 0)
-                    {
-                        foreach (DataCollection frame in data)
-                        {
-                            float this_z = frame.data[i].GetValue((uint)off, Addr.GetType(off));
-                            z = Math.Max(z, this_z);
-                        }
-                    }
-                    return z;
-                }
-            }
-
-            public float ZRange => ZMin > ZMax ? 0 : ZMax - ZMin;
+            public Vector3 PositionRange => PositionMin.X > PositionMax.X ? Vector3.Zero : PositionMax - PositionMin;
 
 
             // CHECKING
