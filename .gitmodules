@@ -1,0 +1,3 @@
+[submodule "swe1r"]
+	path = swe1r
+	url = https://github.com/everalert/swe1r.git

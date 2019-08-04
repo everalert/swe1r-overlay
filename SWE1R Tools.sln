@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28922.388
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWE1R Overlay", "SWE1R Overlay.csproj", "{BBC1693F-1CED-4420-A5D0-85CE86C0C636}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWE1R Practice Tool", "SWE1R Practice Tool.csproj", "{BBC1693F-1CED-4420-A5D0-85CE86C0C636}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SWE1R Overlay Installer", "..\SWE1R Overlay Installer\SWE1R Overlay Installer.vdproj", "{4722BCC3-C1DD-4C70-9EAE-0902FE06478E}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SWE1R Practice Tool Installer", "..\SWE1R Overlay Installer\SWE1R Overlay Installer.vdproj", "{4722BCC3-C1DD-4C70-9EAE-0902FE06478E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E1RM2PNG", "..\E1RM2PNG\E1RM2PNG.csproj", "{1BBCC52C-C2D1-424A-902F-5C24812684B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "E1RM2PNG", "..\E1RM2PNG\E1RM2PNG.csproj", "{1BBCC52C-C2D1-424A-902F-5C24812684B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SWE1R", "..\SWE1R\SWE1R.csproj", "{D8C1AA88-FDCE-4F05-8A89-35C7F1CB6160}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{1BBCC52C-C2D1-424A-902F-5C24812684B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BBCC52C-C2D1-424A-902F-5C24812684B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BBCC52C-C2D1-424A-902F-5C24812684B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8C1AA88-FDCE-4F05-8A89-35C7F1CB6160}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8C1AA88-FDCE-4F05-8A89-35C7F1CB6160}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8C1AA88-FDCE-4F05-8A89-35C7F1CB6160}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8C1AA88-FDCE-4F05-8A89-35C7F1CB6160}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -8,7 +8,7 @@ using SpriteTextRenderer;
 using SpriteRenderer = SpriteTextRenderer.SlimDX.SpriteRenderer;
 using TextBlockRenderer = SpriteTextRenderer.SlimDX.TextBlockRenderer;
 
-namespace SWE1R.Util
+namespace SWE1RPT
 {
     public static class Render
     {
