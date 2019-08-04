@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using SWE1R.Racer;
 
-namespace SWE1R
+namespace SWE1RPT
 {
     public partial class ControlPanel : Form
     {
-        private Racer.Replay race_replay = new Racer.Replay();
+        private Replay race_replay = new Replay();
 
         private void CheckReplay()
         {
-            bool in_race = game_state.State(racer) == Racer.GameState.Id.InRace;
+            bool in_race = game_state.State(racer) == GameState.Id.InRace;
             btn_replayImport.Enabled = !in_race;
             btn_replayExport.Enabled = !in_race && race_replay.CheckExportable();
             btn_replayInfo.Enabled = !in_race && race_replay.CheckExportable();

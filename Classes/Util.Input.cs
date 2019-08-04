@@ -4,8 +4,9 @@ using System.Drawing;
 using System.Linq;
 using SlimDX.XInput;
 using SlimDX.DirectInput;
+using SWE1RPT;
 
-namespace SWE1R
+namespace SWE1R.Util
 {
     public class Input
     {

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using SWE1R.Racer;
 
-namespace SWE1R
+namespace SWE1RPT
 {
     public partial class ControlPanel : Form
     {
-        private List<Racer.Savestate> savestate_in_race;
+        private List<Savestate> savestate_in_race;
 
         private void Btn_stateS_Click(object sender, EventArgs e)
         {
@@ -22,7 +23,7 @@ namespace SWE1R
         public void SaveRaceState()
         {
             if (no_stateSel.Value > savestate_in_race.Count)
-                savestate_in_race.Add(new Racer.Savestate(racer));
+                savestate_in_race.Add(new Savestate(racer));
             else
                 savestate_in_race[(int)no_stateSel.Value - 1].Save(racer);
             CheckRaceState();
@@ -41,7 +42,7 @@ namespace SWE1R
         public void CheckRaceState()
         {
             //maybe rewrite/cleanup?
-            bool inRace = (racer.GetData(Racer.Addr.Static.InRace) > 0);
+            bool inRace = (racer.GetData(Addr.Static.InRace) > 0);
             btn_stateS.Enabled = inRace;
             no_stateSel.Enabled = (savestate_in_race.Count > 0);
             while (no_stateSel.Maximum <= savestate_in_race.Count)
@@ -51,15 +52,15 @@ namespace SWE1R
             string output;
             if (canWrite)
             {
-                Racer.Savestate savestate = savestate_in_race[(int)no_stateSel.Value - 1];
+                Savestate savestate = savestate_in_race[(int)no_stateSel.Value - 1];
                 byte[] podData = savestate.PodState;
-                txt_statePod.Text = Racer.Value.Vehicle.Name.TryGetValue(savestate.Vehicle, out output) != false ? output : "-";
-                txt_stateTrack.Text = Racer.Value.Track.Name.TryGetValue(savestate.Track, out output) != false ? output : "-";
-                txt_stateLapLocVal.Text = podData.Length == (int)Racer.Addr.PtrLen.PodState ? BitConverter.ToSingle(podData, (int)Racer.Addr.PodState.LapCompletion).ToString("0.0%") : "-";
-                txt_stateSpdVal.Text = podData.Length == (int)Racer.Addr.PtrLen.PodState ? BitConverter.ToSingle(podData, (int)Racer.Addr.PodState.Speed).ToString("0.0" +
-                    ((BitConverter.ToUInt32(podData, (int)Racer.Addr.PodState.Flags1) & (1 << 23)) != 0 ? "*" : "")):"-";
+                txt_statePod.Text = Value.Vehicle.Name.TryGetValue(savestate.Vehicle, out output) != false ? output : "-";
+                txt_stateTrack.Text = Value.Track.Name.TryGetValue(savestate.Track, out output) != false ? output : "-";
+                txt_stateLapLocVal.Text = podData.Length == (int)Addr.PtrLen.PodState ? BitConverter.ToSingle(podData, (int)Addr.PodState.LapCompletion).ToString("0.0%") : "-";
+                txt_stateSpdVal.Text = podData.Length == (int)Addr.PtrLen.PodState ? BitConverter.ToSingle(podData, (int)Addr.PodState.Speed).ToString("0.0" +
+                    ((BitConverter.ToUInt32(podData, (int)Addr.PodState.Flags1) & (1 << 23)) != 0 ? "*" : "")):"-";
                 if (inRace)
-                    btn_stateL.Enabled = (racer.GetData(Racer.Addr.Race.SelectedTrack) == savestate.Track && racer.GetData(Racer.Addr.Race.SelectedVehicle) == savestate.Vehicle);
+                    btn_stateL.Enabled = (racer.GetData(Addr.Race.SelectedTrack) == savestate.Track && racer.GetData(Addr.Race.SelectedVehicle) == savestate.Vehicle);
                 else
                     btn_stateL.Enabled = false;
             }

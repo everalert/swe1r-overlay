@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BBC1693F-1CED-4420-A5D0-85CE86C0C636}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>SWE1R</RootNamespace>
+    <RootNamespace>SWE1RPT</RootNamespace>
     <AssemblyName>SWE1R Practice Tool</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -140,7 +140,7 @@
     <Compile Include="Classes\Util.PMR.cs" />
     <Compile Include="Classes\Racer.Value.cs" />
     <Compile Include="Classes\Racer.Addr.cs" />
-    <Compile Include="Classes\Racer.cs" />
+    <Compile Include="Classes\Racer.Racer.cs" />
     <EmbeddedResource Include="Classes\Panel.resx">
       <DependentUpon>Panel.cs</DependentUpon>
     </EmbeddedResource>

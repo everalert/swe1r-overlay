@@ -9,14 +9,14 @@ using SpriteTextRenderer;
 using SlimDX.DXGI;
 using SlimDX.Windows;
 
-namespace SWE1R
+namespace SWE1RPT
 {
     public partial class ControlPanel : Form
     {
         // SETUP
 
         const string TARGET_PROCESS_TITLE = "Episode I Racer";
-        private Racer.Racer racer = new Racer.Racer();
+        private Racer racer = new Racer();
         private RenderForm overlay;
         public Input input;
 
@@ -198,7 +198,7 @@ namespace SWE1R
         private void SetRacer(Process target)
         {
             if (racer == null)
-                racer = new Racer.Racer();
+                racer = new Racer();
             if (racer.UpdateGame(target))
             {
                 CheckRaceState();
@@ -231,18 +231,18 @@ namespace SWE1R
 
         private void SetDebugMenu(bool enable)
         {
-            racer.WriteData(Racer.Addr.Static.DebugMenu, (uint)(enable ? 0x01 : 0x0));
-            racer.WriteData(Racer.Addr.Static.DebugMenuText, (uint)(enable ? 0x3F : 0x0));
-            racer.WriteData(Racer.Addr.Static.DebugLevel, (uint)(enable ? 0x06 : 0x0));
+            racer.WriteData(Addr.Static.DebugMenu, (uint)(enable ? 0x01 : 0x0));
+            racer.WriteData(Addr.Static.DebugMenuText, (uint)(enable ? 0x3F : 0x0));
+            racer.WriteData(Addr.Static.DebugLevel, (uint)(enable ? 0x06 : 0x0));
         }
         private void SetDebugTerrainLabels(bool enable)
         {
-            racer.WriteData(Racer.Addr.Static.DebugTerrainLabels, (uint)(enable ? 0x01 : 0x0));
+            racer.WriteData(Addr.Static.DebugTerrainLabels, (uint)(enable ? 0x01 : 0x0));
         }
 
         private void SetDebugInvincibility(bool enable)
         {
-            racer.WriteData(Racer.Addr.Static.DebugInvincibility, (uint)(enable ? 0x01 : 0x0));
+            racer.WriteData(Addr.Static.DebugInvincibility, (uint)(enable ? 0x01 : 0x0));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace SWE1R
+﻿namespace SWE1RPT
 {
     partial class ControlPanel
     {
