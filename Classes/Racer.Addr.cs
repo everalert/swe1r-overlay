@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SWE1R
-{
-    public partial class Racer
+namespace SWE1R.Racer
     {
         public struct Addr
         {
@@ -12,7 +10,7 @@ namespace SWE1R
                 - restructuring?
             */
 
-            public const DataType DefaultType = DataType.Single;
+            public const Core.DataType DefaultType = Core.DataType.Single;
             public const uint DefaultLength = 4;
             
             public enum BasePtr
@@ -38,14 +36,14 @@ namespace SWE1R
                 FogDistance = 0x2D4
             };
 
-            private static Dictionary<Rendering, DataType> TypesForRendering = new Dictionary<Rendering, DataType>
+            private static Dictionary<Rendering, Core.DataType> TypesForRendering = new Dictionary<Rendering, Core.DataType>
             {
-                { Rendering.CameraMode , DataType.UInt32 },
-                { Rendering.FogFlags , DataType.UInt32 },
-                { Rendering.FogColR , DataType.UInt32 },
-                { Rendering.FogColG , DataType.UInt32 },
-                { Rendering.FogColB , DataType.UInt32 },
-                { Rendering.FogDistance , DataType.Single },
+                { Rendering.CameraMode , Core.DataType.UInt32 },
+                { Rendering.FogFlags , Core.DataType.UInt32 },
+                { Rendering.FogColR , Core.DataType.UInt32 },
+                { Rendering.FogColG , Core.DataType.UInt32 },
+                { Rendering.FogColB , Core.DataType.UInt32 },
+                { Rendering.FogDistance , Core.DataType.Single },
             };
 
             private static Dictionary<Rendering, uint> LengthsForRendering = new Dictionary<Rendering, uint> { };
@@ -60,14 +58,14 @@ namespace SWE1R
                 SetWinnings = 0x91, //byte
             };
 
-            private static Dictionary<Race, DataType> TypesForRace = new Dictionary<Race, DataType>
+            private static Dictionary<Race, Core.DataType> TypesForRace = new Dictionary<Race, Core.DataType>
             {
-                { Race.SelectedTrack , DataType.Byte },
-                { Race.SelectedCircuit , DataType.Byte },
-                { Race.SetMirrored , DataType.Byte },
-                { Race.SelectedVehicle , DataType.Byte },
-                { Race.SetAiDifficulty , DataType.Byte },
-                { Race.SetWinnings , DataType.Byte },
+                { Race.SelectedTrack , Core.DataType.Byte },
+                { Race.SelectedCircuit , Core.DataType.Byte },
+                { Race.SetMirrored , Core.DataType.Byte },
+                { Race.SelectedVehicle , Core.DataType.Byte },
+                { Race.SetAiDifficulty , Core.DataType.Byte },
+                { Race.SetWinnings , Core.DataType.Byte },
             };
 
             private static Dictionary<Race, uint> LengthsForRace = new Dictionary<Race, uint> { };
@@ -104,14 +102,14 @@ namespace SWE1R
                 PtrPodState =       0x84
             };
 
-            private static Dictionary<Pod, DataType> TypesForPod = new Dictionary<Pod, DataType>
+            private static Dictionary<Pod, Core.DataType> TypesForPod = new Dictionary<Pod, Core.DataType>
             {
-                { Pod.Flags, DataType.UInt32 },
-                { Pod.PtrFile, DataType.UInt32 },
-                { Pod.PtrVehicle, DataType.UInt32 },
-                { Pod.Position, DataType.UInt16 }, //pretty sure, code writes 2 bytes
-                { Pod.Lap, DataType.Byte }, //i think?
-                { Pod.PtrPodState, DataType.UInt32 },
+                { Pod.Flags, Core.DataType.UInt32 },
+                { Pod.PtrFile, Core.DataType.UInt32 },
+                { Pod.PtrVehicle, Core.DataType.UInt32 },
+                { Pod.Position, Core.DataType.UInt16 }, //pretty sure, code writes 2 bytes
+                { Pod.Lap, Core.DataType.Byte }, //i think?
+                { Pod.PtrPodState, Core.DataType.UInt32 },
             };
 
             private static Dictionary<Pod, uint> LengthsForPod = new Dictionary<Pod, uint> { };
@@ -171,10 +169,10 @@ namespace SWE1R
                 FallTimer = 0x2C8
             };
 
-            private static Dictionary<PodState, DataType> TypesForPodState = new Dictionary<PodState, DataType>
+            private static Dictionary<PodState, Core.DataType> TypesForPodState = new Dictionary<PodState, Core.DataType>
             {
-                { PodState.Flags1, DataType.UInt32 },
-                { PodState.Flags2, DataType.UInt32 },
+                { PodState.Flags1, Core.DataType.UInt32 },
+                { PodState.Flags2, Core.DataType.UInt32 },
             };
 
             private static Dictionary<PodState, uint> LengthsForPodState = new Dictionary<PodState, uint>{};
@@ -213,22 +211,22 @@ namespace SWE1R
                 SaveFile01 = 0xA35A60
             };
 
-            private static Dictionary<Static, DataType> TypesForStatic = new Dictionary<Static, DataType>
+            private static Dictionary<Static, Core.DataType> TypesForStatic = new Dictionary<Static, Core.DataType>
             {
-                { Static.DebugLevel, DataType.UInt32 },
-                { Static.DebugMenu, DataType.UInt32 },
-                { Static.DebugMenuText, DataType.UInt32 },
-                { Static.DebugTerrainLabels, DataType.UInt32 },
-                { Static.DebugInvincibility, DataType.UInt32 },
-                { Static.SkipMainLoop, DataType.Byte},
-                { Static.FrameCount, DataType.UInt32 },
-                { Static.FrameTime, DataType.Double},
-                { Static.SceneId, DataType.UInt16},
-                { Static.InRace, DataType.Byte},
-                { Static.InTournamentMode, DataType.Byte},
-                { Static.PauseState, DataType.Byte},
-                { Static.Text01, DataType.String }, // known to repeat every 0x80 at least 52 times
-                { Static.SaveFile01, DataType.None }, // seems to repeat for 20 times
+                { Static.DebugLevel, Core.DataType.UInt32 },
+                { Static.DebugMenu, Core.DataType.UInt32 },
+                { Static.DebugMenuText, Core.DataType.UInt32 },
+                { Static.DebugTerrainLabels, Core.DataType.UInt32 },
+                { Static.DebugInvincibility, Core.DataType.UInt32 },
+                { Static.SkipMainLoop, Core.DataType.Byte},
+                { Static.FrameCount, Core.DataType.UInt32 },
+                { Static.FrameTime, Core.DataType.Double},
+                { Static.SceneId, Core.DataType.UInt16},
+                { Static.InRace, Core.DataType.Byte},
+                { Static.InTournamentMode, Core.DataType.Byte},
+                { Static.PauseState, Core.DataType.Byte},
+                { Static.Text01, Core.DataType.String }, // known to repeat every 0x80 at least 52 times
+                { Static.SaveFile01, Core.DataType.None }, // seems to repeat for 20 times
             };
 
             private static Dictionary<Static, uint> LengthsForStatic = new Dictionary<Static, uint>
@@ -240,23 +238,23 @@ namespace SWE1R
 
 
 
-            public static DataType GetType(Pod k)
+            public static Core.DataType GetType(Pod k)
             {
                 return TypesForPod.ContainsKey(k) ? TypesForPod[k] : DefaultType;
             }
-            public static DataType GetType(PodState k)
+            public static Core.DataType GetType(PodState k)
             {
                 return TypesForPodState.ContainsKey(k) ? TypesForPodState[k] : DefaultType;
             }
-            public static DataType GetType(Race k)
+            public static Core.DataType GetType(Race k)
             {
                 return TypesForRace.ContainsKey(k) ? TypesForRace[k] : DefaultType;
             }
-            public static DataType GetType(Rendering k)
+            public static Core.DataType GetType(Rendering k)
             {
                 return TypesForRendering.ContainsKey(k) ? TypesForRendering[k] : DefaultType;
             }
-            public static DataType GetType(Static k)
+            public static Core.DataType GetType(Static k)
             {
                 return TypesForStatic.ContainsKey(k) ? TypesForStatic[k] : DefaultType;
             }
@@ -264,23 +262,23 @@ namespace SWE1R
 
             public static uint GetLength(Pod k)
             {
-                return LengthsForPod.ContainsKey(k) ? LengthsForPod[k] : TypesForPod.ContainsKey(k) ? (DataTypeLength(TypesForPod[k]) > 0 ? DataTypeLength(TypesForPod[k]) : DefaultLength) : DataTypeLength(DefaultType);
+                return LengthsForPod.ContainsKey(k) ? LengthsForPod[k] : TypesForPod.ContainsKey(k) ? (Core.DataTypeLength(TypesForPod[k]) > 0 ? Core.DataTypeLength(TypesForPod[k]) : DefaultLength) : Core.DataTypeLength(DefaultType);
             }
             public static uint GetLength(PodState k)
             {
-                return LengthsForPodState.ContainsKey(k) ? LengthsForPodState[k] : TypesForPodState.ContainsKey(k) ? (DataTypeLength(TypesForPodState[k]) > 0 ? DataTypeLength(TypesForPodState[k]) : DefaultLength) : DataTypeLength(DefaultType);
+                return LengthsForPodState.ContainsKey(k) ? LengthsForPodState[k] : TypesForPodState.ContainsKey(k) ? (Core.DataTypeLength(TypesForPodState[k]) > 0 ? Core.DataTypeLength(TypesForPodState[k]) : DefaultLength) : Core.DataTypeLength(DefaultType);
             }
             public static uint GetLength(Race k)
             {
-                return LengthsForRace.ContainsKey(k) ? LengthsForRace[k] : TypesForRace.ContainsKey(k) ? (DataTypeLength(TypesForRace[k]) > 0 ? DataTypeLength(TypesForRace[k]) : DefaultLength) : DataTypeLength(DefaultType);
+                return LengthsForRace.ContainsKey(k) ? LengthsForRace[k] : TypesForRace.ContainsKey(k) ? (Core.DataTypeLength(TypesForRace[k]) > 0 ? Core.DataTypeLength(TypesForRace[k]) : DefaultLength) : Core.DataTypeLength(DefaultType);
             }
             public static uint GetLength(Rendering k)
             {
-                return LengthsForRendering.ContainsKey(k) ? LengthsForRendering[k] : TypesForRendering.ContainsKey(k) ? (DataTypeLength(TypesForRendering[k]) > 0 ? DataTypeLength(TypesForRendering[k]) : DefaultLength) : DataTypeLength(DefaultType);
+                return LengthsForRendering.ContainsKey(k) ? LengthsForRendering[k] : TypesForRendering.ContainsKey(k) ? (Core.DataTypeLength(TypesForRendering[k]) > 0 ? Core.DataTypeLength(TypesForRendering[k]) : DefaultLength) : Core.DataTypeLength(DefaultType);
             }
             public static uint GetLength(Static k)
             {
-                return LengthsForStatic.ContainsKey(k) ? LengthsForStatic[k] : TypesForStatic.ContainsKey(k) ? (DataTypeLength(TypesForStatic[k]) > 0 ? DataTypeLength(TypesForStatic[k]) : DefaultLength) : DataTypeLength(DefaultType);
+                return LengthsForStatic.ContainsKey(k) ? LengthsForStatic[k] : TypesForStatic.ContainsKey(k) ? (Core.DataTypeLength(TypesForStatic[k]) > 0 ? Core.DataTypeLength(TypesForStatic[k]) : DefaultLength) : Core.DataTypeLength(DefaultType);
             }
 
 
@@ -307,4 +305,3 @@ namespace SWE1R
             };
         }
     }
-}

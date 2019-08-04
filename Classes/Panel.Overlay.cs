@@ -1,4 +1,5 @@
 ﻿using SWE1R.Util;
+using SWE1R.Racer;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -319,89 +320,109 @@ namespace SWE1R
 
         // INRACE DATA HANDLER
 
-        private class InRaceData : Racer.TwoFrameDataCollection
+        private class InRaceData : TwoFrameDataCollection
         {
-            public bool IsBoosting(Racer r)
+            public bool IsBoosting(Racer.Racer r)
             {
                 return ((data.GetValue(r, Racer.Addr.PodState.Flags1) & (1 << 23)) != 0);
             }
 
-            public bool IsFinished(Racer r)
+            public bool IsFinished(Racer.Racer r)
             {
                 return ((data.GetValue(r, Racer.Addr.PodState.Flags2) & (1 << 25)) != 0);
             }
 
-            public bool JustDied(Racer r)
+            public bool JustDied(Racer.Racer r)
             {
-                int i = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Flags1, Racer.Addr.GetLength(Racer.Addr.PodState.Flags1));
+                int i = data_prev.ValueExists(DataCollection.DataBlock.Path.PodState, (uint)Addr.PodState.Flags1, Addr.GetLength(Addr.PodState.Flags1));
                 bool prev = (i < 0) ? false : (data_prev.GetValue(i) & (1 << 14)) != 0;
                 return (data.GetValue(r, Racer.Addr.PodState.Flags1) & (1 << 14)) != 0 && !prev;
             }
 
-            public Vector3 Location3D(Racer r)
+            public double FrameTime(Racer.Racer r)
             {
-                return new Vector3(data.GetValue(r, Racer.Addr.PodState.X), data.GetValue(r, Racer.Addr.PodState.Y), data.GetValue(r, Racer.Addr.PodState.Z));
+                return data.GetValue(r, Addr.Static.FrameTime);
             }
 
-            public double FrameDistance3D(Racer r)
+            public Vector3 Location3D(Racer.Racer r)
             {
-                int iX = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.X, Racer.Addr.GetLength(Racer.Addr.PodState.X));
-                int iY = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Y, Racer.Addr.GetLength(Racer.Addr.PodState.Y));
-                int iZ = data_prev.ValueExists(Racer.DataCollection.DataBlock.Path.PodState, (uint)Racer.Addr.PodState.Z, Racer.Addr.GetLength(Racer.Addr.PodState.Z));
-                Vector3 loc_old = (iX >= 0 && iY >= 0 && iZ >= 0) ? new Vector3(data_prev.GetValue(iX), data_prev.GetValue(iY), data_prev.GetValue(iZ)) : Location3D(r);
-                Vector3 loc_new = Location3D(r);
-                return Math.Sqrt(Math.Pow(loc_new.X - loc_old.X, 2) + Math.Pow(loc_new.Y - loc_old.Y, 2) + Math.Pow(loc_new.Z - loc_old.Z, 2));
+                return new Vector3(data.GetValue(r, Addr.PodState.X), data.GetValue(r, Addr.PodState.Y), data.GetValue(r, Addr.PodState.Z));
             }
 
-            public double FrameTime(Racer r)
+            public Vector3 PrevLocation3D(Racer.Racer r)
             {
-                return data.GetValue(r, Racer.Addr.Static.FrameTime);
+                return new Vector3(data_prev.GetValue(r, Addr.PodState.X), data_prev.GetValue(r, Addr.PodState.Y), data_prev.GetValue(r, Addr.PodState.Z));
             }
 
-            public double Speed3D(Racer r)
+            public float FrameDistance3D(Racer.Racer r)
             {
-                return FrameDistance3D(r) / FrameTime(r);
+                return Vector3.Distance(PrevLocation3D(r), Location3D(r));
             }
 
-            public float[] AllTimes(Racer r)
+            public float Speed3D(Racer.Racer r)
+            {
+                return FrameDistance3D(r) / (float)FrameTime(r);
+            }
+
+            public Vector2 Location2D(Racer.Racer r)
+            {
+                return new Vector2(data.GetValue(r, Addr.PodState.X), data.GetValue(r, Addr.PodState.Y));
+            }
+
+            public Vector2 PrevLocation2D(Racer.Racer r)
+            {
+                return new Vector2(data_prev.GetValue(r, Addr.PodState.X), data_prev.GetValue(r, Addr.PodState.Y));
+            }
+
+            public float FrameDistance2D(Racer.Racer r)
+            {
+                return Vector2.Distance(PrevLocation2D(r), Location2D(r));
+            }
+
+            public float Speed2D(Racer.Racer r)
+            {
+                return FrameDistance2D(r) / (float)FrameTime(r);
+            }
+
+            public float[] AllTimes(Racer.Racer r)
             {
                 return new float[6] { TimeLap1(r), TimeLap2(r), TimeLap3(r), TimeLap4(r), TimeLap5(r), TimeTotal(r) };
             }
-            public float TimeLap1(Racer r)
+            public float TimeLap1(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.Pod.TimeLap1);
             }
-            public float TimeLap2(Racer r)
+            public float TimeLap2(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.Pod.TimeLap2);
             }
-            public float TimeLap3(Racer r)
+            public float TimeLap3(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.Pod.TimeLap3);
             }
-            public float TimeLap4(Racer r)
+            public float TimeLap4(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.Pod.TimeLap4);
             }
-            public float TimeLap5(Racer r)
+            public float TimeLap5(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.Pod.TimeLap5);
             }
-            public float TimeTotal(Racer r)
+            public float TimeTotal(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.Pod.TimeTotal);
             }
 
 
-            public float Heat(Racer r)
+            public float Heat(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.PodState.Heat);
             }
-            public float HeatRate(Racer r)
+            public float HeatRate(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.PodState.StatHeatRate);
             }
-            public float CoolRate(Racer r)
+            public float CoolRate(Racer.Racer r)
             {
                 return data.GetValue(r, Racer.Addr.PodState.StatCoolRate);
             }
@@ -410,12 +431,12 @@ namespace SWE1R
 
         // VEHICLE SELECT DATA HANDLING
 
-        private class VehicleSelectData : Racer.TwoFrameDataCollection
+        private class VehicleSelectData : TwoFrameDataCollection
         {
-            public float[] AllStats(Racer r)
+            public float[] AllStats(Racer.Racer r)
             {
                 List<float> stats = new List<float>();
-                byte[] raw = data.GetValue(r, Racer.DataCollection.DataBlock.Path.Static, (uint)Racer.Addr.Static.StatAntiSkid, Racer.DataType.None, 0x3C);
+                byte[] raw = data.GetValue(r, DataCollection.DataBlock.Path.Static, (uint)Addr.Static.StatAntiSkid, Core.DataType.None, 0x3C);
                 for (var i = 0; i < raw.Length; i += 4)
                     stats.Add(BitConverter.ToSingle(raw, i));
                 return stats.ToArray();

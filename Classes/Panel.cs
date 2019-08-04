@@ -1,4 +1,5 @@
 ﻿using SWE1R.Util;
+using SWE1R.Racer;
 using System;
 using System.Drawing;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ namespace SWE1R
         // SETUP
 
         const string TARGET_PROCESS_TITLE = "Episode I Racer";
-        private Racer racer = new Racer();
+        private Racer.Racer racer = new Racer.Racer();
         private RenderForm overlay;
         public Input input;
 
@@ -24,12 +25,12 @@ namespace SWE1R
 
         private InRaceData data_in_race = new InRaceData();
         private VehicleSelectData data_vehicle_select = new VehicleSelectData();
-        private Racer.GameState game_state = new Racer.GameState();
+        private GameState game_state = new GameState();
 
         public ControlPanel()
         {
             InitializeComponent();
-            savestate_in_race = new List<Racer.Savestate>();
+            savestate_in_race = new List<Savestate>();
             Icon = new Icon("img\\icon.ico");
             cbx_processList.DisplayMember = "MainWindowTitle";
             cbx_processList.ValueMember = "Id";
@@ -84,7 +85,7 @@ namespace SWE1R
             }
             txt_debug += "   State:" + game_state.DeepState(racer).ToString();
 
-            if (game_state.State(racer) == Racer.GameState.Id.InRace)
+            if (game_state.State(racer) == GameState.Id.InRace)
                 race_replay.Update(racer);
 
             // rendering overlay
@@ -97,10 +98,10 @@ namespace SWE1R
             if (!overlay.Visible)
                 goto finalize_rendered_frame;
 
-            if (game_state.State(racer) == Racer.GameState.Id.InRace)
+            if (game_state.State(racer) == GameState.Id.InRace)
             {
                 //move this to be contained in InRaceData?
-                if (game_state.DeepState(racer) == Racer.GameState.Id.RaceStarting)
+                if (game_state.DeepState(racer) == GameState.Id.RaceStarting)
                 {
                     race_deaths = 0;
                     race_pod_dist_total = 0;
@@ -117,14 +118,14 @@ namespace SWE1R
                 OverlayRenderer.InRace.RenderTimes(this, data_in_race.AllTimes(racer));
                 OverlayRenderer.InRace.RenderMovementData(this, data_in_race.FrameDistance3D(racer), data_in_race.Speed3D(racer), race_pod_dist_total, data_in_race.TimeTotal(racer));
 
-                if (game_state.DeepState(racer) != Racer.GameState.Id.RaceEnded)
+                if (game_state.DeepState(racer) != GameState.Id.RaceEnded)
                 {
                     OverlayRenderer.InRace.RenderHeatTimers(this, data_in_race.Heat(racer), data_in_race.HeatRate(racer), data_in_race.CoolRate(racer), data_in_race.IsBoosting(racer));
                     OverlayRenderer.InRace.RenderEngineBar(this, data_in_race.Heat(racer), race_deaths);
                 }
             }
 
-            if (game_state.DeepState(racer) == Racer.GameState.Id.VehicleSelect)
+            if (game_state.DeepState(racer) == GameState.Id.VehicleSelect)
             {
                 data_vehicle_select.Update(racer);
                 OverlayRenderer.VehicleSelect.RenderMainStats(this, data_vehicle_select.AllStats(racer));
@@ -197,7 +198,7 @@ namespace SWE1R
         private void SetRacer(Process target)
         {
             if (racer == null)
-                racer = new Racer();
+                racer = new Racer.Racer();
             if (racer.UpdateGame(target))
             {
                 CheckRaceState();

@@ -2,9 +2,9 @@
 using System;
 using System.Diagnostics;
 
-namespace SWE1R
+namespace SWE1R.Racer
 {
-    public partial class Racer
+    public class Racer
     {
         //eventually, move this to its own Racer subclass with the view to treat SWE1R.Racer wholly as a namespace
 
@@ -35,7 +35,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Race datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Race, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
+            Core.DataType type = len > 0 ? Core.DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Race offset, dynamic data)
@@ -49,7 +49,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Pod datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Pod, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
+            Core.DataType type = len > 0 ? Core.DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Pod offset, dynamic data)
@@ -63,7 +63,7 @@ namespace SWE1R
         public dynamic GetData(Addr.PodState datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Pod, (uint)Addr.Pod.PtrPodState, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
+            Core.DataType type = len > 0 ? Core.DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.PodState offset, dynamic data)
@@ -77,7 +77,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Rendering datapoint, uint len = 0)
         {
             uint[] path = { (uint)Addr.BasePtr.Rendering, (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
+            Core.DataType type = len > 0 ? Core.DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Rendering offset, dynamic data)
@@ -91,7 +91,7 @@ namespace SWE1R
         public dynamic GetData(Addr.Static datapoint, uint len = 0)
         {
             uint[] path = { (uint)datapoint };
-            DataType type = len > 0 ? DataType.None : Addr.GetType(datapoint);
+            Core.DataType type = len > 0 ? Core.DataType.None : Addr.GetType(datapoint);
             return GetData(path, type, Math.Max(0, len));
         }
         public void WriteData(Addr.Static offset, dynamic data)
@@ -102,7 +102,7 @@ namespace SWE1R
 
         // GENERIC FUNCTIONS
 
-        private dynamic GetData(uint[] path, DataType type, uint len = 4)
+        private dynamic GetData(uint[] path, Core.DataType type, uint len = 4)
         {
             IntPtr addr;
             if (CheckGame())
@@ -111,19 +111,19 @@ namespace SWE1R
                 uint defLen = 4;
                 switch (type)
                 {
-                    case DataType.Byte:
+                    case Core.DataType.Byte:
                         return mem.ReadMemory(addr, 1, out bytesOut)[0];
-                    case DataType.UInt16:
+                    case Core.DataType.UInt16:
                         return BitConverter.ToUInt16(mem.ReadMemory(addr, 2, out bytesOut), 0);
-                    case DataType.UInt32:
+                    case Core.DataType.UInt32:
                         return BitConverter.ToUInt32(mem.ReadMemory(addr, 4, out bytesOut), 0);
-                    case DataType.UInt64:
+                    case Core.DataType.UInt64:
                         return BitConverter.ToUInt64(mem.ReadMemory(addr, 8, out bytesOut), 0);
-                    case DataType.Single:
+                    case Core.DataType.Single:
                         return BitConverter.ToSingle(mem.ReadMemory(addr, 4, out bytesOut), 0);
-                    case DataType.Double:
+                    case Core.DataType.Double:
                         return BitConverter.ToDouble(mem.ReadMemory(addr, 8, out bytesOut), 0);
-                    case DataType.String:
+                    case Core.DataType.String:
                         return BitConverter.ToString(mem.ReadMemory(addr, len > 0 ? len : defLen, out bytesOut), 0);
                     default:
                         return mem.ReadMemory(addr, len > 0 ? len : defLen, out bytesOut);
@@ -200,7 +200,10 @@ namespace SWE1R
             //implement checking later
             return true;
         }
+    }
 
+    public static class Core
+    {
         public enum DataType
         {
             //unsigned = no. of bits, signed = bits-1, fractional = bits+1
