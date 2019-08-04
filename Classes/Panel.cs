@@ -104,7 +104,8 @@ namespace SWE1RPT
                 if (game_state.DeepState(racer) == GameState.Id.RaceStarting)
                 {
                     race_deaths = 0;
-                    race_pod_dist_total = 0;
+                    race_pod_dist_total_3d = 0;
+                    race_pod_dist_total_2d = 0;
                 }
 
                 data_in_race.Update(racer);
@@ -113,10 +114,14 @@ namespace SWE1RPT
                     race_deaths++;
 
                 if (!data_in_race.IsFinished(racer) && data_in_race.TimeTotal(racer) > 0)
-                    race_pod_dist_total += data_in_race.FrameDistance3D(racer);
+                {
+                    race_pod_dist_total_3d += data_in_race.FrameDistance3D(racer);
+                    race_pod_dist_total_2d += data_in_race.FrameDistance3D(racer);
+                }
 
                 OverlayRenderer.InRace.RenderTimes(this, data_in_race.AllTimes(racer));
-                OverlayRenderer.InRace.RenderMovementData(this, data_in_race.FrameDistance3D(racer), data_in_race.Speed3D(racer), race_pod_dist_total, data_in_race.TimeTotal(racer));
+                //OverlayRenderer.InRace.RenderMovementData3D(this, data_in_race.FrameDistance3D(racer), data_in_race.Speed3D(racer), race_pod_dist_total_3d, data_in_race.TimeTotal(racer));
+                OverlayRenderer.InRace.RenderMovementData2D(this, data_in_race.FrameDistance2D(racer), data_in_race.Speed2D(racer), race_pod_dist_total_2d, data_in_race.TimeTotal(racer));
 
                 if (game_state.DeepState(racer) != GameState.Id.RaceEnded)
                 {

@@ -36,7 +36,7 @@ namespace SWE1RPT
         private bool opt_debug = false;
 
         // in race
-        private double race_pod_dist_total = 0d;
+        private float race_pod_dist_total_3d = 0f, race_pod_dist_total_2d = 0f;
         private uint race_deaths = 0;
 
         // dx11/rendering
@@ -482,9 +482,15 @@ namespace SWE1RPT
                     Render.DrawTextList(cp.WINDOW_SCALE, cp.ol_coords["txt_race_times"], labels, times, cp.ol_font["race_times"], cp.ol_color["txt_race_times"], TextAlignment.Left | TextAlignment.Top, "  ");
                 }
 
-                public static void RenderMovementData(ControlPanel cp, double distance3d, double speed3d, double distancetotal, float timetotal)
+                public static void RenderMovementData3D(ControlPanel cp, float distance, float speed, float distancetotal, float timetotal)
                 {
-                    string output = distance3d.ToString("00.000") + " ADU/f  " + speed3d.ToString("000.0") + " ADU/s  " + distancetotal.ToString("0.0") + " ADU/race   " + (distancetotal / timetotal).ToString("000.0") + " avg ADU/s  ";
+                    string output = "3D: "+distance.ToString("00.000") + " ADU/f  " + speed.ToString("000.0") + " ADU/s  " + distancetotal.ToString("0.0") + " ADU/race   " + (distancetotal / timetotal).ToString("000.0") + " avg ADU/s  ";
+                    Render.DrawText(cp.WINDOW_SCALE, cp.ol_coords["txt_debug2"], output, cp.ol_font["default"], cp.ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
+                }
+
+                public static void RenderMovementData2D(ControlPanel cp, float distance, float speed, float distancetotal, float timetotal)
+                {
+                    string output = "2D: " + distance.ToString("00.000") + " ADU/f  " + speed.ToString("000.0") + " ADU/s  " + distancetotal.ToString("0.0") + " ADU/race   " + (distancetotal / timetotal).ToString("000.0") + " avg ADU/s  ";
                     Render.DrawText(cp.WINDOW_SCALE, cp.ol_coords["txt_debug2"], output, cp.ol_font["default"], cp.ol_color["txt_debug"], TextAlignment.Right | TextAlignment.Bottom);
                 }
             }

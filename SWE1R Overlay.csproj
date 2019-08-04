@@ -57,7 +57,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>SWE1R.Program</StartupObject>
+    <StartupObject>SWE1RPT.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>566E52E5C5816EB3B76277AB4DEDC5A987CBBAD7</ManifestCertificateThumbprint>
